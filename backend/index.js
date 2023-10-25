@@ -1,5 +1,6 @@
 process.env["DEBUG"] = "calendar-api:server";
 
+const cookieParser = require('cookie-parser');
 const express = require("express");
 const morgan = require('morgan');
 const debug = require('debug')('calendar-api:server');
@@ -10,6 +11,7 @@ const endpoints = require("./api/endpoints");
 const calendarApi = express();
 
 calendarApi.use(express.json());
+calendarApi.use(cookieParser());
 calendarApi.use("/api", endpoints);
 calendarApi.use(morgan('combined'));
 
