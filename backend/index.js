@@ -16,7 +16,7 @@ calendarApi.use("/api", endpoints);
 calendarApi.use(morgan('combined'));
 
 const calendarApiServer = http.createServer({}, calendarApi);
-calendarApiServer.listen(3000);
+calendarApiServer.listen(8080);
 calendarApiServer.on('listening', onListening);
 calendarApiServer.on('error', onError);
 

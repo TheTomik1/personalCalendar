@@ -2,10 +2,13 @@ const router = require('express').Router();
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const secretKey = process.env.JWT_SECRET;
+
+router.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 async function openDatabase() {
   return await open({
@@ -22,7 +25,7 @@ router.post("/register", async(req, res) => {
         }
 
         const db = await openDatabase();
-        const findUser = await db.get('SELECT * FROM users WHERE username = ?', username);
+        const findUser = await db.get('SELECT * FROM users WHERE username = ? AND email = ?', username, email);
         if (findUser) {
             return res.status(400).send({ message: 'User already exists.' });
         }
