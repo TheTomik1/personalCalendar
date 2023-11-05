@@ -43,13 +43,13 @@ router.post("/register", async(req, res) => {
 
 router.post("/login", async(req, res) => {
     try {
-        const { username, password } = req.body;
-        if (!username || !password) {
+        const { email, password } = req.body;
+        if (!email || !password) {
             return res.status(400).send({ message: 'Invalid body.' });
         }
 
         const db = await openDatabase();
-        const user = await db.get('SELECT * FROM users WHERE username = ?', username);
+        const user = await db.get('SELECT * FROM users WHERE email = ?', email);
         if (!user) {
             return res.status(400).send({ message: 'User does not exist.' });
         }
