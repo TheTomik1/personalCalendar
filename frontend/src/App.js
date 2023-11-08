@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 
 import Navbar from "./components/Navbar";
 
-import Hone from "./pages/Home";
+import Home from "./pages/Home";
+import Calendar from "./pages/Calendar";
 
 import './styles.css';
 
@@ -12,7 +13,8 @@ function App() {
           <Navbar />
           <Router>
               <Routes>
-                  <Route path="/" element={<Hone />} />
+                  <Route path="/" element={<Home />} />
+                  <Route path="/my-calendar" element={<Calendar />} />
               </Routes>
           </Router>
       </div>

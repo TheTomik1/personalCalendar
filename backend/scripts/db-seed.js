@@ -1,12 +1,7 @@
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
-async function openDatabase() {
-    return await open({
-        filename: 'api/personalCalendar.db',
-        driver: sqlite3.Database,
-    });
-}
+const openDatabase = require('../api/functions/openDatabaseConnection');
 
 async function seed() {
     try {
