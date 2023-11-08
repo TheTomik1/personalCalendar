@@ -29,7 +29,7 @@ const LoginForm = ({ onClose }) => {
             const loginRequest = await axios.post('http://localhost:8080/api/login',{ email, password }, {withCredentials: true });
 
             if (loginRequest.status === 200) {
-                window.location.reload();
+                window.location.href = "/my-calendar";
             }
         } catch (error) {
             if (error.response && error.response.data && ["User does not exist.", "Invalid password."].includes(error.response.data.message)) {
@@ -54,7 +54,7 @@ const LoginForm = ({ onClose }) => {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 fixed-top">
-            <div className="bg-slate-700 p-8 rounded-lg shadow-lg w-96">
+            <div className="text-center bg-slate-700 p-8 rounded-lg shadow-lg w-96">
                 <h2 className="text-3xl text-white font-semibold mb-4">Login</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-6">

@@ -28,8 +28,7 @@ router.post("/register", async(req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertedUser = await db.run('INSERT INTO users (username, email, password) VALUES (?, ?, ?) RETURNING id', username, email, hashedPassword);
-        await db.run("INSERT INTO profilePictures(userId, image) VALUES (?, ?)", insertedUser.lastID, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")
+        const insertedUser = await db.run('INSERT INTO users (username, email, password, profilePicture) VALUES (?, ?, ?, ?) RETURNING id', username, email, hashedPassword, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
 
@@ -73,6 +72,16 @@ router.post("/logout", async(req, res) => {
         await res.status(200).send({ message: 'Logged out.' });
     } catch (e) {
         res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.get("/current-user", async(req, res) => {
+    if (req.cookies.auth) {
+        const userInformation = await getUserInformation(jwt.verify(req.cookies.auth, secretKey).id);
+
+        res.status(200).send({ userInformation });
+    } else {
+        res.status(401).send({ message: 'Unauthorized' });
     }
 });
 

@@ -49,7 +49,7 @@ const RegistrationForm = ({ onClose }) => {
             const registerRequest = await axios.post('http://localhost:8080/api/register', { username, email, password });
 
             if (registerRequest.status === 201) {
-                window.location.reload();
+                window.location.href = "/my-calendar";
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message === 'User already exists.') {
@@ -74,7 +74,7 @@ const RegistrationForm = ({ onClose }) => {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 fixed-top">
-            <div className="bg-slate-700 p-8 rounded-lg shadow-lg w-96">
+            <div className="text-center bg-slate-700 p-8 rounded-lg shadow-lg w-96">
                 <h2 className="text-3xl text-white font-semibold mb-4">Registration</h2>
                 <p className="text-white mb-4">Let's get you going. Your new calendar is waiting for you.</p>
                 <form onSubmit={handleSubmit}>

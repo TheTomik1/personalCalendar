@@ -14,17 +14,9 @@ async function seed() {
                 email  VARCHAR(255),
                 password  VARCHAR(255) UNIQUE,
                 created_at  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (created_at),
+                profilePicture  TEXT,
                 isBanned  TINYINT(1) DEFAULT 0,
                 isAdmin  TINYINT(1) DEFAULT 0
-            );
-        `);
-
-        await db.exec(`
-            CREATE TABLE IF NOT EXISTS profilePictures
-            (
-                id  INT PRIMARY KEY,
-                userId INT,
-                image  VARCHAR(255)
             );
         `);
 

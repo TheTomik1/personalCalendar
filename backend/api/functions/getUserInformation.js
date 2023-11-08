@@ -3,7 +3,7 @@ const openDatabase = require('../functions/openDatabaseConnection');
 async function getUserInformation(userId){
     const db = await openDatabase();
 
-    const user = await db.get('SELECT username, email, created_at, isBanned, isAdmin FROM users WHERE id = ?', userId);
+    const user = await db.get('SELECT username, email, created_at, profilePicture, isBanned, isAdmin FROM users WHERE id = ?', userId);
     if (!user) {
         return null;
     }
