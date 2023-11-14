@@ -102,4 +102,64 @@ router.get("/get-calendar", async(req, res) => {
     }
 });
 
+router.post("/add-event", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
+        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+
+        const currentDateTime = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+        const { title, description, type, details, location, start, end } = req.body;
+
+        if (!title || !type || !start || !end) {
+            return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        if ([ 'event', 'reminder', 'task', 'meeting' ].indexOf(type.toLowerCase()) === -1) {
+            return res.status(400).send({ message: 'Invalid event type.' });
+        }
+
+        if (start > end) {
+            return res.status(400).send({ message: 'Start date cannot be after end date.' });
+        }
+
+        if (start < currentDateTime) {
+            return res.status(400).send({ message: 'Start date cannot be before current date.' });
+        }
+
+        if (end < currentDateTime) {
+            return res.status(400).send({ message: 'End date cannot be before current date.' });
+        }
+
+        await db.run("INSERT INTO calendar_events(calendar_id, datetime_start, datetime_end, type, name, description, details, location) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, location);
+
+        res.status(200).send({ message: 'Event added.' });
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.get("/get-events", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
+        const events = await db.all("SELECT * FROM calendar_events WHERE calendar_id = ?", verifyAuthToken.id);
+
+        res.status(200).send({ events });
+    } catch (e) {
+        res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
 module.exports = router;

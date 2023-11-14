@@ -30,6 +30,22 @@ async function seed() {
             );
         `);
 
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS calendar_events 
+            (
+                id INTEGER NOT NULL PRIMARY KEY,
+                calendar_id INTEGER NOT NULL,
+                datetime_start INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                datetime_end INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                type TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                details TEXT,
+                location TEXT,
+                FOREIGN KEY (calendar_id) REFERENCES calendars(calendar_id)                                          
+            );
+        `);
+
         await db.close();
         console.log('Database seeded.');
     } catch (e) {
