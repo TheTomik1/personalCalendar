@@ -28,7 +28,7 @@ const LoginForm = ({ onClose }) => {
         try {
             const loginRequest = await axios.post('http://localhost:8080/api/login',{ email, password }, {withCredentials: true });
 
-            if (loginRequest.status === 200) {
+            if (loginRequest.status === 201) {
                 window.location.href = "/my-calendar";
             }
         } catch (error) {
