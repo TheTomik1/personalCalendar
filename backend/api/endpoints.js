@@ -1,13 +1,12 @@
 const router = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: __dirname + '/.env' });
 
-const openDatabase = require('./functions/openDatabaseConnection');
+const openDatabase = require('../openDatabaseConnection');
 const getUserInformation = require('./functions/getUserInformation');
 
 const secretKey = process.env.JWT_SECRET;
@@ -35,7 +34,7 @@ router.post("/register", async(req, res) => {
         await db.close();
         await res.status(201).send({ message: 'User created.' });
     } catch (e) {
-        res.status(500).send({ message: 'Internal server error.' });
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
@@ -59,19 +58,19 @@ router.post("/login", async(req, res) => {
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
         await res.cookie('auth', token, { httpOnly: true, maxAge: 604800000 });
-        await res.status(200).send({ message: 'User logged in.' });
+        await res.status(201).send({ message: 'User logged in.' });
         await db.close();
     } catch (e) {
-        res.status(500).send({ message: 'Internal server error.' });
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
 router.post("/logout", async(req, res) => {
     try {
         await res.clearCookie('auth');
-        await res.status(200).send({ message: 'Logged out.' });
+        await res.status(201).send({ message: 'Logged out.' });
     } catch (e) {
-        res.status(500).send({ message: 'Internal server error.' });
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
@@ -79,9 +78,9 @@ router.get("/current-user", async(req, res) => {
     if (req.cookies.auth) {
         const userInformation = await getUserInformation(jwt.verify(req.cookies.auth, secretKey).id);
 
-        res.status(200).send({ userInformation });
+        await res.status(200).send({ userInformation });
     } else {
-        res.status(401).send({ message: 'Unauthorized' });
+        await res.status(401).send({ message: 'Unauthorized' });
     }
 });
 
@@ -96,9 +95,9 @@ router.get("/get-calendar", async(req, res) => {
         let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
         const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
 
-        res.status(200).send({ calendar });
+        await res.status(200).send({ calendar });
     } catch (e) {
-        res.status(500).send({ message: 'Internal server error.' });
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
@@ -136,12 +135,11 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'End date cannot be before current date.' });
         }
 
-        await db.run("INSERT INTO calendar_events(calendar_id, datetime_start, datetime_end, type, name, description, details, location) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, location);
+        await db.run("INSERT INTO calendar_events(calendarId, datetime_start, datetime_end, type, name, description, details, location) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, location);
 
-        res.status(200).send({ message: 'Event added.' });
+        await res.status(200).send({ message: 'Event added.' });
     } catch (e) {
-        console.log(e)
-        res.status(500).send({ message: 'Internal server error.' });
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 

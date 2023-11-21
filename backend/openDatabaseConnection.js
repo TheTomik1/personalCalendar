@@ -3,7 +3,7 @@ const sqlite3 = require("sqlite3");
 
 async function openDatabase() {
     return await open({
-        filename: 'api/personalCalendar.db',
+        filename: 'personalCalendar.db',
         driver: sqlite3.Database,
     });
 }
