@@ -1,4 +1,7 @@
+process.env["DEBUG"] = "db-seed";
+
 const sqlite3 = require('sqlite3');
+const debug = require('debug')('db-seed');
 const { open } = require('sqlite');
 
 const openDatabase = require('../openDatabaseConnection');
@@ -47,9 +50,9 @@ async function seed() {
         `);
 
         await db.close();
-        console.log('Database seeded.');
+        debug('Database seeded.');
     } catch (e) {
-        console.log(`Error seeding database: ${e}`);
+        debug(`Error seeding database: ${e}`);
     }
 }
 
