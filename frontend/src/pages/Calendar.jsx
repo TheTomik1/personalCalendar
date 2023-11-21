@@ -4,8 +4,6 @@ import axios from 'axios';
 
 const Calendar = () => {
     /*
-        TODO: Add option for adding new calendar(s).
-        TODO: Show calendars in cards if there are more of them. This includes option to delete calendar.
         TODO: If the user has one calendar, show the name of the calendar.
         TODO: If the user has more than one calendar, show the name of the calendar and add option to change the calendar.
         TODO: Add option for adding new event(s).
@@ -21,17 +19,18 @@ const Calendar = () => {
      */
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [calendarData, setCalendarData] = useState(null);
+    const [calendars, setCalendars] = useState([]);
+    const [selectedCalendar, setSelectedCalendar] = useState(null);
     const [eventsData, setEventData] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const fetchCalendar = await axios.get("http://localhost:8080/api/get-calendar", { withCredentials: true });
+                const fetchCalendar = await axios.get("http://localhost:8080/api/get-calendars", { withCredentials: true });
 
                 if (fetchCalendar.status === 200) {
-                    setCalendarData(fetchCalendar.data.calendar);
+                    setCalendars(fetchCalendar.data.calendars);
                 } else {
                     setError("Calendar not found.");
                 }
@@ -83,7 +82,7 @@ const Calendar = () => {
 
             const eventsForDay = eventsData ? eventsData.filter(event => {
                 const eventDate = new Date(event.datetimeStart);
-                return eventDate.getDate() === day.getDate() && eventDate.getMonth() === day.getMonth() && eventDate.getFullYear() === day.getFullYear();
+                return eventDate.getDate() === day.getDate() && eventDate.getMonth() === day.getMonth() && eventDate.getFullYear() === day.getFullYear() && event.calendarId === selectedCalendar.id;
             }) : [];
 
             daysInMonth.push({ date: day, events: eventsForDay });
@@ -94,33 +93,67 @@ const Calendar = () => {
 
     return (
         <div className="text-center bg-gradient-to-b from-zinc-900 to-zinc-700">
-            <div className="container mx-auto">
-                <div className={"flex justify-start"}>
-                    <button className="bg-green-700 hover:bg-green-500 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12">Add new event!</button>
-                </div>
-
-                <div className="flex justify-between items-center mb-12">
-                    <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={prevMonth}>Prev Month</button>
-                    <h2 className="text-5xl font-bold text-white">{format(currentMonth, 'MMMM yyyy')}</h2>
-                    <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={nextMonth}>Next Month</button>
-                </div>
-
-                <div className="grid grid-cols-7 gap-2">
-                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
-                        <div key={index} className="p-2 text-center text-white font-bold">{dayName}</div>
-                    ))}
-                    {getDaysAndEvents(currentMonth).map(({ date, events }) => (
-                        <div key={date.toISOString()} className={`p-2 text-center m-12 ${date.getMonth() !== currentMonth.getMonth() ? 'text-gray-500' : 'text-white'}`}>
-                            <div>{format(date, 'd')}</div>
-                            <div>
-                                {events && events.map((event, index) => (
-                                    <div key={index} className="text-sm mt-1 text-white bg-green-500 p-1 rounded">
-                                        {event.name} - {format(new Date(event.datetimeStart), 'HH:mm')}
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="container mx-auto ">
+                    {calendars.length > 1 && !selectedCalendar ? (
+                        <>
+                            <div className="flex justify-start">
+                                <a className="bg-green-500 hover:bg-green-600 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12 cursor-pointer">Create new calendar</a>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                                {calendars.map((calendar, index) => (
+                                    <div key={index} className="bg-gradient-to-b from-zinc-700 to-zinc-800 p-4 rounded-lg shadow-lg">
+                                        <img
+                                            src={"https://assets-global.website-files.com/62196607bf1b46c300301846/62604576fc20f55acea94bac_Google%20Calendar%20Productivity%20Hacks.png"}
+                                            alt={"Calendar"}
+                                            className={"w-full h-auto rounded-lg shadow-lg"}
+                                        />
+                                        <h2 className="text-4xl font-cubano text-emerald-600 mt-4 mb-12">{calendar.guid}</h2>
+                                        <div className={"flex justify-center space-x-4"}>
+                                            <a className={"p-2 text-white text-2xl bg-blue-500 rounded hover:bg-blue-600 cursor-pointer"} onClick={() => setSelectedCalendar(calendar)}>View</a>
+                                            <a className={"p-2 text-white text-2xl bg-red-500 rounded hover:bg-red-600 cursor-pointer"}>Delete</a>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    ))}
+                        </>
+                    ) : (
+                        <>
+                            <div className={"flex justify-start space-x-4"}>
+                                <a className="bg-green-500 hover:bg-green-600 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12 cursor-pointer">Add new event</a>
+                                {calendars.length > 1 ? (
+                                    <a className="bg-blue-500 hover:bg-blue-600 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12 cursor-pointer" onClick={() => setSelectedCalendar(null)}>My other calendars</a>
+                                ) : (
+                                    <a className="bg-blue-500 hover:bg-blue-600 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12 cursor-pointer">Create new calendar</a>
+                                )}
+                            </div>
+
+                            <div className="flex justify-between items-center mb-12">
+                                <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={prevMonth}>Prev Month</button>
+                                <h2 className="text-5xl font-bold text-white">{format(currentMonth, 'MMMM yyyy')}</h2>
+                                <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={nextMonth}>Next Month</button>
+                            </div>
+
+                            <div className="grid grid-cols-7 gap-2">
+                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
+                                    <div key={index} className="p-2 text-center text-white font-bold">{dayName}</div>
+                                ))}
+                                {getDaysAndEvents(currentMonth).map(({ date, events }) => (
+                                    <div key={date.toISOString()} className={`p-2 text-center m-12 ${date.getMonth() !== currentMonth.getMonth() ? 'text-gray-500' : 'text-white'}`}>
+                                        <div>{format(date, 'd')}</div>
+                                        <div>
+                                            {events && events.map((event, index) => (
+                                                <div key={index} className="text-sm mt-1 text-white bg-green-500 p-1 rounded">
+                                                    {event.name} - {format(new Date(event.datetimeStart), 'HH:mm')}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <a className="bg-red-500 hover:bg-red-600 w-64 text-white font-bold py-2 px-4 rounded inline-block mt-5 mb-12 cursor-pointer">Delete this calendar!</a>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
