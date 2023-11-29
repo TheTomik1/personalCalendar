@@ -84,7 +84,7 @@ router.get("/current-user", async(req, res) => {
     }
 });
 
-router.get("/get-calendars", async(req, res) => {
+router.get("/get-calendar", async(req, res) => {
     try {
         const db = await openDatabase();
 
@@ -93,7 +93,7 @@ router.get("/get-calendars", async(req, res) => {
         }
 
         let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const calendars = await db.all("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+        const calendars = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
 
         await res.status(200).send({ calendars });
     } catch (e) {
