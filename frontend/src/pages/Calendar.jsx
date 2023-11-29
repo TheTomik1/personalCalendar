@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { format, addMonths, subMonths, startOfWeek, addDays } from 'date-fns';
+import {format, addMonths, subMonths, addDays, eachMonthOfInterval, getDaysInMonth} from 'date-fns';
 import axios from 'axios';
 
 import { FaCalendarPlus } from "react-icons/fa6";
+import {FaAngleLeft, FaAngleRight} from "react-icons/fa";
 
 const Calendar = () => {
     /*
@@ -18,9 +19,10 @@ const Calendar = () => {
         TODO: Add option to delete event(s). (backend too)
      */
 
-    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState(new Date());
     const [calendarData, setCalendarData] = useState(null);
     const [eventsData, setEventData] = useState(null);
+    const [viewType, setViewType] = useState("month");
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -63,66 +65,92 @@ const Calendar = () => {
         fetchData();
     }, []);
 
-    const nextMonth = () => {
-        setCurrentMonth(addMonths(currentMonth, 1));
-    };
-
-    const prevMonth = () => {
-        setCurrentMonth(subMonths(currentMonth, 1));
-    };
-
-    const getDaysAndEvents = (date) => {
-        const daysInMonth = [];
-        const startOfMonth = startOfWeek(new Date(date.getFullYear(), date.getMonth(), 1), { weekStartsOn: 1 });
-        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-        for (let i = startOfMonth; i <= endOfMonth; i = addDays(i, 1)) {
-            const day = new Date(i);
-
-            const eventsForDay = eventsData ? eventsData.filter(event => {
-                const eventDate = new Date(event.datetimeStart);
-                return eventDate.getDate() === day.getDate() && eventDate.getMonth() === day.getMonth() && eventDate.getFullYear() === day.getFullYear();
-            }) : [];
-
-            daysInMonth.push({ date: day, events: eventsForDay });
+    const next = () => {
+        if (viewType === 'day') {
+            setCurrentDate(addDays(currentDate, 1));
         }
+        if (viewType === 'week') {
+            setCurrentDate(addDays(currentDate, 7));
+        }
+        else if (viewType === 'month') {
+            setCurrentDate(addMonths(currentDate, 1));
+        }
+        else if (viewType === 'year') {
+            setCurrentDate(addMonths(currentDate, 12));
+        }
+    }
 
-        return daysInMonth;
+    const prev = () => {
+        if (viewType === 'day') {
+            setCurrentDate(addDays(currentDate, -1));
+        }
+        else if (viewType === 'week') {
+            setCurrentDate(addDays(currentDate, -7));
+        }
+        else if (viewType === 'month') {
+            setCurrentDate(subMonths(currentDate, 1));
+        }
+        else if (viewType === 'year') {
+            setCurrentDate(subMonths(currentDate, 12));
+        }
+    };
+
+    const getWeekTitle = (date) => {
+    };
+
+    const changeView = (type) => {
+        setViewType(type);
+    };
+
+    const DailyCalendar = () => {
+        return (
+            <div className="text-white font-bold text-xl">
+                {Array.from({ length: 24 }).map((_, index) => {
+                    const hour = index.toString().padStart(2, '0') + ":00";
+
+                    return (
+                        <div key={index} className={"m-6"}>
+                            <div className="relative flex py-5 items-center">
+                                <div className="flex-grow border-t border-gray-400"></div>
+                                <span className="flex-shrink mx-4 text-gray-400">{hour}</span>
+                                <div className="flex-grow border-t border-gray-400"></div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
     };
 
     return (
-        <div className="text-center bg-gradient-to-b from-zinc-900 to-zinc-700">
+        <div className="text-center bg-zinc-900">
             <div className="flex justify-center items-center min-h-screen">
-                <div className="container mx-auto ">
+                <div className="container mx-auto">
                     <div className={"flex justify-start space-x-4"}>
                         <a className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer">
                             New <FaCalendarPlus className={"ml-1"}/>
                         </a>
+                        <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
+                            <option value="day">Day</option>
+                            <option value="week">Week</option>
+                            <option value="month">Month</option>
+                            <option value="year">Year</option>
+                        </select>
                     </div>
-
-                    <div className="flex justify-between items-center mb-12">
-                        <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={prevMonth}>Prev Month</button>
-                        <h2 className="text-5xl font-bold text-white">{format(currentMonth, 'MMMM yyyy')}</h2>
-                        <button className="text-blue-500 font-bold p-2 rounded-xl bg-gray-200 focus:outline-none" onClick={nextMonth}>Next Month</button>
+                    <div className="flex mb-12">
+                        <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={prev}><FaAngleLeft /></button>
+                        <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={next}><FaAngleRight /></button>
+                        <h2 className="text-3xl font-bold text-white pl-12">
+                            {
+                                format(currentDate, viewType === 'month' ? 'MMMM yyyy' : viewType === 'week' ? getWeekTitle(currentDate) : viewType === 'day' ? 'MMMM dd, yyyy' : 'yyyy')
+                            }
+                        </h2>
                     </div>
-
-                    <div className="grid grid-cols-7 gap-2">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
-                            <div key={index} className="p-2 text-center text-white font-bold">{dayName}</div>
-                        ))}
-                        {getDaysAndEvents(currentMonth).map(({ date, events }) => (
-                            <div key={date.toISOString()} className={`p-2 text-center m-12 ${date.getMonth() !== currentMonth.getMonth() ? 'text-gray-500' : 'text-white'}`}>
-                                <div>{format(date, 'd')}</div>
-                                <div>
-                                    {events && events.map((event, index) => (
-                                        <div key={index} className="text-sm mt-1 text-white bg-green-500 p-1 rounded">
-                                            {event.name} - {format(new Date(event.datetimeStart), 'HH:mm')}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    {
+                        viewType === "day" && (
+                            DailyCalendar()
+                        )
+                    }
                 </div>
             </div>
         </div>
