@@ -1,8 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import {format, addMonths, subMonths, addDays, eachMonthOfInterval, getDaysInMonth} from 'date-fns';
+import React, {useEffect, useState} from 'react';
+import {
+    addDays,
+    addMonths,
+    eachDayOfInterval,
+    eachWeekOfInterval,
+    endOfMonth,
+    endOfWeek,
+    format, isSameMonth, isToday,
+    startOfMonth,
+    startOfWeek,
+    subMonths
+} from 'date-fns';
 import axios from 'axios';
 
-import { FaCalendarPlus } from "react-icons/fa6";
+import {FaCalendarPlus} from "react-icons/fa6";
 import {FaAngleLeft, FaAngleRight} from "react-icons/fa";
 
 const Calendar = () => {
@@ -95,30 +106,101 @@ const Calendar = () => {
         }
     };
 
-    const getWeekTitle = (date) => {
-    };
-
     const changeView = (type) => {
         setViewType(type);
     };
 
     const DailyCalendar = () => {
+        const currentHour = new Date().getHours();
+
         return (
             <div className="text-white font-bold text-xl">
                 {Array.from({ length: 24 }).map((_, index) => {
                     const hour = index.toString().padStart(2, '0') + ":00";
+                    const isCurrentHour = index === currentHour;
 
                     return (
-                        <div key={index} className={"m-6"}>
+                        <div key={index} className={`m-6`}>
                             <div className="relative flex py-5 items-center">
-                                <div className="flex-grow border-t border-gray-400"></div>
-                                <span className="flex-shrink mx-4 text-gray-400">{hour}</span>
-                                <div className="flex-grow border-t border-gray-400"></div>
+                                <div className={`flex-grow border-t ${isCurrentHour ? 'border-blue-700' : 'border-gray-400'}`}></div>
+                                <span className={`flex-shrink mx-4 text-gray-400 ${isCurrentHour ? 'text-blue-700' : ''}`}>{hour}</span>
+                                <div className={`flex-grow border-t ${isCurrentHour ? 'border-blue-700' : 'border-gray-400'}`}></div>
                             </div>
                         </div>
                     );
                 })}
             </div>
+        );
+    };
+
+    const WeeklyCalendar = () => {
+
+    };
+
+    const weekFormat = () => {
+        const startOfWeekDate = startOfWeek(currentDate);
+        const endOfWeekDate = endOfWeek(currentDate);
+        const startOfMonthDate = startOfMonth(currentDate);
+        const endOfMonthDate = endOfMonth(currentDate);
+
+        if (startOfWeekDate < startOfMonthDate || endOfWeekDate > endOfMonthDate) {
+            return `${format(startOfWeekDate, 'MMMM yyyy')} - ${format(endOfWeekDate, 'MMMM yyyy')}`;
+        } else {
+            return `${format(endOfWeekDate, 'MMMM yyyy')}`;
+        }
+    };
+
+    const MonthlyCalendar = (date) => {
+        const handleWheel = (e) => {
+            const isMouseOverTable = e.currentTarget === e.target;
+
+            if (!isMouseOverTable) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    prev();
+                } else {
+                    next();
+                }
+            } else {
+                e.preventDefault();
+            }
+        };
+
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(monthStart);
+        const monthWeeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
+        const daysInMonthByWeek = monthWeeks.map((weekStart) => {
+            return eachDayOfInterval({
+                start: startOfWeek(weekStart, { weekStartsOn: 1 }),
+                end: addDays(weekStart, 6) }
+            ).map((day) => ({
+                date: day,
+                isCurrentMonth: isSameMonth(day, monthStart),
+                isToday: isToday(day)})
+            );
+        });
+
+        return (
+            <table className="table-fixed w-full">
+                <thead>
+                <tr className="text-white font-bold text-xl">
+                    {daysInMonthByWeek[0].map((day) => (
+                        <th key={day.date} className={`border p-8 border-gray-500`}>{format(day.date, 'EEEE')}</th>
+                    ))}
+                </tr>
+                </thead>
+                <tbody>
+                {daysInMonthByWeek.map((week, weekIndex) => (
+                    <tr key={weekIndex}>
+                        {week.map((day) => (
+                            <td key={day.date} className="border p-12 border-gray-500">
+                                <p className={`text-xl text-white ${!day.isCurrentMonth ? 'text-gray-700' : ''} ${day.isToday ? 'bg-blue-500 rounded-xl ml-10 mr-10' : ''}`}>{format(day.date, 'dd')}</p>
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+                </tbody>
+            </table>
         );
     };
 
@@ -142,13 +224,26 @@ const Calendar = () => {
                         <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={next}><FaAngleRight /></button>
                         <h2 className="text-3xl font-bold text-white pl-12">
                             {
-                                format(currentDate, viewType === 'month' ? 'MMMM yyyy' : viewType === 'week' ? getWeekTitle(currentDate) : viewType === 'day' ? 'MMMM dd, yyyy' : 'yyyy')
+                                viewType === 'month' ? format(currentDate, 'MMMM yyyy') :
+                                viewType === 'week' ? weekFormat() :
+                                viewType === 'day' ? format(currentDate, 'MMMM dd, yyyy') :
+                                format(currentDate, 'yyyy')
                             }
                         </h2>
                     </div>
                     {
                         viewType === "day" && (
                             DailyCalendar()
+                        )
+                    }
+                    {
+                        viewType === "week" && (
+                            WeeklyCalendar()
+                        )
+                    }
+                    {
+                        viewType === "month" && (
+                            MonthlyCalendar(currentDate)
                         )
                     }
                 </div>
