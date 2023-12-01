@@ -252,25 +252,31 @@ const Calendar = () => {
                             </div>
                             {Object.values(dayInfo).length !== 0 && (
                                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
-                                    <div className="bg-zinc-400 rounded-xl p-4">
-                                        <h1 className={"text-2xl mb-2"}>{dayInfo.readableDay}</h1>
-                                        <h2 className={`text-3xl font-medium mb-2 ${dayInfo.isToday ? "bg-blue-700 rounded-xl text-white p-2" : ""}`}>{dayInfo.day} {dayInfo.readableMonth}</h2>
-                                        <div className={"text-left text-sm text-white"}>
-                                            {
+                                    <div className="bg-zinc-600 rounded-xl p-4">
+                                        <h1 className={"text-2xl text-white mb-2"}>{dayInfo.readableDay}</h1>
+                                        <h2 className={`text-3xl text-white font-medium mb-2 ${dayInfo.isToday ? "bg-blue-700 rounded-xl text-white p-2" : ""}`}>{dayInfo.day} {dayInfo.readableMonth}</h2>
+                                        <div className={"text-sm text-white"}>
+                                            {eventsData.filter((event) => {
+                                                const eventDate = new Date(event.datetimeStart);
+                                                return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
+                                            }).length === 0 ? (
+                                                <p className={"text-lg"}>No events for today.</p>
+                                            ) : (
                                                 eventsData.filter((event) => {
                                                     const eventDate = new Date(event.datetimeStart);
                                                     return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
                                                 }).map((event) => (
-                                                    <p key={event.id} className={"bg-emerald-600 rounded-xl p-2 mb-2"}>
+                                                    <p key={event.id} className={"text-left bg-emerald-600 rounded-xl p-2 mb-2"}>
                                                         • {event.datetimeStart.split("T")[1]} {event.name}
                                                     </p>
                                                 ))
-                                            }
+                                            )}
                                         </div>
                                         <button className="text-white bg-red-600 px-4 py-2 rounded-lg mt-4 hover:bg-red-500 transition" onClick={() => setDayInfo({})}>Close</button>
                                     </div>
                                 </div>
                             )}
+
                         </>
                     );
                 })}
