@@ -19,12 +19,8 @@ import {FaAngleLeft, FaAngleRight} from "react-icons/fa";
 const Calendar = () => {
     /*
         TODO: Add option for adding new event(s).
-        TODO: Events in the calendar should be clickable and show the event details.
         TODO: Events in the calendar can have custom colors.
         TODO: Improve responsiveness of the calendar if there are a lot of events for the day, show only the first 2 events and add option to show more. (This might be needed to overhaul completely)
-        TODO: Refresh the calendar when changing the month.
-        TODO: Do not let user go to this component if he is not logged in.
-        TODO: Hover effect for all the days in the calendar.
         TODO: Events must not overlap to other days. (backend)
         TODO: Add option to edit event(s). (backend too)
         TODO: Add option to delete event(s). (backend too)
@@ -34,6 +30,7 @@ const Calendar = () => {
     const [calendarData, setCalendarData] = useState(null);
     const [eventsData, setEventData] = useState(null);
     const [viewType, setViewType] = useState("month");
+    const [dayInfo, setDayInfo] = useState({});
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -218,43 +215,59 @@ const Calendar = () => {
                     const daysInMonth = getDaysInMonth(new Date(year, month - 1, 1));
 
                     return (
-                        <div key={month} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4">
-                            <div className="p-4 rounded-lg">
-                                <h2 className="text-3xl text-white font-semibold mb-2">
-                                    {format(startOfMonth(new Date(year, month - 1)), 'MMMM')}
-                                </h2>
+                        <>
+                            <div key={month} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4">
+                                <div className="p-4 rounded-lg">
+                                    <h2 className="text-3xl text-white font-semibold mb-2">
+                                        {format(startOfMonth(new Date(year, month - 1)), 'MMMM')}
+                                    </h2>
 
-                                <div className="grid grid-cols-7 gap-2">
-                                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                                        <div key={day} className="text-sm font-semibold text-gray-200">
-                                            {day}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="grid grid-cols-7 gap-2">
-                                    {Array.from({ length: firstDayOfMonth }, (_, index) => {
-                                        const prevMonth = addMonths(new Date(year, month - 1), 1);
-                                        const prevMonthDays = getDaysInMonth(prevMonth);
-
-                                        return (
-                                            <div key={index} className="text-center text-gray-400 py-2 cursor-pointer">
-                                                {prevMonthDays - firstDayOfMonth + index + 1}
-                                            </div>
-                                        );
-                                    })}
-                                    {Array.from({ length: daysInMonth }, (_, index) => {
-                                        const day = index + 1;
-                                        const isToday = year === today.getFullYear() && month - 1 === today.getMonth() && day === today.getDate();
-                                        return (
-                                            <div key={index + 7} className={`text-center text-white py-2 rounded-xl cursor-pointer ${isToday ? 'bg-blue-700' : 'hover:bg-gray-500'}`}>
+                                    <div className="grid grid-cols-7 gap-2">
+                                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                                            <div key={day} className="text-sm font-semibold text-gray-200">
                                                 {day}
                                             </div>
-                                        );
-                                    })}
+                                        ))}
+                                    </div>
+
+                                    <div className="grid grid-cols-7 gap-2">
+                                        {Array.from({ length: firstDayOfMonth }, (_, index) => {
+                                            const prevMonth = addMonths(new Date(year, month - 1), 1);
+                                            const prevMonthDays = getDaysInMonth(prevMonth);
+
+                                            return (
+                                                <div key={index} className="text-center text-gray-400 py-2 cursor-pointer">
+                                                    {prevMonthDays - firstDayOfMonth + index + 1}
+                                                </div>
+                                            );
+                                        })}
+                                        {Array.from({ length: daysInMonth }, (_, index) => {
+                                            const day = index + 1;
+                                            const isToday = year === today.getFullYear() && month - 1 === today.getMonth() && day === today.getDate();
+
+                                            const readableDay = format(new Date(year, month - 1, day), 'EEEE');
+                                            const readableMonth = format(new Date(year, month - 1, day), 'MMMM');
+
+                                            return (
+                                                <div key={index + 7} className={`text-center text-white py-2 rounded-xl cursor-pointer ${isToday ? 'bg-blue-700' : 'hover:bg-gray-500'}`} onClick={() => setDayInfo({day, readableDay, readableMonth})}>
+                                                    {day}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            {dayInfo && (
+                                <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+                                    <div className="bg-zinc-400 rounded-xl p-4">
+                                        <h1 className={"text-2xl mb-2"}>{dayInfo.readableDay}</h1>
+                                        <h2 className="text-3xl font-medium mb-2">{dayInfo.day} {dayInfo.readableMonth}</h2>
+                                        <p className={"text-lg font-normal"}>There are no events scheduled for this day.</p>
+                                        <button className="text-white bg-red-600 px-4 py-2 rounded-lg mt-4 hover:bg-red-500 transition" onClick={() => setDayInfo(null)}>Close</button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     );
                 })}
             </div>
