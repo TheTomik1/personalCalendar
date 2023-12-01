@@ -1,16 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-    addDays,
-    addMonths,
-    eachDayOfInterval,
-    eachWeekOfInterval,
-    endOfMonth,
-    endOfWeek,
-    format, getDay, getDaysInMonth, isSameMonth, isToday,
-    startOfMonth,
-    startOfWeek,
-    subMonths
-} from 'date-fns';
+import { addDays, addMonths, eachDayOfInterval, eachWeekOfInterval, endOfMonth, endOfWeek, format, getDay, getDaysInMonth, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
 
 import {FaCalendarPlus} from "react-icons/fa6";
@@ -244,12 +233,16 @@ const Calendar = () => {
                                         {Array.from({ length: daysInMonth }, (_, index) => {
                                             const day = index + 1;
                                             const isToday = year === today.getFullYear() && month - 1 === today.getMonth() && day === today.getDate();
+                                            const hasEvent = eventsData?.filter((event) => {
+                                                const eventDate = new Date(event.datetimeStart);
+                                                return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === day;
+                                            }).length > 0;
 
                                             const readableDay = format(new Date(year, month - 1, day), 'EEEE');
                                             const readableMonth = format(new Date(year, month - 1, day), 'MMMM');
 
                                             return (
-                                                <div key={index + 7} className={`text-center text-white py-2 rounded-xl cursor-pointer ${isToday ? 'bg-blue-700' : 'hover:bg-gray-500'}`} onClick={() => setDayInfo({day, readableDay, readableMonth})}>
+                                                <div key={index + 7} className={`text-center text-white py-2 rounded-xl cursor-pointer ${isToday ? 'bg-blue-700 hover:bg-blue-600 transition' : ''} ${hasEvent ? 'bg-blue-500 hover:bg-blue-400 transition': 'hover:bg-gray-500 transition'}`} onClick={() => setDayInfo({day, readableDay, readableMonth, isToday})}>
                                                     {day}
                                                 </div>
                                             );
@@ -257,13 +250,24 @@ const Calendar = () => {
                                     </div>
                                 </div>
                             </div>
-                            {dayInfo && (
+                            {Object.values(dayInfo).length !== 0 && (
                                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
                                     <div className="bg-zinc-400 rounded-xl p-4">
                                         <h1 className={"text-2xl mb-2"}>{dayInfo.readableDay}</h1>
-                                        <h2 className="text-3xl font-medium mb-2">{dayInfo.day} {dayInfo.readableMonth}</h2>
-                                        <p className={"text-lg font-normal"}>There are no events scheduled for this day.</p>
-                                        <button className="text-white bg-red-600 px-4 py-2 rounded-lg mt-4 hover:bg-red-500 transition" onClick={() => setDayInfo(null)}>Close</button>
+                                        <h2 className={`text-3xl font-medium mb-2 ${dayInfo.isToday ? "bg-blue-700 rounded-xl text-white p-2" : ""}`}>{dayInfo.day} {dayInfo.readableMonth}</h2>
+                                        <div className={"text-left text-sm text-white"}>
+                                            {
+                                                eventsData.filter((event) => {
+                                                    const eventDate = new Date(event.datetimeStart);
+                                                    return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
+                                                }).map((event) => (
+                                                    <p key={event.id} className={"bg-emerald-600 rounded-xl p-2 mb-2"}>
+                                                        • {event.datetimeStart.split("T")[1]} {event.name}
+                                                    </p>
+                                                ))
+                                            }
+                                        </div>
+                                        <button className="text-white bg-red-600 px-4 py-2 rounded-lg mt-4 hover:bg-red-500 transition" onClick={() => setDayInfo({})}>Close</button>
                                     </div>
                                 </div>
                             )}

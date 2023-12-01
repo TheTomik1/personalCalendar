@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const { open } = require('sqlite');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -119,8 +118,12 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Invalid body.' });
         }
 
-        if ([ 'event', 'reminder', 'task', 'meeting' ].indexOf(type.toLowerCase()) === -1) {
+        if (['event', 'reminder', 'task', 'meeting'].indexOf(type.toLowerCase()) === -1) {
             return res.status(400).send({ message: 'Invalid event type.' });
+        }
+
+        if (start.split("T")[0] !== end.split("T")[0]) {
+            return res.status(400).send({ message: 'Event must be within the same day.' });
         }
 
         if (start < currentDateTime) {
