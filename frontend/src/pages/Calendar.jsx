@@ -240,7 +240,13 @@ const Calendar = () => {
                                             const readableMonth = format(new Date(year, month - 1, day), 'MMMM');
 
                                             return (
-                                                <div key={index + 7} className={`text-center text-white py-2 rounded-xl cursor-pointer ${isToday ? 'bg-blue-700 hover:bg-blue-600 transition' : ''} ${hasEvent ? 'bg-blue-500 hover:bg-blue-400 transition': 'hover:bg-gray-500 transition'}`} onClick={() => setDayInfo({day, readableDay, readableMonth, isToday})}>
+                                                <div
+                                                    key={index + 7}
+                                                    className={`text-center text-white py-2 rounded-xl cursor-pointer 
+                                                    ${isToday ? 'bg-blue-700 hover:bg-blue-600 transition' : ''} 
+                                                    ${hasEvent ? 'bg-blue-500 hover:bg-blue-400 transition' : ''} 
+                                                    ${getDay(new Date(year, month - 1, day)) === 0 ? 'text-red-600' : ''}`}
+                                                    onClick={() => setDayInfo({day, readableDay, readableMonth, isToday})}>
                                                     {day}
                                                 </div>
                                             );
@@ -290,7 +296,7 @@ const Calendar = () => {
                         <a className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer">
                             New <FaCalendarPlus className={"ml-1"}/>
                         </a>
-                        <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
+                        <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-700 bg-zinc-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
                             <option value="day">Day</option>
                             <option value="week">Week</option>
                             <option value="month">Month</option>
