@@ -2,15 +2,13 @@ import React, {useEffect, useState} from 'react';
 import { addDays, addMonths, eachDayOfInterval, eachWeekOfInterval, endOfMonth, endOfWeek, format, getDay, getDaysInMonth, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
 
-import {FaCalendarPlus} from "react-icons/fa6";
-import {FaAngleLeft, FaAngleRight} from "react-icons/fa";
+import { FaCalendarPlus } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 const Calendar = () => {
     /*
         TODO: Add option for adding new event(s).
         TODO: Events in the calendar can have custom colors.
-        TODO: Improve responsiveness of the calendar if there are a lot of events for the day, show only the first 2 events and add option to show more. (This might be needed to overhaul completely)
-        TODO: Events must not overlap to other days. (backend)
         TODO: Add option to edit event(s). (backend too)
         TODO: Add option to delete event(s). (backend too)
      */
@@ -252,7 +250,7 @@ const Calendar = () => {
                             </div>
                             {Object.values(dayInfo).length !== 0 && (
                                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
-                                    <div className="bg-zinc-600 rounded-xl p-4">
+                                    <div className="bg-zinc-800 rounded-xl p-4">
                                         <h1 className={"text-2xl text-white mb-2"}>{dayInfo.readableDay}</h1>
                                         <h2 className={`text-3xl text-white font-medium mb-2 ${dayInfo.isToday ? "bg-blue-700 rounded-xl text-white p-2" : ""}`}>{dayInfo.day} {dayInfo.readableMonth}</h2>
                                         <div className={"text-sm text-white"}>
@@ -266,7 +264,7 @@ const Calendar = () => {
                                                     const eventDate = new Date(event.datetimeStart);
                                                     return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
                                                 }).map((event) => (
-                                                    <p key={event.id} className={"text-left bg-emerald-600 rounded-xl p-2 mb-2"}>
+                                                    <p key={event.id} className={"text-left bg-emerald-600 rounded-xl p-2 mb-2 cursor-pointer"}>
                                                         • {event.datetimeStart.split("T")[1]} {event.name}
                                                     </p>
                                                 ))
