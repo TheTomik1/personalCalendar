@@ -90,6 +90,21 @@ const Calendar = () => {
         }
     };
 
+    const handleWheel = (e) => {
+        const isMouseOverTable = e.currentTarget === e.target;
+
+        if (!isMouseOverTable) {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                prev();
+            } else {
+                next();
+            }
+        } else {
+            e.preventDefault();
+        }
+    };
+
     const changeView = (type) => {
         setViewType(type);
     };
@@ -135,56 +150,63 @@ const Calendar = () => {
     };
 
     const MonthlyCalendar = (date) => {
-        const handleWheel = (e) => {
-            const isMouseOverTable = e.currentTarget === e.target;
-
-            if (!isMouseOverTable) {
-                e.preventDefault();
-                if (e.deltaY > 0) {
-                    prev();
-                } else {
-                    next();
-                }
-            } else {
-                e.preventDefault();
-            }
-        };
-
         const monthStart = startOfMonth(date);
         const monthEnd = endOfMonth(monthStart);
         const monthWeeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
         const daysInMonthByWeek = monthWeeks.map((weekStart) => {
             return eachDayOfInterval({
                 start: startOfWeek(weekStart, { weekStartsOn: 1 }),
-                end: addDays(weekStart, 6) }
-            ).map((day) => ({
+                end: addDays(weekStart, 6)
+            }).map((day) => ({
                 date: day,
                 isCurrentMonth: isSameMonth(day, monthStart),
-                isToday: isToday(day)})
-            );
+                isToday: isToday(day),
+                hasEvent: eventsData?.filter((event) => {
+                    const eventDate = new Date(event.datetimeStart);
+                    return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
+                }).length > 0,
+            }));
         });
 
         return (
-            <table className="table-fixed w-full">
-                <thead>
-                <tr className="text-white font-bold text-xl">
-                    {daysInMonthByWeek[0].map((day) => (
-                        <th key={day.date} className={`border p-8 border-gray-500`}>{format(day.date, 'EEEE')}</th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {daysInMonthByWeek.map((week, weekIndex) => (
-                    <tr key={weekIndex}>
-                        {week.map((day) => (
-                            <td key={day.date} className="border p-12 border-gray-500">
-                                <p className={`text-xl text-white ${!day.isCurrentMonth ? 'text-gray-700' : ''} ${day.isToday ? 'bg-blue-500 rounded-xl ml-10 mr-10' : ''}`}>{format(day.date, 'dd')}</p>
-                            </td>
+            <div className="table w-full">
+                <div className="table-header-group">
+                    <div className="table-row">
+                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
+                            <div key={index} className="table-cell text-center text-white text-xl font-bold p-2">
+                                {dayName}
+                            </div>
                         ))}
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                    </div>
+                </div>
+                <div className="table-row-group">
+                    {daysInMonthByWeek.map((week, weekIndex) => (
+                        <div key={weekIndex} className="table-row">
+                            {week.map((day, dayIndex) => (
+                                <div key={dayIndex} className="table-cell h-36 text-center">
+                                    <span className={`block ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`}>
+                                        {day.isToday ? (
+                                            <span className="relative inline-block">
+                                                <p className="bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
+                                                    {day.date.getDate()}
+                                                </p>
+                                            </span>
+                                        ) : day.hasEvent ? (
+                                            <span className="relative inline-block">
+                                                <p className="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-400 transition">
+                                                    {day.date.getDate()}
+                                                </p>
+                                            </span>
+                                        ) : (
+                                            <p>{day.date.getDate()}</p>
+                                        )}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
         );
     };
 
@@ -293,9 +315,9 @@ const Calendar = () => {
             <div className="flex justify-center items-center min-h-screen">
                 <div className="container mx-auto">
                     <div className={"flex justify-start space-x-4"}>
-                        <a className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer">
+                        <button className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer">
                             New <FaCalendarPlus className={"ml-1"}/>
-                        </a>
+                        </button>
                         <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-700 bg-zinc-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
                             <option value="day">Day</option>
                             <option value="week">Week</option>
