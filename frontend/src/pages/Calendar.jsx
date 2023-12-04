@@ -5,6 +5,8 @@ import axios from 'axios';
 import { FaCalendarPlus } from "react-icons/fa6";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
+import DayInfoModal from "../components/DayInfoModal";
+
 const Calendar = () => {
     /*
         TODO: Add option for adding new event(s).
@@ -100,8 +102,6 @@ const Calendar = () => {
             } else {
                 next();
             }
-        } else {
-            e.preventDefault();
         }
     };
 
@@ -161,10 +161,10 @@ const Calendar = () => {
                 date: day,
                 isCurrentMonth: isSameMonth(day, monthStart),
                 isToday: isToday(day),
-                hasEvent: eventsData?.filter((event) => {
+                events: eventsData?.filter((event) => {
                     const eventDate = new Date(event.datetimeStart);
                     return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
-                }).length > 0,
+                })
             }));
         });
 
@@ -184,14 +184,14 @@ const Calendar = () => {
                         <div key={weekIndex} className="table-row">
                             {week.map((day, dayIndex) => (
                                 <div key={dayIndex} className="table-cell h-36 text-center">
-                                    <span className={`block ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`}>
+                                    <span className={`block ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`} onClick={() => setDayInfo(day)}>
                                         {day.isToday ? (
                                             <span className="relative inline-block">
                                                 <p className="bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
                                                     {day.date.getDate()}
                                                 </p>
                                             </span>
-                                        ) : day.hasEvent ? (
+                                        ) : day.events && day.events.length > 0 ? (
                                             <span className="relative inline-block">
                                                 <p className="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-400 transition">
                                                     {day.date.getDate()}
@@ -206,6 +206,11 @@ const Calendar = () => {
                         </div>
                     ))}
                 </div>
+                {Object.values(dayInfo).length !== 0 && (
+                    <DayInfoModal
+                        day={dayInfo}
+                    />
+                )}
             </div>
         );
     };
@@ -302,7 +307,6 @@ const Calendar = () => {
                                     </div>
                                 </div>
                             )}
-
                         </>
                     );
                 })}
