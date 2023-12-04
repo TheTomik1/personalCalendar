@@ -6,6 +6,7 @@ import { FaCalendarPlus } from "react-icons/fa6";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 import DayInfoModal from "../components/DayInfoModal";
+import AddNewEventModal from '../components/AddNewEventModal';
 
 const Calendar = () => {
     /*
@@ -20,6 +21,7 @@ const Calendar = () => {
     const [eventsData, setEventData] = useState(null);
     const [viewType, setViewType] = useState("month");
     const [dayInfo, setDayInfo] = useState({});
+    const [newEventModal, setNewEventModal] = useState({});
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -319,7 +321,7 @@ const Calendar = () => {
             <div className="flex justify-center items-center min-h-screen">
                 <div className="container mx-auto">
                     <div className={"flex justify-start space-x-4"}>
-                        <button className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer">
+                        <button className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer" onClick={() => setNewEventModal(true)}>
                             New <FaCalendarPlus className={"ml-1"}/>
                         </button>
                         <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-700 bg-zinc-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
@@ -359,6 +361,11 @@ const Calendar = () => {
                     {
                         viewType === "year" && (
                             YearlyCalendar(currentDate)
+                        )
+                    }
+                    {
+                        newEventModal === true && (
+                            AddNewEventModal(setNewEventModal(false))
                         )
                     }
                 </div>
