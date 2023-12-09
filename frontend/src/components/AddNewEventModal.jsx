@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 
+import ColorPicker from "./ColorPicker";
+
 import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import { AiFillDelete } from "react-icons/ai";
@@ -19,9 +21,11 @@ const PostEvent = async (title, description, location, color, date, start, end, 
         end: `${date} ${end}`,
         type: eventType
     }, {withCredentials: true}).then((res) => {
-
+        if (res.status === 201) {
+            window.location.reload();
+        }
     }).catch((err) => {
-
+        console.log(err);
     })
 }
 
@@ -52,13 +56,13 @@ const AddNewEventModal = ({ onClose }) => {
     const [addLocationFocused, setAddLocationFocused] = useState(false);
     const [eventType, setEventType] = useState('event');
 
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('');
+    const [title, setTitle] = useState('No title.');
+    const [description, setDescription] = useState('No description.');
+    const [location, setLocation] = useState('No location.');
     const [start, setStart] = useState('');
     const [end, setEnd] = useState('');
     const [date, setDate] = useState(new Date());
-    const [color, setColor] = useState('#000000');
+    const [color, setColor] = useState('blue');
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
@@ -70,7 +74,7 @@ const AddNewEventModal = ({ onClose }) => {
                     <input
                          type="text"
                          placeholder="Add title."
-                         className={`bg-zinc-800 px-4 py-2 text-3xl focus:outline-none ${addTitleFocused ? 'focus:text-white border-blue-600 transition ease-in-out duration-300' : 'border-gray-300 transition ease-in-out duration-300'} border-b-2`}
+                         className={`bg-zinc-800 px-4 py-2 text-3xl text-white focus:outline-none ${addTitleFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'border-gray-300 transition ease-in-out duration-300'} border-b-2`}
                          onFocus={() => setAddTitleFocused(true)}
                          onBlur={() => setAddTitleFocused(false)}
                          onChange={(e) => setTitle(e.target.value)}
@@ -102,7 +106,7 @@ const AddNewEventModal = ({ onClose }) => {
                             <input
                                  type="text"
                                  placeholder="Add description."
-                                 className={`bg-zinc-800 px-4 py-2 text-xl focus:outline-none ${addDescriptionFocused ? 'focus:text-white border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 border-none bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                                 className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addDescriptionFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                  onFocus={() => setAddDescriptionFocused(true)}
                                  onBlur={() => setAddDescriptionFocused(false)}
                                  onChange={(e) => setDescription(e.target.value)}
@@ -114,7 +118,7 @@ const AddNewEventModal = ({ onClose }) => {
                             <input
                                 type="text"
                                 placeholder="Add location."
-                                className={`bg-zinc-800 px-4 py-2 text-xl focus:outline-none ${addLocationFocused ? 'focus:text-white border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 border-none bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                                className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                 onFocus={() => setAddLocationFocused(true)}
                                 onBlur={() => setAddLocationFocused(false)}
                                 onChange={(e) => setLocation(e.target.value)}
@@ -124,29 +128,11 @@ const AddNewEventModal = ({ onClose }) => {
                         <div className="flex-grow border-t border-gray-400 mt-5"></div>
                         <h1 className="text-gray-300 text-xl mt-4">Color</h1>
                         <div className="flex justify-center items-center">
-                            <TwitterPicker
-                                triangle="hide"
-                                color={color}
-                                onChangeComplete={(color) => setColor(color.hex)}
-                                colors={tailwindClassNames.map((className) => tailwindColorsObject[className.split('-')[0]])}
-                                styles={{
-                                    default: {
-                                        card: {
-                                            boxShadow: "none",
-                                            backgroundColor: "transparent"
-                                        },
-                                        input: {
-                                            border: "none",
-                                            boxShadow: "none",
-                                            height: "1.9rem"
-                                        },
-                                    }
-                                }}
-                            />
+                            <ColorPicker onColorChange={(color) => setColor(color)}/>
                         </div>
                     </div>
                 </form>
-                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, Object.keys(tailwindColorsObject).find((key) => tailwindColorsObject[key] === color), format(date, "yyyy-MM-dd"), "15:00", "20:00", eventType)}>Add</button>
+                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), "20:00:10", "23:00:10", eventType)}>Add</button>
             </div>
         </div>
     )
