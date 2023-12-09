@@ -163,6 +163,10 @@ const Calendar = () => {
                 date: day,
                 isCurrentMonth: isSameMonth(day, monthStart),
                 isToday: isToday(day),
+                color: eventsData?.filter((event) => {
+                    const eventDate = new Date(event.datetimeStart);
+                    return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
+                })[0]?.color,
                 events: eventsData?.filter((event) => {
                     const eventDate = new Date(event.datetimeStart);
                     return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
@@ -195,7 +199,7 @@ const Calendar = () => {
                                             </span>
                                         ) : day.events && day.events.length > 0 ? (
                                             <span className="relative inline-block">
-                                                <p className="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-400 transition">
+                                                <p className={`bg-${day.color}-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-${day.color}-400 transition`}>
                                                     {day.date.getDate()}
                                                 </p>
                                             </span>
@@ -365,7 +369,7 @@ const Calendar = () => {
                     }
                     {
                         newEventModal === true && (
-                            AddNewEventModal(setNewEventModal(false))
+                            <AddNewEventModal onClose={() => setNewEventModal(false)} />
                         )
                     }
                 </div>

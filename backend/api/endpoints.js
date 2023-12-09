@@ -112,9 +112,9 @@ router.post("/add-event", async(req, res) => {
         const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
 
         const currentDateTime = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
-        const { title, description, type, details, location, start, end } = req.body;
+        const { title, description, type, details, color, location, start, end } = req.body;
 
-        if (!title || !type || !start || !end) {
+        if (!title || !type || !start || !end || !color) {
             return res.status(400).send({ message: 'Invalid body.' });
         }
 
@@ -122,7 +122,7 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Invalid event type.' });
         }
 
-        if (start.split("T")[0] !== end.split("T")[0]) {
+        if (start.split(" ")[0] !== end.split(" ")[0]) {
             return res.status(400).send({ message: 'Event must be within the same day.' });
         }
 
@@ -134,9 +134,9 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Start date cannot be after end date.' });
         }
 
-        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, details, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, location);
+        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, details, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, color, location);
 
-        await res.status(200).send({ message: 'Event added.' });
+        await res.status(201).send({ message: 'Event added.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
