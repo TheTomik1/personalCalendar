@@ -1,21 +1,22 @@
 import React, {useState} from "react";
-
+import axios from "axios";
 import { TwitterPicker } from "react-color";
-import Datepicker from "react-tailwindcss-datepicker";
+import { format } from "date-fns";
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 
 import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import { AiFillDelete } from "react-icons/ai";
-import axios from "axios";
 
-const PostEvent = async (title, description, location, color, start, end, eventType) => {
+const PostEvent = async (title, description, location, color, date, start, end, eventType) => {
     await axios.post("http://localhost:8080/api/add-event", {
         title: title,
         description: description,
         location: location,
         color: color,
-        start: start,
-        end: end,
+        start: `${date} ${start}`,
+        end: `${date} ${end}`,
         type: eventType
     }, {withCredentials: true}).then((res) => {
 
@@ -54,6 +55,9 @@ const AddNewEventModal = ({ onClose }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
+    const [start, setStart] = useState('');
+    const [end, setEnd] = useState('');
+    const [date, setDate] = useState(new Date());
     const [color, setColor] = useState('#000000');
 
     return (
@@ -71,10 +75,27 @@ const AddNewEventModal = ({ onClose }) => {
                          onBlur={() => setAddTitleFocused(false)}
                          onChange={(e) => setTitle(e.target.value)}
                     />
-                    <div className="flex flex-row space-x-2 p-4 mb-4">
+
+                    <div className="flex flex-row space-x-2 p-4">
                         <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "event" ? "text-blue-400 bg-blue-700 bg-opacity-50": "hover:bg-zinc-700"}`} onClick={() => setEventType("event")}>Event</p>
                         <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "task" ? "text-blue-400 bg-blue-700 bg-opacity-50": "hover:bg-zinc-700"}`} onClick={() => setEventType("task")}>Task</p>
                     </div>
+
+                    <div className="flex justify-center items-center">
+                        <DayPicker
+                            onDayClick={(date) => setDate(date)}
+                            selected={date}
+                            className="bg-zinc-800 text-white"
+                            showOutsideDays
+                            ISOWeek
+                            footer={
+                            <div className="flex justify-between items-center text-black">
+
+                            </div>
+                            }
+                        />
+                    </div>
+
                     <div className="flex flex-col justify-start">
                         <div className="flex items-center mb-4">
                             <FaLocationPin className="text-gray-300 text-2xl" />
@@ -125,7 +146,7 @@ const AddNewEventModal = ({ onClose }) => {
                         </div>
                     </div>
                 </form>
-                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, Object.keys(tailwindColorsObject).find((key) => tailwindColorsObject[key] === color), "2023-12-13 14:00", "2023-12-13 15:00", eventType)}>Add</button>
+                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, Object.keys(tailwindColorsObject).find((key) => tailwindColorsObject[key] === color), format(date, "yyyy-MM-dd"), "15:00", "20:00", eventType)}>Add</button>
             </div>
         </div>
     )
