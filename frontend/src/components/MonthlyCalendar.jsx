@@ -1,6 +1,6 @@
 import { addDays, eachDayOfInterval, eachWeekOfInterval, endOfMonth, isSameMonth, isToday, startOfMonth, startOfWeek } from "date-fns";
 import DayInfoModal from "./DayInfoModal";
-import React from "react";
+import React, {useState} from "react";
 
 const findDayEvents = (day, eventsData) => {
     return eventsData?.filter((event) => {
@@ -25,6 +25,12 @@ const MonthlyCalendar = ({ date, eventsData }) => {
         }));
     });
 
+    const [dayInfoModal, setDayInfoModal] = useState("");
+
+    const handleDayClick = (day) => {
+        setDayInfoModal(day);
+    }
+
     return (
         <div className="table w-full">
             <div className="table-header-group">
@@ -41,7 +47,7 @@ const MonthlyCalendar = ({ date, eventsData }) => {
                     <div key={weekIndex} className="table-row">
                         {week.map((day, dayIndex) => (
                             <div key={dayIndex} className="table-cell h-36 text-center">
-                                <span className={`block cursor-pointer ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`}>
+                                <span className={`block cursor-pointer ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`} onClick={() => handleDayClick(day)}>
                                     {day.isToday ? (
                                         <span className="relative inline-block">
                                             <p className="bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
@@ -62,6 +68,7 @@ const MonthlyCalendar = ({ date, eventsData }) => {
                         ))}
                     </div>
                 ))}
+                {dayInfoModal && <DayInfoModal day={dayInfoModal} eventsData={eventsData} onClose={() => setDayInfoModal("")} />}
             </div>
         </div>
     );

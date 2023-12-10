@@ -126,7 +126,7 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Event must be within the same day.' });
         }
 
-        if (start < currentDateTime) {
+        if (start < currentDateTime.split(" ")[0]) {
             return res.status(400).send({ message: 'Start date cannot be before current date.' });
         }
 
@@ -151,7 +151,7 @@ router.get("/get-events", async(req, res) => {
         }
 
         let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const events = await db.all("SELECT * FROM calendarEvents WHERE calendarId = ?", verifyAuthToken.id);
+        const events = await db.all("SELECT * FROM calendarEvents WHERE calendarId = ? ORDER BY datetimeStart", verifyAuthToken.id);
 
         res.status(200).send({ events });
     } catch (e) {
