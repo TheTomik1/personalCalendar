@@ -8,6 +8,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import DayInfoModal from "../components/DayInfoModal";
 import MonthlyCalendar from "../components/MonthlyCalendar";
 import AddNewEventModal from '../components/AddNewEventModal';
+import YearlyCalendar from "../components/YearlyCalendar";
 
 const Calendar = () => {
     /*
@@ -152,105 +153,6 @@ const Calendar = () => {
         }
     };
 
-    const YearlyCalendar = (date) => {
-        const year = date.getFullYear();
-        const months = Array.from({ length: 12 }, (_, index) => index + 1);
-        const today = new Date();
-
-        const getFirstDayOfMonth = (year, month) => getDay(new Date(year, month - 1, 0));
-
-        return (
-            <div className="flex flex-wrap justify-center">
-                {months.map((month) => {
-                    const firstDayOfMonth = getFirstDayOfMonth(year, month);
-                    const daysInMonth = getDaysInMonth(new Date(year, month - 1, 1));
-
-                    return (
-                        <>
-                            <div key={month} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4">
-                                <div className="p-4 rounded-lg">
-                                    <h2 className="text-3xl text-white font-semibold mb-2">
-                                        {format(startOfMonth(new Date(year, month - 1)), 'MMMM')}
-                                    </h2>
-
-                                    <div className="grid grid-cols-7 gap-2">
-                                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                                            <div key={day} className="text-sm font-semibold text-gray-200">
-                                                {day}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="grid grid-cols-7 gap-2">
-                                        {Array.from({ length: firstDayOfMonth }, (_, index) => {
-                                            const prevMonth = addMonths(new Date(year, month - 1), 1);
-                                            const prevMonthDays = getDaysInMonth(prevMonth);
-
-                                            return (
-                                                <div key={index} className="text-center text-gray-400 py-2 cursor-pointer">
-                                                    {prevMonthDays - firstDayOfMonth + index + 1}
-                                                </div>
-                                            );
-                                        })}
-                                        {Array.from({ length: daysInMonth }, (_, index) => {
-                                            const day = index + 1;
-                                            const isToday = year === today.getFullYear() && month - 1 === today.getMonth() && day === today.getDate();
-                                            const hasEvent = eventsData?.filter((event) => {
-                                                const eventDate = new Date(event.datetimeStart);
-                                                return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === day;
-                                            }).length > 0;
-
-                                            const readableDay = format(new Date(year, month - 1, day), 'EEEE');
-                                            const readableMonth = format(new Date(year, month - 1, day), 'MMMM');
-
-                                            return (
-                                                <div
-                                                    key={index + 7}
-                                                    className={`text-center text-white py-2 rounded-xl cursor-pointer 
-                                                    ${isToday ? 'bg-blue-700 hover:bg-blue-600 transition' : ''} 
-                                                    ${hasEvent ? 'bg-blue-500 hover:bg-blue-400 transition' : ''} 
-                                                    ${getDay(new Date(year, month - 1, day)) === 0 ? 'text-red-600' : ''}`}
-                                                    onClick={() => setDayInfo({day, readableDay, readableMonth, isToday})}>
-                                                    {day}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                            {Object.values(dayInfo).length !== 0 && (
-                                <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
-                                    <div className="bg-zinc-800 rounded-xl p-4">
-                                        <h1 className={"text-2xl text-white mb-2"}>{dayInfo.readableDay}</h1>
-                                        <h2 className={`text-3xl text-white font-medium mb-2 ${dayInfo.isToday ? "bg-blue-700 rounded-xl text-white p-2" : ""}`}>{dayInfo.day} {dayInfo.readableMonth}</h2>
-                                        <div className={"text-sm text-white"}>
-                                            {eventsData.filter((event) => {
-                                                const eventDate = new Date(event.datetimeStart);
-                                                return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
-                                            }).length === 0 ? (
-                                                <p className={"text-lg"}>No events for today.</p>
-                                            ) : (
-                                                eventsData.filter((event) => {
-                                                    const eventDate = new Date(event.datetimeStart);
-                                                    return eventDate.getFullYear() === year && eventDate.getMonth() + 1 === month && eventDate.getDate() === dayInfo.day;
-                                                }).map((event) => (
-                                                    <p key={event.id} className={"text-left bg-emerald-600 rounded-xl p-2 mb-2 cursor-pointer"}>
-                                                        • {event.datetimeStart.split("T")[1]} {event.name}
-                                                    </p>
-                                                ))
-                                            )}
-                                        </div>
-                                        <button className="text-white bg-red-600 px-4 py-2 rounded-lg mt-4 hover:bg-red-500 transition" onClick={() => setDayInfo({})}>Close</button>
-                                    </div>
-                                </div>
-                            )}
-                        </>
-                    );
-                })}
-            </div>
-        );
-    };
-
     return (
         <div className="text-center bg-zinc-900">
             <div className="flex justify-center items-center min-h-screen">
@@ -294,7 +196,7 @@ const Calendar = () => {
                     }
                     {
                         viewType === "year" && (
-                            YearlyCalendar(currentDate)
+                            <YearlyCalendar date={currentDate} eventsData={eventsData} />
                         )
                     }
                     {

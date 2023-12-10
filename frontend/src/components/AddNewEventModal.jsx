@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import axios from "axios";
-import { TwitterPicker } from "react-color";
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 
@@ -60,8 +59,8 @@ const AddNewEventModal = ({ onClose }) => {
     const [title, setTitle] = useState('No title.');
     const [description, setDescription] = useState('No description.');
     const [location, setLocation] = useState('No location.');
-    const [startTime, setStartTime] = useState('');
-    const [endTime, setEndTime] = useState('');
+    const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
+    const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
     const [date, setDate] = useState(new Date());
     const [color, setColor] = useState('blue');
 
