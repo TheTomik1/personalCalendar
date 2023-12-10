@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { format } from "date-fns";
 
 import { MdEdit } from "react-icons/md";
@@ -23,7 +23,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
     const deleteEvent = async(eventId) => {
         await axios.post("http://localhost:8080/api/delete-event", { id: eventId }, { withCredentials: true }).then((response) => {
             if (response.status === 201) {
-                window.location.reload();
+                onClose();
             }
         }).catch((error) => {
             console.log(error);

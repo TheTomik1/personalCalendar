@@ -1,5 +1,7 @@
 import { addMonths, format, getDay, isToday, getDaysInMonth, startOfMonth } from "date-fns";
-import React from "react";
+import React, { useState } from "react";
+
+import DayInfoModal from "./DayInfoModal";
 
 const findDayEvents = (year, month, day, eventsData) => {
     return eventsData?.filter((event) => {
@@ -14,6 +16,20 @@ const YearlyCalendar = ({ date, eventsData }) => {
     const today = new Date();
 
     const getFirstDayOfMonth = (year, month) => getDay(new Date(year, month - 1, 0));
+
+    const [dayInfoModal, setDayInfoModal] = useState("");
+
+    const handleDayClick = (day, month) => {
+        const clickedDay = new Date(year, month - 1, day);
+        const events = findDayEvents(year, month, day, eventsData);
+
+        setDayInfoModal({
+            day: clickedDay,
+            isToday: isToday(clickedDay),
+            events: events,
+        });
+    }
+
 
     return (
         <div className="flex flex-wrap justify-center">
@@ -50,19 +66,18 @@ const YearlyCalendar = ({ date, eventsData }) => {
                                 {Array.from({ length: daysInMonth }, (_, index) => {
                                     const day = index + 1;
                                     const dayIsToday = isToday(new Date(year, month - 1, day));
-                                    const isSunday = (firstDayOfMonth + index+1) % 7 === 0;
+                                    const isSunday = (firstDayOfMonth + index + 1) % 7 === 0;
                                     const events = findDayEvents(year, month, day, eventsData);
 
                                     return (
-                                        <div
-                                            key={index + 7}
-                                            className={`text-center py-2 rounded-xl cursor-pointer ${dayIsToday ? 'bg-blue-700 hover:bg-blue-600 transition' : ''} ${events.length > 0 ? 'bg-blue-500 hover:bg-blue-400 transition' : ''} ${isSunday ? "text-red-600": "text-white"}`}>
+                                        <div key={index + 7} className={`text-center py-2 rounded-xl cursor-pointer ${dayIsToday && 'bg-blue-700 hover:bg-blue-600 transition'} ${events.length > 0 && `bg-${events[0].color}-500 hover:bg-${events[0].color}-400 transition`} ${isSunday ? 'text-red-600' : 'text-white'}`} onClick={() => handleDayClick(day, month)}>
                                             {day}
                                         </div>
                                     );
                                 })}
                             </div>
                         </div>
+                        {dayInfoModal && <DayInfoModal day={dayInfoModal} eventsData={eventsData} onClose={() => setDayInfoModal("")} />}
                     </div>
                 );
             })}

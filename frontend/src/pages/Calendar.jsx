@@ -1,21 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import { addDays, addMonths, eachDayOfInterval, eachWeekOfInterval, endOfMonth, endOfWeek, format, getDay, getDaysInMonth, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from 'date-fns';
+import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
 
 import { FaCalendarPlus } from "react-icons/fa6";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
-import DayInfoModal from "../components/DayInfoModal";
 import MonthlyCalendar from "../components/MonthlyCalendar";
 import AddNewEventModal from '../components/AddNewEventModal';
 import YearlyCalendar from "../components/YearlyCalendar";
 
 const Calendar = () => {
     /*
-        TODO: Add option for adding new event(s).
-        TODO: Events in the calendar can have custom colors.
-        TODO: Add option to edit event(s). (backend too)
-        TODO: Add option to delete event(s). (backend too)
+        TODO: Finish the weekly calendar.
+        TODO: Scrolling up and down will scroll between weeks/months/years depending on the view.
+        TODO: Whenever the component is mounted, fetch the calendar and events data from the backend.
+        TODO: Whenever the component is refreshed, it will remember the view permanently (maybe use cookies).
      */
 
     const [currentDate, setCurrentDate] = useState(new Date());

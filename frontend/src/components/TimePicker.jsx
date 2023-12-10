@@ -43,7 +43,7 @@ const TimePicker = ({ onStartTimeChange, onEndTimeChange }) => {
     };
 
     return (
-        <div>
+        <div className="flex items-center">
             <select value={startSelectedTime} className="bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none" onChange={handleStartChange}>
                 {generateTimeOptions().map((option) => (
                     <option key={option.value} value={option.value}>
@@ -51,6 +51,7 @@ const TimePicker = ({ onStartTimeChange, onEndTimeChange }) => {
                     </option>
                 ))}
             </select>
+            <span className="text-white mx-2">-</span>
             <select value={endSelectedTime} className="bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none" onChange={handleEndChange}>
                 {generateTimeOptions(startSelectedTime).map((option) => (
                     <option key={option.value} value={option.value}>
@@ -59,6 +60,7 @@ const TimePicker = ({ onStartTimeChange, onEndTimeChange }) => {
                 ))}
             </select>
         </div>
+
     );
 };
 
