@@ -6,6 +6,7 @@ import { FaCalendarPlus } from "react-icons/fa6";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 import DayInfoModal from "../components/DayInfoModal";
+import MonthlyCalendar from "../components/MonthlyCalendar";
 import AddNewEventModal from '../components/AddNewEventModal';
 
 const Calendar = () => {
@@ -151,76 +152,6 @@ const Calendar = () => {
         }
     };
 
-    const MonthlyCalendar = (date) => {
-        const monthStart = startOfMonth(date);
-        const monthEnd = endOfMonth(monthStart);
-        const monthWeeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 });
-        const daysInMonthByWeek = monthWeeks.map((weekStart) => {
-            return eachDayOfInterval({
-                start: startOfWeek(weekStart, { weekStartsOn: 1 }),
-                end: addDays(weekStart, 6)
-            }).map((day) => ({
-                date: day,
-                isCurrentMonth: isSameMonth(day, monthStart),
-                isToday: isToday(day),
-                color: eventsData?.filter((event) => {
-                    const eventDate = new Date(event.datetimeStart);
-                    return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
-                })[0]?.color,
-                events: eventsData?.filter((event) => {
-                    const eventDate = new Date(event.datetimeStart);
-                    return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
-                })
-            }));
-        });
-
-        return (
-            <div className="table w-full">
-                <div className="table-header-group">
-                    <div className="table-row">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
-                            <div key={index} className="table-cell text-center text-white text-xl font-bold p-2">
-                                {dayName}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="table-row-group">
-                    {daysInMonthByWeek.map((week, weekIndex) => (
-                        <div key={weekIndex} className="table-row">
-                            {week.map((day, dayIndex) => (
-                                <div key={dayIndex} className="table-cell h-36 text-center">
-                                    <span className={`block ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`} onClick={() => setDayInfo(day)}>
-                                        {day.isToday ? (
-                                            <span className="relative inline-block">
-                                                <p className="bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
-                                                    {day.date.getDate()}
-                                                </p>
-                                            </span>
-                                        ) : day.events && day.events.length > 0 ? (
-                                            <span className="relative inline-block">
-                                                <p className={`bg-${day.color}-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-${day.color}-400 transition`}>
-                                                    {day.date.getDate()}
-                                                </p>
-                                            </span>
-                                        ) : (
-                                            <p>{day.date.getDate()}</p>
-                                        )}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-                {Object.values(dayInfo).length !== 0 && (
-                    <DayInfoModal
-                        day={dayInfo}
-                    />
-                )}
-            </div>
-        );
-    };
-
     const YearlyCalendar = (date) => {
         const year = date.getFullYear();
         const months = Array.from({ length: 12 }, (_, index) => index + 1);
@@ -329,7 +260,6 @@ const Calendar = () => {
                             New <FaCalendarPlus className={"ml-1"}/>
                         </button>
                         <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-700 bg-zinc-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
-                            <option value="day">Day</option>
                             <option value="week">Week</option>
                             <option value="month">Month</option>
                             <option value="year">Year</option>
@@ -359,7 +289,7 @@ const Calendar = () => {
                     }
                     {
                         viewType === "month" && (
-                            MonthlyCalendar(currentDate)
+                            <MonthlyCalendar date={currentDate} eventsData={eventsData} />
                         )
                     }
                     {
