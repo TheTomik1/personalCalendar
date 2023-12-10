@@ -160,4 +160,29 @@ router.get("/get-events", async(req, res) => {
     }
 });
 
+router.post("/delete-event", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
+        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        await db.run("DELETE FROM calendarEvents WHERE id = ?", id);
+
+        await res.status(201).send({ message: 'Event deleted.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
 module.exports = router;

@@ -3,6 +3,7 @@ import { format } from "date-fns";
 
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
+import axios from "axios";
 
 const DayInfoModal = ({ day, eventsData, onClose }) => {
     useEffect(() => {
@@ -18,6 +19,16 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
             document.removeEventListener('click', handleOutsideClick);
         };
     }, [onClose]);
+
+    const deleteEvent = async(eventId) => {
+        await axios.post("http://localhost:8080/api/delete-event", { id: eventId }, { withCredentials: true }).then((response) => {
+            if (response.status === 201) {
+                window.location.reload();
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
@@ -35,7 +46,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                                 </div>
                                 <div className="flex items-center">
                                     <MdEdit className="mr-2 text-xl" />
-                                    <MdDelete className={"mr-2 text-xl"}/>
+                                    <MdDelete className={"mr-2 text-xl"} onClick={() => deleteEvent(event.id)}/>
                                 </div>
                             </div>
                         ))}
