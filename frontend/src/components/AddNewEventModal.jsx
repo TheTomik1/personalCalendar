@@ -10,6 +10,7 @@ import ColorPicker from "./ColorPicker";
 import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import { AiFillDelete } from "react-icons/ai";
+import TimePicker from "./TimePicker";
 
 const PostEvent = async (title, description, location, color, date, start, end, eventType) => {
     await axios.post("http://localhost:8080/api/add-event", {
@@ -59,10 +60,13 @@ const AddNewEventModal = ({ onClose }) => {
     const [title, setTitle] = useState('No title.');
     const [description, setDescription] = useState('No description.');
     const [location, setLocation] = useState('No location.');
-    const [start, setStart] = useState('');
-    const [end, setEnd] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
     const [date, setDate] = useState(new Date());
     const [color, setColor] = useState('blue');
+
+    console.log(startTime);
+    console.log(endTime);
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
@@ -81,8 +85,8 @@ const AddNewEventModal = ({ onClose }) => {
                     />
 
                     <div className="flex flex-row space-x-2 p-4">
-                        <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "event" ? "text-blue-400 bg-blue-700 bg-opacity-50": "hover:bg-zinc-700"}`} onClick={() => setEventType("event")}>Event</p>
-                        <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "task" ? "text-blue-400 bg-blue-700 bg-opacity-50": "hover:bg-zinc-700"}`} onClick={() => setEventType("task")}>Task</p>
+                        <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "event" ? "text-blue-400 bg-blue-600": "hover:bg-zinc-700"}`} onClick={() => setEventType("event")}>Event</p>
+                        <p className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "task" ? "text-blue-400 bg-blue-600": "hover:bg-zinc-700"}`} onClick={() => setEventType("task")}>Task</p>
                     </div>
 
                     <div className="flex justify-center items-center">
@@ -94,7 +98,7 @@ const AddNewEventModal = ({ onClose }) => {
                             ISOWeek
                             footer={
                             <div className="flex justify-between items-center text-black">
-
+                                <TimePicker onStartTimeChange={(time) => setStartTime(time)} onEndTimeChange={(time) => setEndTime(time)} />
                             </div>
                             }
                         />
@@ -113,17 +117,19 @@ const AddNewEventModal = ({ onClose }) => {
                             />
                         </div>
 
-                        <div className="flex items-center">
-                            <PiTextAlignLeftLight className="text-gray-300 text-2xl" />
-                            <input
-                                type="text"
-                                placeholder="Add location."
-                                className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
-                                onFocus={() => setAddLocationFocused(true)}
-                                onBlur={() => setAddLocationFocused(false)}
-                                onChange={(e) => setLocation(e.target.value)}
-                            />
-                        </div>
+                        {eventType === "event" &&
+                            <div className="flex items-center">
+                                <PiTextAlignLeftLight className="text-gray-300 text-2xl" />
+                                <input
+                                    type="text"
+                                    placeholder="Add location."
+                                    className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                                    onFocus={() => setAddLocationFocused(true)}
+                                    onBlur={() => setAddLocationFocused(false)}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                />
+                            </div>
+                        }
 
                         <div className="flex-grow border-t border-gray-400 mt-5"></div>
                         <h1 className="text-gray-300 text-xl mt-4">Color</h1>
@@ -132,7 +138,7 @@ const AddNewEventModal = ({ onClose }) => {
                         </div>
                     </div>
                 </form>
-                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), "20:00:10", "23:00:10", eventType)}>Add</button>
+                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType)}>Add</button>
             </div>
         </div>
     )
