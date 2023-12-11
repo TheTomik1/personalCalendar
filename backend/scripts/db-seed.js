@@ -43,8 +43,8 @@ async function seed() {
                 type TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                details TEXT,
                 location TEXT,
+                color TEXT,
                 FOREIGN KEY (calendarId) REFERENCES calendars(id)                                          
             );
         `);
