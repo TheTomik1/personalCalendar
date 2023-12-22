@@ -53,9 +53,9 @@ const AddOrEditModal = ({ eventData, onClose }) => {
     const [addLocationFocused, setAddLocationFocused] = useState(false);
     const [eventType, setEventType] = useState('event');
 
-    const [title, setTitle] = useState('No title.');
-    const [description, setDescription] = useState('No description.');
-    const [location, setLocation] = useState('No location.');
+    const [title, setTitle] = useState('Add title.');
+    const [description, setDescription] = useState('Add description.');
+    const [location, setLocation] = useState('Add location.');
     const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
     const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
@@ -81,7 +81,8 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                 <form>
                     <input
                          type="text"
-                         placeholder={eventData ? eventData.name : "Add title."}
+                         placeholder="Add title."
+                         value={title}
                          className={`bg-zinc-800 px-4 py-2 text-3xl text-white focus:outline-none ${addTitleFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'border-gray-300 transition ease-in-out duration-300'} border-b-2`}
                          onFocus={() => setAddTitleFocused(true)}
                          onBlur={() => setAddTitleFocused(false)}
@@ -113,7 +114,7 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                             <FaLocationPin className="text-gray-300 text-2xl" />
                             <input
                                  type="text"
-                                 placeholder={eventData ? eventData.location : "Add description."}
+                                 value={description}
                                  className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addDescriptionFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                  onFocus={() => setAddDescriptionFocused(true)}
                                  onBlur={() => setAddDescriptionFocused(false)}
@@ -126,7 +127,7 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                                 <PiTextAlignLeftLight className="text-gray-300 text-2xl" />
                                 <input
                                     type="text"
-                                    placeholder={eventData ? eventData.description : "Add description."}
+                                    value={location}
                                     className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                     onFocus={() => setAddLocationFocused(true)}
                                     onBlur={() => setAddLocationFocused(false)}

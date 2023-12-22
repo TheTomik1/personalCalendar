@@ -8,9 +8,11 @@ import axios from "axios";
 
 import AddNewEventModal from "./AddNewEventModal";
 import ContestModal from "./ContestModal";
+import {FaCalendarPlus} from "react-icons/fa6";
 
 const DayInfoModal = ({ day, eventsData, onClose }) => {
     const [editEventData, setEditEventData] = useState(null);
+    const [newEventModal, setNewEventModal] = useState(false);
     const [eventIdToDelete, setEventIdToDelete] = useState(null);
 
     useEffect(() => {
@@ -52,7 +54,8 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                 {day.events && day.events.length > 0 ? (
                     <div className="mt-4">
                         {day.events.map((event, index) => (
-                            <div key={index} className={`mb-2 flex items-center pl-2 p-0.5 pr-2 justify-between text-white bg-${event.color}-500 rounded-xl cursor-pointer`}>
+                            <div key={index}
+                                 className={`mb-2 flex items-center pl-2 p-0.5 pr-2 justify-between text-white bg-${event.color}-500 rounded-xl cursor-pointer`}>
                                 <div>
                                     <p className={`text-xl text-left`}>{event.name}</p>
                                     <p className="text-sm text-left">{format(new Date(event.datetimeStart), "HH:mm")} - {format(new Date(event.datetimeEnd), "HH:mm")}</p>
@@ -63,17 +66,29 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                                 </div>
                             </div>
                         ))}
+                        <div className=" flex flex-col items-center">
+                            <button className="flex items-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 m-4 rounded cursor-pointer" onClick={() => setNewEventModal(true)}>
+                                New event <FaCalendarPlus className={"ml-1"}/>
+                            </button>
+                        </div>
                     </div>
                 ) : (
-                    <div className="mt-4">
+                    <div className="mt-4 flex flex-col items-center">
                         <p className="text-xl text-white">No events</p>
+                        <button
+                            className="flex items-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 m-4 rounded cursor-pointer" onClick={() => setNewEventModal(true)}>
+                            New event <FaCalendarPlus className={"ml-1"}/>
+                        </button>
                     </div>
                 )}
                 {editEventData && (
-                    <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
+                    <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)}/>
                 )}
                 {eventIdToDelete && (
                     <ContestModal title="Are you sure you want to delete this event?" actionYes={() => deleteEvent(eventsData)} actionNo={() => setEventIdToDelete(null)} />
+                )}
+                {newEventModal && (
+                    <AddNewEventModal onClose={() => setNewEventModal(false)} />
                 )}
             </div>
         </div>

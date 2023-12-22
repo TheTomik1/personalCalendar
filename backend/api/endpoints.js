@@ -112,10 +112,20 @@ router.post("/add-event", async(req, res) => {
         const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
 
         const currentDateTime = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
-        const { title, description, type, details, color, location, start, end } = req.body;
+        let { title, description, type, color, location, start, end } = req.body;
 
         if (!title || !type || !start || !end || !color) {
             return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        if (!title) {
+            title = "Add title.";
+        }
+        if (!description) {
+            description = "Add description.";
+        }
+        if (!location) {
+            location = "Add location.";
         }
 
         if (['event', 'reminder', 'task', 'meeting'].indexOf(type.toLowerCase()) === -1) {
@@ -134,7 +144,7 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Start date cannot be after end date.' });
         }
 
-        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, details, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, details, color, location);
+        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, color, location);
 
         await res.status(201).send({ message: 'Event added.' });
     } catch (e) {
@@ -150,7 +160,17 @@ router.post("/edit-event", async(req, res) => {
             return res.status(401).send({ message: 'Unauthorized.' });
         }
 
-        const { id, title, description, type, details, color, location, start, end } = req.body;
+        let { id, title, description, type, color, location, start, end } = req.body;
+
+        if (!title) {
+            title = "Add title.";
+        }
+        if (!description) {
+            description = "Add description.";
+        }
+        if (!location) {
+            location = "Add location.";
+        }
 
         if (!id || !title || !type || !start || !end || !color) {
             return res.status(400).send({ message: 'Invalid body.' });
@@ -168,7 +188,7 @@ router.post("/edit-event", async(req, res) => {
             return res.status(400).send({ message: 'Start date cannot be after end date.' });
         }
 
-        await db.run("UPDATE calendarEvents SET datetimeStart = ?, datetimeEnd = ?, type = ?, name = ?, description = ?, details = ?, color = ?, location = ? WHERE id = ?", start, end, type, title, description, details, color, location, id);
+        await db.run("UPDATE calendarEvents SET datetimeStart = ?, datetimeEnd = ?, type = ?, name = ?, description = ?, color = ?, location = ? WHERE id = ?", start, end, type, title, description, color, location, id);
 
         await res.status(201).send({ message: 'Event edited.' });
     } catch (e) {
