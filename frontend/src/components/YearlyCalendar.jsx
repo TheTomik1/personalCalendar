@@ -30,7 +30,6 @@ const YearlyCalendar = ({ date, eventsData }) => {
         });
     }
 
-
     return (
         <div className="flex flex-wrap justify-center">
             {months.map((month) => {
@@ -70,7 +69,7 @@ const YearlyCalendar = ({ date, eventsData }) => {
                                     const events = findDayEvents(year, month, day, eventsData);
 
                                     return (
-                                        <div key={index + 7} className={`text-center py-2 rounded-xl cursor-pointer ${dayIsToday && 'bg-blue-700 hover:bg-blue-600 transition'} ${events.length > 0 && `bg-${events[0].color}-500 hover:bg-${events[0].color}-400 transition`} ${isSunday ? 'text-red-600' : 'text-white'}`} onClick={() => handleDayClick(day, month)}>
+                                        <div key={index + 7} className={`text-center py-2 text-white rounded-xl cursor-pointer ${dayIsToday ? 'bg-blue-700 font-bold hover:bg-blue-600 transition' : (!dayIsToday && events.length > 0 ? `bg-${events[0].color}-500 hover:bg-${events[0].color}-400 transition` : `${!dayIsToday && !events.length && isSunday ? 'text-red-600' : ''}`)}`} onClick={() => handleDayClick(day, month)}>
                                             {day}
                                         </div>
                                     );

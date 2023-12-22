@@ -5,6 +5,7 @@ import axios from 'axios';
 import { FaCalendarPlus } from "react-icons/fa6";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
+import WeeklyCalendar from "../components/WeeklyCalendar";
 import MonthlyCalendar from "../components/MonthlyCalendar";
 import AddNewEventModal from '../components/AddNewEventModal';
 import YearlyCalendar from "../components/YearlyCalendar";
@@ -135,10 +136,6 @@ const Calendar = () => {
         );
     };
 
-    const WeeklyCalendar = () => {
-
-    };
-
     const weekFormat = () => {
         const startOfWeekDate = startOfWeek(currentDate);
         const endOfWeekDate = endOfWeek(currentDate);
@@ -179,13 +176,8 @@ const Calendar = () => {
                         </h2>
                     </div>
                     {
-                        viewType === "day" && (
-                            DailyCalendar()
-                        )
-                    }
-                    {
                         viewType === "week" && (
-                            WeeklyCalendar()
+                            <WeeklyCalendar date={currentDate} eventsData={eventsData} />
                         )
                     }
                     {

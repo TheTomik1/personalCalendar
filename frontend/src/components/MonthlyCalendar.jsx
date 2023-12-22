@@ -50,7 +50,7 @@ const MonthlyCalendar = ({ date, eventsData }) => {
                                 <span className={`block cursor-pointer ${!day.isCurrentMonth ? 'text-gray-400' : 'text-white'}`} onClick={() => handleDayClick(day)}>
                                     {day.isToday ? (
                                         <span className="relative inline-block">
-                                            <p className="bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
+                                            <p className="bg-blue-700 text-white font-bold rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-600 transition">
                                                 {day.day.getDate()}
                                             </p>
                                         </span>
