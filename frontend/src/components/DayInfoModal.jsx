@@ -1,11 +1,16 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
+
 import { format } from "date-fns";
 
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
+import AddNewEventModal from "./AddNewEventModal";
+
 const DayInfoModal = ({ day, eventsData, onClose }) => {
+    const [editEventData, setEditEventData] = useState(null);
+
     useEffect(() => {
         const handleOutsideClick = (e) => {
             if (e.target.classList.contains('fixed')) {
@@ -20,7 +25,13 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
         };
     }, [onClose]);
 
+    const editEvent = async(event) => {
+        setEditEventData(event);
+    }
+
     const deleteEvent = async(eventId) => {
+        // TODO: Add a contest for deletion here.
+
         await axios.post("http://localhost:8080/api/delete-event", { id: eventId }, { withCredentials: true }).then((response) => {
             if (response.status === 201) {
                 onClose();
@@ -45,7 +56,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                                     <p className="text-sm text-left">{format(new Date(event.datetimeStart), "HH:mm")} - {format(new Date(event.datetimeEnd), "HH:mm")}</p>
                                 </div>
                                 <div className="flex items-center">
-                                    <MdEdit className="mr-2 text-xl" />
+                                    <MdEdit className="mr-2 text-xl" onClick={() => editEvent(event)}/>
                                     <MdDelete className={"mr-2 text-xl"} onClick={() => deleteEvent(event.id)}/>
                                 </div>
                             </div>
@@ -55,6 +66,10 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                     <div className="mt-4">
                         <p className="text-xl text-white">No events</p>
                     </div>
+                )}
+
+                {editEventData && (
+                    <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
                 )}
             </div>
         </div>

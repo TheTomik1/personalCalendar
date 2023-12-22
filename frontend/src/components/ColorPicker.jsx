@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 
-function ColorPicker({ onColorChange }) {
-    const [selectedColor, setSelectedColor] = useState("blue");
-
+function ColorPicker({ onColorChange, selectedColor }) {
     const colors = ["blue", "red", "green", "yellow", "orange", "amber", "emerald", "purple", "pink"];
 
     const setColor = (color) => {
-        setSelectedColor(color);
         onColorChange(color);
     };
 

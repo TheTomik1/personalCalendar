@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import { addMinutes, format } from "date-fns";
 import { DayPicker } from 'react-day-picker';
@@ -8,7 +8,6 @@ import ColorPicker from "./ColorPicker";
 
 import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
-import { AiFillDelete } from "react-icons/ai";
 import TimePicker from "./TimePicker";
 
 const PostEvent = async (title, description, location, color, date, start, end, eventType) => {
@@ -29,27 +28,39 @@ const PostEvent = async (title, description, location, color, date, start, end, 
     })
 }
 
-const AddNewEventModal = ({ onClose }) => {
-    const tailwindColorsObject = {
-        gray: '#718096',
-        red: '#e53e3e',
-        yellow: '#ecc94b',
-        green: '#48bb78',
-        blue: '#4299e1',
-        indigo: '#667eea',
-        purple: '#9f7aea',
-        pink: '#ed64a6',
-        rose: '#f56565',
-        orange: '#ed8936',
-        amber: '#ecc94b',
-        lime: '#48bb78',
-        teal: '#38b2ac',
-        cyan: '#4299e1',
-        violet: '#9f7aea',
-        fuchsia: '#ed64a6',
-        emerald: '#48bb78',
-    };
-    const tailwindClassNames = Object.keys(tailwindColorsObject).map((colorName) => `${colorName}-500`);
+const EditEvent = async (title, description, location, color, date, start, end, eventType, eventId) => {
+    await axios.post("http://localhost:8080/api/edit-event", {
+        title: title,
+        description: description,
+        location: location,
+        color: color,
+        start: `${date} ${start}`,
+        end: `${date} ${end}`,
+        type: eventType,
+        id: eventId
+    }, {withCredentials: true}).then((res) => {
+        if (res.status === 201) {
+            window.location.reload();
+        }
+    }).catch((err) => {
+        console.log(err);
+    })
+}
+
+const AddOrEditModal = ({ eventData, onClose }) => {
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (e.target.classList.contains('fixed')) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('click', handleOutsideClick);
+
+        return () => {
+            document.removeEventListener('click', handleOutsideClick);
+        };
+    }, [onClose]);
 
     const [addTitleFocused, setAddTitleFocused] = useState(false);
     const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
@@ -61,22 +72,16 @@ const AddNewEventModal = ({ onClose }) => {
     const [location, setLocation] = useState('No location.');
     const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
-    const [date, setDate] = useState(new Date());
-    const [color, setColor] = useState('blue');
-
-    console.log(startTime);
-    console.log(endTime);
+    const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
+    const [color, setColor] = useState(`${eventData ? eventData.color : 'blue'}`);
 
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
             <div className="bg-zinc-800 rounded-xl p-4">
-                <div className="flex justify-end">
-                    <AiFillDelete className={"text-3xl text-red-600 hover:text-red-500 transition"} onClick={() => onClose()}/>
-                </div>
                 <form onSubmit={PostEvent}>
                     <input
                          type="text"
-                         placeholder="Add title."
+                         placeholder={eventData ? eventData.name : "Add title."}
                          className={`bg-zinc-800 px-4 py-2 text-3xl text-white focus:outline-none ${addTitleFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'border-gray-300 transition ease-in-out duration-300'} border-b-2`}
                          onFocus={() => setAddTitleFocused(true)}
                          onBlur={() => setAddTitleFocused(false)}
@@ -108,7 +113,7 @@ const AddNewEventModal = ({ onClose }) => {
                             <FaLocationPin className="text-gray-300 text-2xl" />
                             <input
                                  type="text"
-                                 placeholder="Add description."
+                                 placeholder={eventData ? eventData.location : "Add description."}
                                  className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addDescriptionFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                  onFocus={() => setAddDescriptionFocused(true)}
                                  onBlur={() => setAddDescriptionFocused(false)}
@@ -121,7 +126,7 @@ const AddNewEventModal = ({ onClose }) => {
                                 <PiTextAlignLeftLight className="text-gray-300 text-2xl" />
                                 <input
                                     type="text"
-                                    placeholder="Add location."
+                                    placeholder={eventData ? eventData.description : "Add description."}
                                     className={`bg-zinc-800 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
                                     onFocus={() => setAddLocationFocused(true)}
                                     onBlur={() => setAddLocationFocused(false)}
@@ -133,14 +138,18 @@ const AddNewEventModal = ({ onClose }) => {
                         <div className="flex-grow border-t border-gray-400 mt-5"></div>
                         <h1 className="text-gray-300 text-xl mt-4">Color</h1>
                         <div className="flex justify-center items-center">
-                            <ColorPicker onColorChange={(color) => setColor(color)}/>
+                            <ColorPicker onColorChange={(color) => setColor(color)} selectedColor={color} />
                         </div>
                     </div>
                 </form>
-                <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType)}>Add</button>
+                {eventData ? (
+                    <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition ml-4" onClick={() => EditEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType, eventData.id)}>Edit</button>
+                ) : (
+                    <button className="text-white bg-green-600 px-4 py-2 rounded-lg mt-4 hover:bg-green-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType)}>Add</button>
+                )}
             </div>
         </div>
     )
 }
 
-export default AddNewEventModal;
+export default AddOrEditModal;

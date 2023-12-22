@@ -142,6 +142,43 @@ router.post("/add-event", async(req, res) => {
     }
 });
 
+router.post("/edit-event", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
+        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+
+        const { id, title, description, type, details, color, location, start, end } = req.body;
+
+        if (!id || !title || !type || !start || !end || !color) {
+            return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        if (['event', 'reminder', 'task', 'meeting'].indexOf(type.toLowerCase()) === -1) {
+            return res.status(400).send({ message: 'Invalid event type.' });
+        }
+
+        if (start.split(" ")[0] !== end.split(" ")[0]) {
+            return res.status(400).send({ message: 'Event must be within the same day.' });
+        }
+
+        if (start > end) {
+            return res.status(400).send({ message: 'Start date cannot be after end date.' });
+        }
+
+        await db.run("UPDATE calendarEvents SET datetimeStart = ?, datetimeEnd = ?, type = ?, name = ?, description = ?, details = ?, color = ?, location = ? WHERE id = ?", start, end, type, title, description, details, color, location, id);
+
+        await res.status(201).send({ message: 'Event edited.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
 router.get("/get-events", async(req, res) => {
     try {
         const db = await openDatabase();
