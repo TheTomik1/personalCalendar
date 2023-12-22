@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, addMinutes } from 'date-fns';
 
-const TimePicker = ({ onStartTimeChange, onEndTimeChange }) => {
-    const [startSelectedTime, setStartSelectedTime] = useState(null);
-    const [endSelectedTime, setEndSelectedTime] = useState(null);
+const TimePicker = ({ startTime, endTime, onStartTimeChange, onEndTimeChange }) => {
+    const [startSelectedTime, setStartSelectedTime] = useState(startTime || null);
+    const [endSelectedTime, setEndSelectedTime] = useState(endTime || null);
+
+    useEffect(() => {
+        setStartSelectedTime(startTime);
+        setEndSelectedTime(endTime);
+    }, [startTime, endTime]);
 
     const generateTimeOptions = (minTime) => {
         const startTime = new Date();
@@ -60,7 +65,6 @@ const TimePicker = ({ onStartTimeChange, onEndTimeChange }) => {
                 ))}
             </select>
         </div>
-
     );
 };
 

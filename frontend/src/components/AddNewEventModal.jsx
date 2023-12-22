@@ -56,8 +56,8 @@ const AddOrEditModal = ({ eventData, onClose }) => {
     const [title, setTitle] = useState('Add title.');
     const [description, setDescription] = useState('Add description.');
     const [location, setLocation] = useState('Add location.');
-    const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
-    const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
+    const [startTime, setStartTime] = useState(eventData ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
+    const [endTime, setEndTime] = useState(eventData ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
     const [color, setColor] = useState(`${eventData ? eventData.color : 'blue'}`);
 
@@ -103,7 +103,7 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                             ISOWeek
                             footer={
                             <div className="flex justify-between items-center text-black">
-                                <TimePicker onStartTimeChange={(time) => setStartTime(time)} onEndTimeChange={(time) => setEndTime(time)} />
+                                <TimePicker startTime={startTime} endTime={endTime} onStartTimeChange={(time) => setStartTime(time)} onEndTimeChange={(time) => setEndTime(time)} />
                             </div>
                             }
                         />

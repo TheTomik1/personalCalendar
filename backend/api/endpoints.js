@@ -144,7 +144,7 @@ router.post("/add-event", async(req, res) => {
             return res.status(400).send({ message: 'Start date cannot be after end date.' });
         }
 
-        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, color, location);
+        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, color, location);
 
         await res.status(201).send({ message: 'Event added.' });
     } catch (e) {

@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const debug = require('debug')('calendar-api:server');
 const http = require('http');
 
+require('./api/systems/oldEventDelete');
+
 const endpoints = require("./api/endpoints");
 
 const calendarApi = express();
