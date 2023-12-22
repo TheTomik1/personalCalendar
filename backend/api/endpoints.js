@@ -150,9 +150,6 @@ router.post("/edit-event", async(req, res) => {
             return res.status(401).send({ message: 'Unauthorized.' });
         }
 
-        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
-
         const { id, title, description, type, details, color, location, start, end } = req.body;
 
         if (!id || !title || !type || !start || !end || !color) {

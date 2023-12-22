@@ -7,9 +7,11 @@ import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
 import AddNewEventModal from "./AddNewEventModal";
+import ContestModal from "./ContestModal";
 
 const DayInfoModal = ({ day, eventsData, onClose }) => {
     const [editEventData, setEditEventData] = useState(null);
+    const [eventIdToDelete, setEventIdToDelete] = useState(null);
 
     useEffect(() => {
         const handleOutsideClick = (e) => {
@@ -57,7 +59,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                                 </div>
                                 <div className="flex items-center">
                                     <MdEdit className="mr-2 text-xl" onClick={() => editEvent(event)}/>
-                                    <MdDelete className={"mr-2 text-xl"} onClick={() => deleteEvent(event.id)}/>
+                                    <MdDelete className={"mr-2 text-xl"} onClick={() => setEventIdToDelete(event.id)}/>
                                 </div>
                             </div>
                         ))}
@@ -67,9 +69,11 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                         <p className="text-xl text-white">No events</p>
                     </div>
                 )}
-
                 {editEventData && (
                     <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
+                )}
+                {eventIdToDelete && (
+                    <ContestModal title="Are you sure you want to delete this event?" actionYes={() => deleteEvent(eventsData)} actionNo={() => setEventIdToDelete(null)} />
                 )}
             </div>
         </div>

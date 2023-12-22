@@ -10,7 +10,7 @@ import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import TimePicker from "./TimePicker";
 
-const PostEvent = async (title, description, location, color, date, start, end, eventType) => {
+const postEvent = async (title, description, location, color, date, start, end, eventType) => {
     await axios.post("http://localhost:8080/api/add-event", {
         title: title,
         description: description,
@@ -28,7 +28,7 @@ const PostEvent = async (title, description, location, color, date, start, end, 
     })
 }
 
-const EditEvent = async (title, description, location, color, date, start, end, eventType, eventId) => {
+const editEvent = async (title, description, location, color, date, start, end, eventType, eventId) => {
     await axios.post("http://localhost:8080/api/edit-event", {
         title: title,
         description: description,
@@ -48,6 +48,19 @@ const EditEvent = async (title, description, location, color, date, start, end, 
 }
 
 const AddOrEditModal = ({ eventData, onClose }) => {
+    const [addTitleFocused, setAddTitleFocused] = useState(false);
+    const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
+    const [addLocationFocused, setAddLocationFocused] = useState(false);
+    const [eventType, setEventType] = useState('event');
+
+    const [title, setTitle] = useState('No title.');
+    const [description, setDescription] = useState('No description.');
+    const [location, setLocation] = useState('No location.');
+    const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
+    const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
+    const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
+    const [color, setColor] = useState(`${eventData ? eventData.color : 'blue'}`);
+
     useEffect(() => {
         const handleOutsideClick = (e) => {
             if (e.target.classList.contains('fixed')) {
@@ -62,23 +75,10 @@ const AddOrEditModal = ({ eventData, onClose }) => {
         };
     }, [onClose]);
 
-    const [addTitleFocused, setAddTitleFocused] = useState(false);
-    const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
-    const [addLocationFocused, setAddLocationFocused] = useState(false);
-    const [eventType, setEventType] = useState('event');
-
-    const [title, setTitle] = useState('No title.');
-    const [description, setDescription] = useState('No description.');
-    const [location, setLocation] = useState('No location.');
-    const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
-    const [endTime, setEndTime] = useState(format(addMinutes(new Date(), 5), "HH:mm"));
-    const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
-    const [color, setColor] = useState(`${eventData ? eventData.color : 'blue'}`);
-
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
             <div className="bg-zinc-800 rounded-xl p-4">
-                <form onSubmit={PostEvent}>
+                <form>
                     <input
                          type="text"
                          placeholder={eventData ? eventData.name : "Add title."}
@@ -143,9 +143,9 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                     </div>
                 </form>
                 {eventData ? (
-                    <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition ml-4" onClick={() => EditEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType, eventData.id)}>Edit</button>
+                    <button className="text-white bg-blue-600 px-4 py-2 rounded-lg mt-4 hover:bg-blue-500 transition ml-4" onClick={() => editEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType, eventData.id)}>Edit</button>
                 ) : (
-                    <button className="text-white bg-green-600 px-4 py-2 rounded-lg mt-4 hover:bg-green-500 transition" onClick={() => PostEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType)}>Add</button>
+                    <button className="text-white bg-green-600 px-4 py-2 rounded-lg mt-4 hover:bg-green-500 transition" onClick={() => postEvent(title, description, location, color, format(date, "yyyy-MM-dd"), startTime, endTime, eventType)}>Add</button>
                 )}
             </div>
         </div>
