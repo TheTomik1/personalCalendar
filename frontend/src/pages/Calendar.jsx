@@ -7,7 +7,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 import WeeklyCalendar from "../components/WeeklyCalendar";
 import MonthlyCalendar from "../components/MonthlyCalendar";
-import AddNewEventModal from '../components/AddNewEventModal';
+import AddNewEventModal from '../components/AddOrEditModal';
 import YearlyCalendar from "../components/YearlyCalendar";
 
 const Calendar = () => {
@@ -21,7 +21,7 @@ const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [calendarData, setCalendarData] = useState(null);
     const [eventsData, setEventData] = useState(null);
-    const [viewType, setViewType] = useState("month");
+    const [viewType, setViewType] = useState("week");
     const [dayInfo, setDayInfo] = useState({});
     const [newEventModal, setNewEventModal] = useState({});
     const [error, setError] = useState(null);
@@ -67,9 +67,6 @@ const Calendar = () => {
     }, []);
 
     const next = () => {
-        if (viewType === 'day') {
-            setCurrentDate(addDays(currentDate, 1));
-        }
         if (viewType === 'week') {
             setCurrentDate(addDays(currentDate, 7));
         }
@@ -82,10 +79,7 @@ const Calendar = () => {
     }
 
     const prev = () => {
-        if (viewType === 'day') {
-            setCurrentDate(addDays(currentDate, -1));
-        }
-        else if (viewType === 'week') {
+        if (viewType === 'week') {
             setCurrentDate(addDays(currentDate, -7));
         }
         else if (viewType === 'month') {
@@ -96,44 +90,8 @@ const Calendar = () => {
         }
     };
 
-    const handleWheel = (e) => {
-        const isMouseOverTable = e.currentTarget === e.target;
-
-        if (!isMouseOverTable) {
-            e.preventDefault();
-            if (e.deltaY > 0) {
-                prev();
-            } else {
-                next();
-            }
-        }
-    };
-
     const changeView = (type) => {
         setViewType(type);
-    };
-
-    const DailyCalendar = () => {
-        const currentHour = new Date().getHours();
-
-        return (
-            <div className="text-white font-bold text-xl">
-                {Array.from({ length: 24 }).map((_, index) => {
-                    const hour = index.toString().padStart(2, '0') + ":00";
-                    const isCurrentHour = index === currentHour;
-
-                    return (
-                        <div key={index} className={`m-6`}>
-                            <div className="relative flex py-5 items-center">
-                                <div className={`flex-grow border-t ${isCurrentHour ? 'border-blue-700' : 'border-gray-400'}`}></div>
-                                <span className={`flex-shrink mx-4 text-gray-400 ${isCurrentHour ? 'text-blue-700' : ''}`}>{hour}</span>
-                                <div className={`flex-grow border-t ${isCurrentHour ? 'border-blue-700' : 'border-gray-400'}`}></div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        );
     };
 
     const weekFormat = () => {

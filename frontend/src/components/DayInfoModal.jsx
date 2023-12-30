@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from "react";
+import axios from "axios";
 
 import { format } from "date-fns";
 
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
-import axios from "axios";
 
-import AddNewEventModal from "./AddNewEventModal";
+import AddNewEventModal from "./AddOrEditModal";
 import ContestModal from "./ContestModal";
-import {FaCalendarPlus} from "react-icons/fa6";
+
+import { FaCalendarPlus } from "react-icons/fa6";
 
 const DayInfoModal = ({ day, eventsData, onClose }) => {
     const [editEventData, setEditEventData] = useState(null);
@@ -28,10 +29,6 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
             document.removeEventListener('click', handleOutsideClick);
         };
     }, [onClose]);
-
-    const editEvent = async(event) => {
-        setEditEventData(event);
-    }
 
     const deleteEvent = async(eventId) => {
         // TODO: Add a contest for deletion here.
@@ -61,7 +58,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                                     <p className="text-sm text-left">{format(new Date(event.datetimeStart), "HH:mm")} - {format(new Date(event.datetimeEnd), "HH:mm")}</p>
                                 </div>
                                 <div className="flex items-center">
-                                    <MdEdit className="mr-2 text-xl" onClick={() => editEvent(event)}/>
+                                    <MdEdit className="mr-2 text-xl" onClick={() => setEditEventData(event)}/>
                                     <MdDelete className={"mr-2 text-xl"} onClick={() => setEventIdToDelete(event.id)}/>
                                 </div>
                             </div>

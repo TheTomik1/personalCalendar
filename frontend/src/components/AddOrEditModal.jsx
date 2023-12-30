@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-import { addMinutes, format } from "date-fns";
+import { format } from "date-fns";
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 
@@ -48,6 +48,9 @@ const editEvent = async (title, description, location, color, date, start, end, 
 }
 
 const AddOrEditModal = ({ eventData, onClose }) => {
+    // TODO: Disable days from the past.
+    // TODO: Edit functionality overwrites the current event info the old one.
+
     const [addTitleFocused, setAddTitleFocused] = useState(false);
     const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
     const [addLocationFocused, setAddLocationFocused] = useState(false);
