@@ -48,17 +48,14 @@ const editEvent = async (title, description, location, color, date, start, end, 
 }
 
 const AddOrEditModal = ({ eventData, onClose }) => {
-    // TODO: Disable days from the past.
-    // TODO: Edit functionality overwrites the current event info the old one.
-
     const [addTitleFocused, setAddTitleFocused] = useState(false);
     const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
     const [addLocationFocused, setAddLocationFocused] = useState(false);
     const [eventType, setEventType] = useState('event');
 
-    const [title, setTitle] = useState('Add title.');
-    const [description, setDescription] = useState('Add description.');
-    const [location, setLocation] = useState('Add location.');
+    const [title, setTitle] = useState(eventData ? eventData.name : 'Add title.');
+    const [description, setDescription] = useState(eventData ? eventData.description : 'Add description.');
+    const [location, setLocation] = useState(eventData ? eventData.location : 'Add location.');
     const [startTime, setStartTime] = useState(eventData ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(eventData ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [date, setDate] = useState(eventData ? new Date(eventData.datetimeStart) : new Date());
@@ -99,7 +96,13 @@ const AddOrEditModal = ({ eventData, onClose }) => {
 
                     <div className="flex justify-center items-center">
                         <DayPicker
-                            onDayClick={(date) => setDate(date)}
+                            onDayClick={(date) => {
+                                const isPastDate = date < new Date();
+
+                                if (!isPastDate) {
+                                    setDate(date);
+                                }
+                            }}
                             selected={date}
                             className="bg-zinc-800 text-white"
                             showOutsideDays
