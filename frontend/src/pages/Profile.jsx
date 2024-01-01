@@ -11,6 +11,8 @@ const Profile = () => {
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [profilePicture, setProfilePicture] = useState("");
+    const [accessToken, setAccessToken] = useState("");
     const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
@@ -32,6 +34,7 @@ const Profile = () => {
                     setUserName(userData.username);
                     setEmail(userData.email);
                     setPassword(userData.password);
+                    setAccessToken(userData.accessToken);
                 } else {
                     setError("User not found.");
                 }
@@ -44,6 +47,23 @@ const Profile = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const userProfilePicture = await axios.get(`http://localhost:8080/api/profile-picture?accesstoken=${accessToken}`, { withCredentials: true, responseType: 'blob' });
+
+                const imageUrl = URL.createObjectURL(userProfilePicture.data);
+                setProfilePicture(imageUrl)
+            } catch (error) {
+                if (error.response?.data.message === "Unauthorized.") {
+                    setError(error.response.data.message);
+                }
+            }
+        }
+
+        fetchData();
+    }, [accessToken]);
 
     useEffect(() => {
         const checkPassword = async () => {
@@ -109,30 +129,51 @@ const Profile = () => {
     return (
         <div className="flex justify-center text-center items-center bg-zinc-900 min-h-screen">
             <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-16 m-12">
-                <img src="https://avatars.githubusercontent.com/u/56132780?v=4" alt="Profile" className="w-32 h-32 mb-12 rounded-full border-4 border-white"/>
+                <div className="relative w-32 h-32 mb-12 rounded-full border-4 border-white overflow-hidden group">
+                    <img src={profilePicture} alt="Profile" className="w-full h-full object-cover"/>
+
+                    {isEditing && (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black bg-opacity-50">
+                            <label htmlFor="fileInput" className="cursor-pointer">
+                                <MdModeEditOutline className="text-white text-2xl"/>
+                            </label>
+                            <input type="file" id="fileInput" className="hidden"/>
+                        </div>
+                    )}
+                </div>
 
                 <div className="flex flex-col items-start">
                     <label className="text-white text-xl">Full name</label>
-                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing}
+                           className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                           onChange={handleInputChange}/>
 
                     <label className="text-white text-xl">User name</label>
-                    <input type="text" name="userName" value={userName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                    <input type="text" name="userName" value={userName} readOnly={!isEditing}
+                           className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                           onChange={handleInputChange}/>
                     {userName.length < 4 && isEditing && userName.length !== 0 && (
                         <small className="text-red-500">Username must be at least 4 characters long.</small>
                     )}
 
                     <label className="text-white text-xl">Email</label>
-                    <input type="text" name="email" value={email} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"/>
+                    <input type="text" name="email" value={email} readOnly={!isEditing}
+                           className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"/>
                     {isEditing && (
                         <>
                             <label className="text-white text-xl">Current Email</label>
-                            <input type="text" name="currentEmail" placeholder="Your current email." value={currentEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <input type="text" name="currentEmail" placeholder="Your current email."
+                                   value={currentEmail}
+                                   className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                                   onChange={handleInputChange}/>
                             {currentEmail !== email && currentEmail.length !== 0 && (
                                 <small className="text-red-500">Provided email is not yours.</small>
                             )}
 
                             <label className="text-white text-xl">New Email</label>
-                            <input type="text" name="newEmail" placeholder="Your new email." value={newEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <input type="text" name="newEmail" placeholder="Your new email." value={newEmail}
+                                   className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                                   onChange={handleInputChange}/>
                             {!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && isEditing && newEmail.length !== 0 && (
                                 <small className="text-red-500">Invalid email.</small>
                             )}
@@ -146,14 +187,18 @@ const Profile = () => {
                         <>
                             <label className="text-white text-xl">Current Password</label>
                             <div className="relative">
-                                <input type={showCurrentPassword ? "text" : "password"} name="currentPassword" placeholder="Your current password." value={currentPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
-                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowCurrentPassword}>
-                                        {showCurrentPassword ? (
-                                            <MdVisibility className="text-white"/>
-                                        ) : (
-                                            <MdVisibilityOff className="text-white"/>
-                                        )}
-                                    </div>
+                                <input type={showCurrentPassword ? "text" : "password"} name="currentPassword"
+                                       placeholder="Your current password." value={currentPassword}
+                                       className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                                       onChange={handleInputChange}/>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                                     onClick={toggleShowCurrentPassword}>
+                                    {showCurrentPassword ? (
+                                        <MdVisibility className="text-white"/>
+                                    ) : (
+                                        <MdVisibilityOff className="text-white"/>
+                                    )}
+                                </div>
                             </div>
                             {!passwordMatch && currentPassword.length !== 0 && (
                                 <small className="text-red-500">Incorrect password.</small>
@@ -161,14 +206,18 @@ const Profile = () => {
 
                             <label className="text-white text-xl">New Password</label>
                             <div className="relative">
-                                <input type={showNewPassword ? "text" : "password"} name="newPassword" placeholder="Your new password." value={newPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
-                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowNewPassword}>
-                                        {showNewPassword ? (
-                                            <MdVisibility className="text-white"/>
-                                        ) : (
-                                            <MdVisibilityOff className="text-white"/>
-                                        )}
-                                    </div>
+                                <input type={showNewPassword ? "text" : "password"} name="newPassword"
+                                       placeholder="Your new password." value={newPassword}
+                                       className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                                       onChange={handleInputChange}/>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                                     onClick={toggleShowNewPassword}>
+                                    {showNewPassword ? (
+                                        <MdVisibility className="text-white"/>
+                                    ) : (
+                                        <MdVisibilityOff className="text-white"/>
+                                    )}
+                                </div>
                             </div>
                             {(newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(newPassword)) && newPassword.length !== 0 && (
                                 <small className="text-red-500">Password is not strong enough.</small>
@@ -179,17 +228,23 @@ const Profile = () => {
 
                 <div className="flex flex-row items-center space-x-4 mt-4">
                     {isEditing ? (
-                        <button className="flex items-center bg-red-600 hover:bg-red-500 text-white text-xl font-bold py-2 px-4 rounded" onClick={handleStopEditing}>
+                        <button
+                            className="flex items-center bg-red-600 hover:bg-red-500 text-white text-xl font-bold py-2 px-4 rounded"
+                            onClick={handleStopEditing}>
                             <MdModeEditOutline className="mr-2"/> Stop Editing
                         </button>
                     ) : (
-                        <button className="flex items-center bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded" onClick={handleStartEditing}>
+                        <button
+                            className="flex items-center bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded"
+                            onClick={handleStartEditing}>
                             <MdModeEditOutline className="mr-2"/> Edit
                         </button>
                     )}
 
                     {isEditing && (
-                        <button className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded" onClick={handleSave}>
+                        <button
+                            className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded"
+                            onClick={handleSave}>
                             <MdSave className="mr-2"/> Save
                         </button>
                     )}

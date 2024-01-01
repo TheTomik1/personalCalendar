@@ -20,7 +20,7 @@ async function seed() {
                 password  VARCHAR(255) UNIQUE,
                 fullname  VARCHAR(255),
                 createdAt  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (createdAt),
-                profilePicture  TEXT,
+                accessToken  TEXT,
                 isAdmin  TINYINT(1) DEFAULT 0
             );
         `);
@@ -48,6 +48,15 @@ async function seed() {
                 location TEXT,
                 color TEXT,
                 FOREIGN KEY (calendarId) REFERENCES calendars(id)                                          
+            );
+        `);
+
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS userImages (
+                id INTEGER NOT NULL PRIMARY KEY,
+                userId INTEGER NOT NULL,
+                imageName TEXT NOT NULL,
+                FOREIGN KEY (userId) REFERENCES users(id)
             );
         `);
 

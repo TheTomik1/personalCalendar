@@ -1,8 +1,11 @@
 const router = require('express').Router();
+const multer = require('multer');
+const path = require("path");
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const openDatabase = require('../openDatabaseConnection');
@@ -11,6 +14,38 @@ const getUserInformation = require('./functions/getUserInformation');
 const secretKey = process.env.JWT_SECRET;
 
 router.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, 'images');
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const guid = uuidv4();
+        const fileExtension = path.extname(file.originalname);
+        const fileName = `${guid}${fileExtension}`;
+        cb(null, fileName);
+    },
+});
+
+const fileFilter = (req, file, cb) => {
+    const allowedFileTypes = ['image/png', 'image/jpeg'];
+
+    if (allowedFileTypes.includes(file.mimetype)) {
+        cb(null, true); // Accept the file
+    } else {
+        cb(new Error('Invalid file type. Only PNG and JPG are allowed.'), false);
+    }
+};
+
+const upload = multer({
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB file size limit
+    },
+    storage,
+    fileFilter
+});
+
 
 router.post("/register", async(req, res) => {
     try {
@@ -25,10 +60,13 @@ router.post("/register", async(req, res) => {
             return res.status(400).send({ message: 'User already exists.' });
         }
 
+        const accessToken = uuidv4();
+
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertedUser = await db.run('INSERT INTO users (username, email, password, profilePicture) VALUES (?, ?, ?, ?) RETURNING id', username, email, hashedPassword, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+        const insertedUser = await db.run('INSERT INTO users (username, email, password, accessToken, profilePicture) VALUES (?, ?, ?, ?, ?) RETURNING id', username, email, hashedPassword, accessToken, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
+        await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", insertedUser.lastID, "");
 
         await db.close();
         await res.status(201).send({ message: 'User created.' });
@@ -80,6 +118,31 @@ router.get("/current-user", async(req, res) => {
         await res.status(200).send({ userInformation });
     } else {
         await res.status(401).send({ message: 'Unauthorized' });
+    }
+});
+
+router.post("/edit-user", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        let { username, email, password, fullname } = req.body;
+        await db.run("UPDATE users SET username = ?, fullname = ? WHERE id = ?", username, fullname, jwt.verify(req.cookies.auth, secretKey).id);
+
+        if (email !== "") {
+            await db.run("UPDATE users SET email = ? WHERE id = ?", email, jwt.verify(req.cookies.auth, secretKey).id);
+        }
+        if (password !== "") {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await db.run("UPDATE users SET password = ? WHERE id = ?", hashedPassword, jwt.verify(req.cookies.auth, secretKey).id);
+        }
+
+        await res.status(201).send({ message: 'User edited.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
@@ -236,6 +299,76 @@ router.post("/delete-event", async(req, res) => {
         await res.status(201).send({ message: 'Event deleted.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.post("/upload-profile-picture", async (req, res) => {
+    try {
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        upload.single('image')(req, res, async (err) => {
+            if (err instanceof multer.MulterError) {
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(400).send({ message: "Image size too large." });
+                }
+                return next(err);
+            } else if (err) {
+                if (err.message === 'Invalid file type. Only PNG and JPG are allowed.') {
+                    return res.status(400).send({ message: "Invalid file type. Only PNG and JPG file types are allowed." });
+                }
+                return res.status(500).send({ message: "An unknown error occurred." });
+            }
+
+            if (!req.file) {
+                return res.status(400).send({ message: "No file uploaded." });
+            }
+
+            const db = await openDatabase();
+
+            const userId = jwt.verify(req.cookies.auth, secretKey).id;
+
+            const existingImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userId);
+            if (existingImage) {
+                await db.run("DELETE FROM userImages WHERE userId = ?", userId);
+                const oldImagePath = path.join(__dirname, 'images', existingImage.imageName);
+                fs.unlinkSync(oldImagePath);
+            }
+
+            await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", userId, req.file.filename);
+            await db.close();
+
+            res.status(200).send({ status: "Successfully uploaded and replaced user image." });
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.get('/profile-picture', async(req, res) => {
+    if (!req.cookies.auth) {
+        return res.status(401).send({ message: 'Unauthorized.' });
+    }
+
+    let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
+    const userInformation = await getUserInformation(verifyAuthToken.id);
+
+    if (req.query.accesstoken !== userInformation.accessToken) {
+        return res.status(401).send({ message: 'Unauthorized.' });
+    }
+
+    const db = await openDatabase();
+    const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", verifyAuthToken.id);
+
+    const imageName = userImage.imageName;
+    const imagePath = path.join(__dirname, 'images', imageName);
+
+    if (fs.existsSync(imagePath)) {
+        res.sendFile(imagePath);
+    } else {
+        res.status(404).json({ error: 'Image not found' });
     }
 });
 
