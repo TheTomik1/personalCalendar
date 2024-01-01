@@ -6,3 +6,5 @@ package-lock.json
 
 .env
 personalCalendar.db
+
+backend/api/images
