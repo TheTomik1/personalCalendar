@@ -58,6 +58,9 @@ const Profile = () => {
             } catch (error) {
                 if (error.response?.data.message === "Unauthorized.") {
                     setError(error.response.data.message);
+                } else if (error.response?.status === 404) {
+                    const defaultImageUrl = "https://robohash.org/noprofilepic.png";
+                    setProfilePicture(defaultImageUrl);
                 }
             }
         }
