@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "db:seed": "node scripts/db-seed.js"
+    "db:create": "node scripts/db-create.js"
   },
   "author": "",
   "license": "ISC",

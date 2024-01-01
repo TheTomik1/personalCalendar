@@ -64,7 +64,10 @@ const Navbar = () => {
                         <a href="/" className="text-white">About</a>
                         {loggedIn ? (
                             <>
-                                <div className="relative inline-block text-left">
+                                <div className="relative inline-block text-left space-x-4">
+                                    <a href="/profile" className="text-white hover:text-gray-300">
+                                        Profile
+                                    </a>
                                     <button className="text-white hover:text-gray-300" onClick={handleLogout}>
                                         Logout
                                     </button>

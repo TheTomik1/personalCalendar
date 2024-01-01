@@ -1,12 +1,14 @@
 process.env["DEBUG"] = "db-seed";
 
-const sqlite3 = require('sqlite3');
+const fs = require('fs');
 const debug = require('debug')('db-seed');
 const { open } = require('sqlite');
 
 const openDatabase = require('../openDatabaseConnection');
 
 async function seed() {
+    await fs.createWriteStream('personalCalendar.db');
+
     try {
         const db = await openDatabase();
         await db.exec(`
@@ -16,9 +18,9 @@ async function seed() {
                 username  VARCHAR(255) UNIQUE,
                 email  VARCHAR(255),
                 password  VARCHAR(255) UNIQUE,
+                fullname  VARCHAR(255),
                 createdAt  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (createdAt),
                 profilePicture  TEXT,
-                isBanned  TINYINT(1) DEFAULT 0,
                 isAdmin  TINYINT(1) DEFAULT 0
             );
         `);
@@ -50,7 +52,7 @@ async function seed() {
         `);
 
         await db.close();
-        debug('Database seeded.');
+        debug('Database created.');
     } catch (e) {
         debug(`Error seeding database: ${e}`);
     }

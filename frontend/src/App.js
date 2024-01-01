@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
+import Profile from "./pages/Profile";
 
 import './styles.css';
 
@@ -15,6 +16,7 @@ function App() {
               <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/my-calendar" element={<Calendar />} />
+                  <Route path="/profile" element={<Profile />} />
               </Routes>
           </Router>
       </div>
