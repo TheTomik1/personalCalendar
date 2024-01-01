@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
+
 import axios from "axios";
-import { MdModeEditOutline, MdSave } from "react-icons/md";
+import bcrypt from "bcryptjs-react";
+
+import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const Profile = () => {
     const [error, setError] = useState(null);
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
+    const [passwordMatch, setPasswordMatch] = useState(false);
     const [newPassword, setNewPassword] = useState("");
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
@@ -24,6 +31,7 @@ const Profile = () => {
                     setFullName(userData.fullname);
                     setUserName(userData.username);
                     setEmail(userData.email);
+                    setPassword(userData.password);
                 } else {
                     setError("User not found.");
                 }
@@ -37,12 +45,34 @@ const Profile = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const checkPassword = async () => {
+            if (await bcrypt.compare(currentPassword, password)) {
+                setPasswordMatch(true);
+            } else {
+                setPasswordMatch(false);
+            }
+        };
+
+        if (currentPassword.length > 0) {
+            checkPassword();
+        }
+    }, [currentPassword, password]);
+
     const handleStartEditing = () => {
         setIsEditing(true);
     };
 
     const handleStopEditing = () => {
         setIsEditing(false);
+    };
+
+    const toggleShowCurrentPassword = () => {
+        setShowCurrentPassword(!showCurrentPassword);
+    };
+
+    const toggleShowNewPassword = () => {
+        setShowNewPassword(!showNewPassword);
     };
 
     const handleInputChange = (event) => {
@@ -54,9 +84,6 @@ const Profile = () => {
                 break;
             case "userName":
                 setUserName(value);
-                break;
-            case "email":
-                setEmail(value);
                 break;
             case "currentEmail":
                 setCurrentEmail(value);
@@ -90,27 +117,62 @@ const Profile = () => {
 
                     <label className="text-white text-xl">User name</label>
                     <input type="text" name="userName" value={userName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                    {userName.length < 4 && isEditing && userName.length !== 0 && (
+                        <small className="text-red-500">Username must be at least 4 characters long.</small>
+                    )}
 
                     <label className="text-white text-xl">Email</label>
-                    <input type="text" name="email" value={email} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
-
+                    <input type="text" name="email" value={email} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"/>
                     {isEditing && (
                         <>
                             <label className="text-white text-xl">Current Email</label>
                             <input type="text" name="currentEmail" placeholder="Your current email." value={currentEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            {currentEmail !== email && currentEmail.length !== 0 && (
+                                <small className="text-red-500">Provided email is not yours.</small>
+                            )}
 
                             <label className="text-white text-xl">New Email</label>
                             <input type="text" name="newEmail" placeholder="Your new email." value={newEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            {!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && isEditing && newEmail.length !== 0 && (
+                                <small className="text-red-500">Invalid email.</small>
+                            )}
+                            {newEmail === email && isEditing && newEmail.length !== 0 && (
+                                <small className="text-red-500">New email cannot be the same as the current one.</small>
+                            )}
                         </>
                     )}
 
                     {isEditing && (
                         <>
                             <label className="text-white text-xl">Current Password</label>
-                            <input type="password" name="currentPassword" placeholder="Your current password." value={currentPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <div className="relative">
+                                <input type={showCurrentPassword ? "text" : "password"} name="currentPassword" placeholder="Your current password." value={currentPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowCurrentPassword}>
+                                        {showCurrentPassword ? (
+                                            <MdVisibility className="text-white"/>
+                                        ) : (
+                                            <MdVisibilityOff className="text-white"/>
+                                        )}
+                                    </div>
+                            </div>
+                            {!passwordMatch && currentPassword.length !== 0 && (
+                                <small className="text-red-500">Incorrect password.</small>
+                            )}
 
                             <label className="text-white text-xl">New Password</label>
-                            <input type="password" name="newPassword" placeholder="Your new password." value={newPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <div className="relative">
+                                <input type={showNewPassword ? "text" : "password"} name="newPassword" placeholder="Your new password." value={newPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowNewPassword}>
+                                        {showNewPassword ? (
+                                            <MdVisibility className="text-white"/>
+                                        ) : (
+                                            <MdVisibilityOff className="text-white"/>
+                                        )}
+                                    </div>
+                            </div>
+                            {(newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(newPassword)) && newPassword.length !== 0 && (
+                                <small className="text-red-500">Password is not strong enough.</small>
+                            )}
                         </>
                     )}
                 </div>
