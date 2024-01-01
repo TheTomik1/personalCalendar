@@ -7,7 +7,6 @@ const Profile = () => {
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
@@ -25,7 +24,6 @@ const Profile = () => {
                     setFullName(userData.fullname);
                     setUserName(userData.username);
                     setEmail(userData.email);
-                    setPassword(userData.password);
                 } else {
                     setError("User not found.");
                 }
@@ -83,39 +81,36 @@ const Profile = () => {
 
     return (
         <div className="flex justify-center text-center items-center bg-zinc-900 min-h-screen">
-            <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-24">
+            <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-16 m-12">
                 <img src="https://avatars.githubusercontent.com/u/56132780?v=4" alt="Profile" className="w-32 h-32 mb-12 rounded-full border-4 border-white"/>
 
                 <div className="flex flex-col items-start">
-                    <label className="text-white text-2xl">Full name</label>
-                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none caret-white focus:outline-blue-500" onChange={handleInputChange}/>
+                    <label className="text-white text-xl">Full name</label>
+                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
 
-                    <label className="text-white text-2xl">User name</label>
+                    <label className="text-white text-xl">User name</label>
                     <input type="text" name="userName" value={userName} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
 
-                    <label className="text-white text-2xl">Email</label>
+                    <label className="text-white text-xl">Email</label>
                     <input type="text" name="email" value={email} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
 
                     {isEditing && (
                         <>
-                            <label className="text-white text-2xl">Current Email</label>
-                            <input type="text" name="currentEmail" value={currentEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <label className="text-white text-xl">Current Email</label>
+                            <input type="text" name="currentEmail" placeholder="Your current email." value={currentEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
 
-                            <label className="text-white text-2xl">New Email</label>
-                            <input type="text" name="newEmail" value={newEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <label className="text-white text-xl">New Email</label>
+                            <input type="text" name="newEmail" placeholder="Your new email." value={newEmail} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
                         </>
                     )}
 
-                    <label className="text-white text-2xl">Password</label>
-                    <input type="password" name="passsword" value={password} readOnly={!isEditing} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"/>
-
                     {isEditing && (
                         <>
-                            <label className="text-white text-2xl">Current Password</label>
-                            <input type="password" name="currentPassword" value={currentPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <label className="text-white text-xl">Current Password</label>
+                            <input type="password" name="currentPassword" placeholder="Your current password." value={currentPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
 
-                            <label className="text-white text-2xl">New Password</label>
-                            <input type="password" name="newPassword" value={newPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
+                            <label className="text-white text-xl">New Password</label>
+                            <input type="password" name="newPassword" placeholder="Your new password." value={newPassword} className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white" onChange={handleInputChange}/>
                         </>
                     )}
                 </div>
