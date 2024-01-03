@@ -13,6 +13,7 @@ const Profile = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [profilePicture, setProfilePicture] = useState("");
+    const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
     const [accessToken, setAccessToken] = useState("");
     const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
@@ -46,6 +47,10 @@ const Profile = () => {
     useEffect(() => {
         async function fetchData() {
             try {
+                if (accessToken === "") {
+                    return;
+                }
+
                 const userProfilePicture = await axios.get(`http://localhost:8080/api/profile-picture?accesstoken=${accessToken}`, { withCredentials: true, responseType: 'blob' });
 
                 const imageUrl = URL.createObjectURL(userProfilePicture.data);
@@ -105,6 +110,40 @@ const Profile = () => {
 
     }
 
+    const handleProfilePictureChange = async(event) => {
+        const file = event.target.files[0];
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await axios.post("http://localhost:8080/api/upload-profile-picture",
+                formData,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            if (response.status === 201) {
+                toastr.success("Profile picture uploaded successfully.");
+                const userProfilePicture = await axios.get(`http://localhost:8080/api/profile-picture?accesstoken=${accessToken}`, { withCredentials: true, responseType: 'blob' });
+                const imageUrl = URL.createObjectURL(userProfilePicture.data);
+                setProfilePicture(imageUrl);
+            }
+        } catch (error) {
+            if (error.response?.data?.message === "Image size too large.") {
+                toastr.error("Image is too large. Please upload an image smaller than 5MB.");
+                return;
+            }
+
+
+            toastr.error("Error uploading profile picture. Please try again later.");
+        }
+    };
+
     const handleStartEditing = () => {
         setIsEditing(true);
     };
@@ -159,7 +198,13 @@ const Profile = () => {
                             <label htmlFor="fileInput" className="cursor-pointer">
                                 <MdModeEditOutline className="text-white text-2xl"/>
                             </label>
-                            <input type="file" id="fileInput" className="hidden"/>
+                            <input
+                                type="file"
+                                id="fileInput"
+                                className="hidden"
+                                accept={".png, .jpg, .jpeg"}
+                                onChange={handleProfilePictureChange}
+                            />
                         </div>
                     )}
                 </div>
@@ -275,7 +320,8 @@ const Profile = () => {
 
                     {isEditing && (
                         <>
-                            <button className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">
+                            <button
+                                className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">
                                 <MdSave className="mr-2"/> Save
                             </button>
                         </>

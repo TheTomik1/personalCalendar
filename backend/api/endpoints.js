@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedFileTypes = ['image/png', 'image/jpeg'];
+    const allowedFileTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 
     if (allowedFileTypes.includes(file.mimetype)) {
         cb(null, true); // Accept the file
@@ -343,10 +343,9 @@ router.post("/upload-profile-picture", async (req, res) => {
             await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", userId, req.file.filename);
             await db.close();
 
-            res.status(200).send({ status: "Successfully uploaded and replaced user image." });
+            res.status(201).send({ status: "Successfully uploaded and replaced user image." });
         });
     } catch (e) {
-        console.error(e);
         res.status(500).send({ message: 'Internal server error.' });
     }
 });
@@ -363,10 +362,14 @@ router.get('/profile-picture', async(req, res) => {
         return res.status(401).send({ message: 'Unauthorized.' });
     }
 
+    console.log(userInformation.id)
+
     const db = await openDatabase();
-    const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", verifyAuthToken.id);
+    const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userInformation.id);
+    console.log(userImage);
 
     const imageName = userImage.imageName;
+
     const imagePath = path.join(__dirname, 'images', imageName);
 
     if (fs.existsSync(imagePath)) {
