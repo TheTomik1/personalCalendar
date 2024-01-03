@@ -49,13 +49,13 @@ const upload = multer({
 
 router.post("/register", async(req, res) => {
     try {
-        const { username, email, password } = req.body;
-        if (!username || !email || !password) {
+        const { userName, fullName, email, password } = req.body;
+        if (!userName || !fullName || !email || !password) {
             return res.status(400).send({ message: 'Invalid body.' });
         }
 
         const db = await openDatabase();
-        const findUser = await db.get('SELECT * FROM users WHERE username = ? OR email = ?', username, email);
+        const findUser = await db.get('SELECT * FROM users WHERE username = ? OR email = ?', userName, email);
         if (findUser) {
             return res.status(400).send({ message: 'User already exists.' });
         }
@@ -63,7 +63,7 @@ router.post("/register", async(req, res) => {
         const accessToken = uuidv4();
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertedUser = await db.run('INSERT INTO users (username, email, password, accessToken, profilePicture) VALUES (?, ?, ?, ?, ?) RETURNING id', username, email, hashedPassword, accessToken, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+        const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password, accessToken, profilePicture) VALUES (?, ?, ?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword, accessToken, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
         await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", insertedUser.lastID, "");
@@ -94,7 +94,7 @@ router.post("/login", async(req, res) => {
         }
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
-        await res.cookie('auth', token, { httpOnly: true, maxAge: 604800000 });
+        await res.cookie('auth', token, { maxAge: 604800000 });
         await res.status(201).send({ message: 'User logged in.' });
         await db.close();
     } catch (e) {

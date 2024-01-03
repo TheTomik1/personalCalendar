@@ -1,32 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
+import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import toastr from 'toastr';
 
 import RegistrationForm from "../components/Register";
 import LoginForm from "../components/Login";
 
-import toastr from 'toastr';
-import 'toastr/build/toastr.min.css';
-import axios from 'axios';
-
-const Navbar = () => {
+const Navbar = ({ isLoggedIn }) => {
     const [showRegistration, setShowRegistration] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        async function checkLoggedIn() {
-            try {
-                const fetchUser = await axios.get("http://localhost:8080/api/current-user", { withCredentials: true });
-                setLoggedIn(true);
-                setUser(fetchUser.data.userInformation);
-
-            } catch (error) {
-                setLoggedIn(false);
-            }
-        }
-
-        checkLoggedIn();
-    }, []);
+    const navigate = useNavigate();
 
     const handleTryOutClick = () => {
         setShowRegistration(true);
@@ -47,10 +32,10 @@ const Navbar = () => {
     const handleLogout = async () => {
         try {
             await axios.post("http://localhost:8080/api/logout", null, { withCredentials: true });
-            setLoggedIn(false);
-            setUser(null);
+            navigate("/");
+            toastr.success("Logout successful.");
         } catch (error) {
-            toastr.error("Error logging out");
+            toastr.error("Logout failed. Try again later.");
         }
     };
 
@@ -58,16 +43,16 @@ const Navbar = () => {
         <nav className="bg-zinc-900 p-4">
             <div className="container mx-auto">
                 <div className="flex justify-between items-center">
-                    <a href="/" className="text-white text-2xl font-semibold">Personal Calendar</a>
+                    <Link to="/" className="text-white text-2xl font-semibold">Personal Calendar</Link>
                     <div className="space-x-4">
-                        <a href="/my-calendar" className="text-white">My Calendar</a>
-                        <a href="/" className="text-white">About</a>
-                        {loggedIn ? (
+                        <Link to="/my-calendar" className="text-white">My Calendar</Link>
+                        <Link to="/" className="text-white">About</Link>
+                        {isLoggedIn ? (
                             <>
                                 <div className="relative inline-block text-left space-x-4">
-                                    <a href="/profile" className="text-white hover:text-gray-300">
+                                    <Link to="/profile" className="text-white hover:text-gray-300">
                                         Profile
-                                    </a>
+                                    </Link>
                                     <button className="text-white hover:text-gray-300" onClick={handleLogout}>
                                         Logout
                                     </button>

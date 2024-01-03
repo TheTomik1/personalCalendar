@@ -1,50 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
-
-import { FaCalendarPlus } from "react-icons/fa6";
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { useCookies } from "react-cookie";
+import { Navigate } from "react-router-dom";
 
 import WeeklyCalendar from "../components/WeeklyCalendar";
 import MonthlyCalendar from "../components/MonthlyCalendar";
 import AddNewEventModal from '../components/AddOrEditModal';
 import YearlyCalendar from "../components/YearlyCalendar";
 
-const Calendar = () => {
-    /*
-        TODO: Finish the weekly calendar.
-        TODO: Scrolling up and down will scroll between weeks/months/years depending on the view.
-        TODO: Whenever the component is mounted, fetch the calendar and events data from the backend.
-        TODO: Whenever the component is refreshed, it will remember the view permanently (maybe use cookies).
-     */
+import { FaCalendarPlus } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
+const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [calendarData, setCalendarData] = useState(null);
     const [eventsData, setEventData] = useState(null);
-    const [viewType, setViewType] = useState("week");
-    const [dayInfo, setDayInfo] = useState({});
+    const [cookies, setCookie] = useCookies(["viewType"]);
+    const [viewType, setViewType] = useState(cookies.viewType || "week");
     const [newEventModal, setNewEventModal] = useState({});
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const fetchCalendar = await axios.get("http://localhost:8080/api/get-calendar", { withCredentials: true });
-
-                if (fetchCalendar.status === 200) {
-                    setCalendarData(fetchCalendar.data.calendar);
-                } else {
-                    setError("Calendar not found.");
-                }
-            } catch (error) {
-                if (error.response?.data.message === "Unauthorized.") {
-                    setError(error.response.data.message);
-                }
-            }
-        }
-
-        fetchData();
-    }, []);
 
     useEffect(() => {
         async function fetchData() {
@@ -91,6 +65,7 @@ const Calendar = () => {
     };
 
     const changeView = (type) => {
+        setCookie("viewType", type, { path: "/" });
         setViewType(type);
     };
 

@@ -24,7 +24,7 @@ const Home = () => {
     }
 
     return (
-        <div className={"text-center bg-gradient-to-b from-zinc-900 to-zinc-700"}>
+        <div className={"text-center bg-zinc-900 min-h-screen"}>
             <h1 className={"text-5xl text-white font-bold pt-24"}>Seamlessly Schedule Your Life.</h1>
             <h2 className={"mt-6 text-lg text-white"}>Personal calendar will be your best friend for scheduling your days.</h2>
             {showRegistration ? (
