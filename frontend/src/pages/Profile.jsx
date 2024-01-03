@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import bcrypt from "bcryptjs-react";
 import toastr from "toastr";
 
 import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
+
+import ContestModal from "../components/ContestModal";
 
 const Profile = () => {
     const [error, setError] = useState("");
@@ -13,7 +16,6 @@ const Profile = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [profilePicture, setProfilePicture] = useState("");
-    const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
     const [accessToken, setAccessToken] = useState("");
     const [currentEmail, setCurrentEmail] = useState("");
     const [newEmail, setNewEmail] = useState("");
@@ -23,6 +25,9 @@ const Profile = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [userDeleteContest, setUserDeleteContest] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -107,7 +112,21 @@ const Profile = () => {
     }
 
     const deleteUser = async(e) => {
+        e.preventDefault();
 
+        try {
+            const response = await axios.post("http://localhost:8080/api/delete-user", { password }, { withCredentials: true });
+            if (response.status === 201) {
+                toastr.success("Your account and all of its associated information has been deleted successfully.");
+                navigate("/");
+            }
+        } catch (error) {
+            toastr.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    const toggleUserDeleteContest = () => {
+        setUserDeleteContest(!userDeleteContest);
     }
 
     const handleProfilePictureChange = async(event) => {
@@ -301,7 +320,7 @@ const Profile = () => {
                         <button
                             className="flex items-center bg-red-600 hover:bg-red-500 text-white text-xl font-bold py-2 px-4 rounded"
                             onClick={handleStopEditing}>
-                            <MdModeEditOutline className="mr-2"/> Stop Editing
+                            <MdModeEditOutline className="mr-2"/>Stop Editing
                         </button>
                     ) : (
                         <div className="flex flex-row items-center space-x-4">
@@ -312,7 +331,7 @@ const Profile = () => {
                             </button>
                             <button
                                 className="flex items-center bg-red-600 hover:bg-red-500 text-white text-xl font-bold py-2 px-4 rounded"
-                                onClick={deleteUser}>
+                                onClick={toggleUserDeleteContest}>
                                 <MdDelete className="mr-2"/>Delete
                             </button>
                         </div>
@@ -328,6 +347,9 @@ const Profile = () => {
                     )}
                 </div>
             </form>
+            {userDeleteContest && (
+                <ContestModal title={"Are you sure you want to delete your account?"} actionNo={() => setUserDeleteContest(false)} actionYes={deleteUser}/>
+            )}
         </div>
     );
 }

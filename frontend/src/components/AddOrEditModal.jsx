@@ -10,42 +10,6 @@ import { FaLocationPin } from "react-icons/fa6";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import TimePicker from "./TimePicker";
 
-const postEvent = async (title, description, location, color, date, start, end, eventType) => {
-    await axios.post("http://localhost:8080/api/add-event", {
-        title: title,
-        description: description,
-        location: location,
-        color: color,
-        start: `${date} ${start}`,
-        end: `${date} ${end}`,
-        type: eventType
-    }, {withCredentials: true}).then((res) => {
-        if (res.status === 201) {
-            window.location.reload();
-        }
-    }).catch((err) => {
-        console.log(err);
-    })
-}
-
-const editEvent = async (title, description, location, color, date, start, end, eventType, eventId) => {
-    await axios.post("http://localhost:8080/api/edit-event", {
-        title: title,
-        description: description,
-        location: location,
-        color: color,
-        start: `${date} ${start}`,
-        end: `${date} ${end}`,
-        type: eventType,
-        id: eventId
-    }, {withCredentials: true}).then((res) => {
-        if (res.status === 201) {
-            window.location.reload();
-        }
-    }).catch((err) => {
-        console.log(err);
-    })
-}
 
 const AddOrEditModal = ({ eventData, onClose }) => {
     const [addTitleFocused, setAddTitleFocused] = useState(false);
@@ -75,8 +39,45 @@ const AddOrEditModal = ({ eventData, onClose }) => {
         };
     }, [onClose]);
 
+    const postEvent = async (title, description, location, color, date, start, end, eventType) => {
+        await axios.post("http://localhost:8080/api/add-event", {
+            title: title,
+            description: description,
+            location: location,
+            color: color,
+            start: `${date} ${start}`,
+            end: `${date} ${end}`,
+            type: eventType
+        }, {withCredentials: true}).then((res) => {
+            if (res.status === 201) {
+                window.location.reload();
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+    const editEvent = async (title, description, location, color, date, start, end, eventType, eventId) => {
+        await axios.post("http://localhost:8080/api/edit-event", {
+            title: title,
+            description: description,
+            location: location,
+            color: color,
+            start: `${date} ${start}`,
+            end: `${date} ${end}`,
+            type: eventType,
+            id: eventId
+        }, {withCredentials: true}).then((res) => {
+            if (res.status === 201) {
+                window.location.reload();
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
     return (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
             <div className="bg-zinc-800 rounded-xl p-4">
                 <form>
                     <input

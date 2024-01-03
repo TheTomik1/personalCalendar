@@ -1,6 +1,6 @@
 const ContestModal = ({ title, actionYes, actionNo }) => {
     return (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
             <div className="bg-zinc-800 rounded-lg w-1/3 p-4">
                 <div className="flex justify-center items-center">
                     <div className="text-2xl text-white">{title}</div>

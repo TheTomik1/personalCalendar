@@ -5,6 +5,8 @@ import axios from "axios";
 import AddNewEventModal from "./AddOrEditModal";
 import ContestModal from "./ContestModal";
 
+import { deleteEvent } from "../services/deleteEvent";
+
 import { FaCalendarPlus, FaLocationPin } from "react-icons/fa6";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { PiTextAlignLeftLight } from "react-icons/pi";
@@ -25,18 +27,6 @@ const WeeklyCalendar = ({ date, eventsData }) => {
         return eventsData?.filter((event) => {
             const eventDate = new Date(event.datetimeStart);
             return eventDate.getFullYear() === day.getFullYear() && eventDate.getMonth() === day.getMonth() && eventDate.getDate() === day.getDate();
-        });
-    }
-
-    const deleteEvent = async(eventId) => {
-        // TODO: Add a contest for deletion here and make this reusable.
-
-        await axios.post("http://localhost:8080/api/delete-event", { id: eventId }, { withCredentials: true }).then((response) => {
-            if (response.status === 201) {
-
-            }
-        }).catch((error) => {
-            console.log(error);
         });
     }
 
@@ -95,7 +85,10 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                             <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)}/>
                         )}
                         {eventIdToDelete && (
-                            <ContestModal title="Are you sure you want to delete this event?" actionYes={() => deleteEvent(eventsData)} actionNo={() => setEventIdToDelete(null)} />
+                            <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {
+                                deleteEvent(eventsData[0].id)
+                                setEventIdToDelete(null)
+                            }} actionNo={() => setEventIdToDelete(null)} />
                         )}
                         {newEventModal && (
                             <AddNewEventModal onClose={() => setNewEventModal(false)} />

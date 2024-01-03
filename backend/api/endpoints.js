@@ -149,6 +149,26 @@ router.post("/edit-user", async(req, res) => {
     }
 });
 
+router.post("/delete-user", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        if (!req.cookies.auth) {
+            return res.status(401).send({ message: 'Unauthorized.' });
+        }
+
+        await db.run("DELETE FROM users WHERE id = ?", jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("DELETE FROM calendars WHERE ownerId = ?", jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("DELETE FROM userImages WHERE userId = ?", jwt.verify(req.cookies.auth, secretKey).id);
+        await res.clearCookie('auth');
+
+        await res.status(201).send({ message: 'User deleted.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
 router.get("/get-calendar", async(req, res) => {
     try {
         const db = await openDatabase();
@@ -287,9 +307,6 @@ router.post("/delete-event", async(req, res) => {
             return res.status(401).send({ message: 'Unauthorized.' });
         }
 
-        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
-
         const { id } = req.body;
 
         if (!id) {
@@ -304,7 +321,7 @@ router.post("/delete-event", async(req, res) => {
     }
 });
 
-router.post("/upload-profile-picture", async (req, res) => {
+router.post("/upload-profile-picture", async(req, res) => {
     try {
         if (!req.cookies.auth) {
             return res.status(401).send({ message: 'Unauthorized.' });

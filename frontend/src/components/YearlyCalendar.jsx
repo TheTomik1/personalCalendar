@@ -1,8 +1,6 @@
 import { addMonths, format, getDay, isToday, getDaysInMonth, startOfMonth } from "date-fns";
 import React, { useState } from "react";
 
-import toastr from "toastr";
-
 import DayInfoModal from "./DayInfoModal";
 
 const findDayEvents = (year, month, day, eventsData) => {
@@ -15,7 +13,6 @@ const findDayEvents = (year, month, day, eventsData) => {
 const YearlyCalendar = ({ date, eventsData }) => {
     const year = date.getFullYear();
     const months = Array.from({ length: 12 }, (_, index) => index + 1);
-    const today = new Date();
 
     const getFirstDayOfMonth = (year, month) => getDay(new Date(year, month - 1, 0));
 

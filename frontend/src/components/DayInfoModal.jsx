@@ -9,6 +9,8 @@ import { MdDelete } from "react-icons/md";
 import AddNewEventModal from "./AddOrEditModal";
 import ContestModal from "./ContestModal";
 
+import { deleteEvent } from "../services/deleteEvent";
+
 import { FaCalendarPlus } from "react-icons/fa6";
 
 const DayInfoModal = ({ day, eventsData, onClose }) => {
@@ -30,20 +32,8 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
         };
     }, [onClose]);
 
-    const deleteEvent = async(eventId) => {
-        // TODO: Add a contest for deletion here.
-
-        await axios.post("http://localhost:8080/api/delete-event", { id: eventId }, { withCredentials: true }).then((response) => {
-            if (response.status === 201) {
-                onClose();
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
-
     return (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
             <div className="bg-zinc-800 rounded-xl p-4">
                 <h1 className={"text-4xl text-white mb-4"}>{format(day.day, "EEEE")}</h1>
                 <h2 className={`text-3xl text-white ${day.isToday ? "bg-blue-700 p-2 rounded-xl" : null}`}>{format(day.day, "do LLLL")}</h2>
@@ -82,7 +72,10 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                     <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)}/>
                 )}
                 {eventIdToDelete && (
-                    <ContestModal title="Are you sure you want to delete this event?" actionYes={() => deleteEvent(eventsData)} actionNo={() => setEventIdToDelete(null)} />
+                    <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {
+                        deleteEvent(eventsData[0].id)
+                        setEventIdToDelete(null)
+                    }} actionNo={() => setEventIdToDelete(null)} />
                 )}
                 {newEventModal && (
                     <AddNewEventModal onClose={() => setNewEventModal(false)} />

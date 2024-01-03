@@ -2,7 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import toastr from "toastr";
 
 import WeeklyCalendar from "../components/WeeklyCalendar";
 import MonthlyCalendar from "../components/MonthlyCalendar";
@@ -16,9 +17,10 @@ const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [eventsData, setEventData] = useState(null);
     const [cookies, setCookie] = useCookies(["viewType"]);
-    const [viewType, setViewType] = useState(cookies.viewType || "week");
+    const [viewType, setViewType] = useState(cookies.viewType || "month");
     const [newEventModal, setNewEventModal] = useState({});
-    const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -28,11 +30,13 @@ const Calendar = () => {
                 if (fetchEvents.status === 200) {
                     setEventData(fetchEvents.data.events);
                 } else {
-                    setError("Events not found.");
+                    toastr.error("Something went wrong while fetching events. Try again later.");
+                    navigate("/");
                 }
             } catch (error) {
                 if (error.response?.data?.message === "Unauthorized.") {
-                    setError(error.response.data.message);
+                    toastr.error("Please login in order to access your calendar.");
+                    navigate("/");
                 }
             }
         }
