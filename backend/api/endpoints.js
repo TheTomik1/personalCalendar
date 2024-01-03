@@ -66,7 +66,6 @@ router.post("/register", async(req, res) => {
         const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password, accessToken) VALUES (?, ?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword, accessToken);
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
-        await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", insertedUser.lastID, "");
 
         await db.close();
         await res.status(201).send({ message: 'User created.' });
@@ -276,7 +275,6 @@ router.get("/get-events", async(req, res) => {
 
         res.status(200).send({ events });
     } catch (e) {
-        console.log(e);
         res.status(500).send({ message: 'Internal server error.' });
     }
 });
@@ -334,7 +332,8 @@ router.post("/upload-profile-picture", async (req, res) => {
             const userId = jwt.verify(req.cookies.auth, secretKey).id;
 
             const existingImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userId);
-            if (existingImage) {
+
+            if (existingImage !== undefined && existingImage.imageName !== "") {
                 await db.run("DELETE FROM userImages WHERE userId = ?", userId);
                 const oldImagePath = path.join(__dirname, 'images', existingImage.imageName);
                 fs.unlinkSync(oldImagePath);
@@ -362,13 +361,13 @@ router.get('/profile-picture', async(req, res) => {
         return res.status(401).send({ message: 'Unauthorized.' });
     }
 
-    console.log(userInformation.id)
-
     const db = await openDatabase();
     const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userInformation.id);
-    console.log(userImage);
+    if (!userImage) {
+        return res.status(404).json({ error: 'Image not found' });
+    }
 
-    const imageName = userImage.imageName;
+    const imageName = userImage?.imageName;
 
     const imagePath = path.join(__dirname, 'images', imageName);
 
