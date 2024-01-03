@@ -63,7 +63,7 @@ router.post("/register", async(req, res) => {
         const accessToken = uuidv4();
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password, accessToken, profilePicture) VALUES (?, ?, ?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword, accessToken, "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+        const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password, accessToken) VALUES (?, ?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword, accessToken);
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
         await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", insertedUser.lastID, "");
@@ -129,19 +129,23 @@ router.post("/edit-user", async(req, res) => {
             return res.status(401).send({ message: 'Unauthorized.' });
         }
 
-        let { username, email, password, fullname } = req.body;
-        await db.run("UPDATE users SET username = ?, fullname = ? WHERE id = ?", username, fullname, jwt.verify(req.cookies.auth, secretKey).id);
+        let { userName, fullName, newEmail, newPassword } = req.body;
 
-        if (email !== "") {
-            await db.run("UPDATE users SET email = ? WHERE id = ?", email, jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("UPDATE users SET username = ?, fullname = ? WHERE id = ?", userName, fullName, jwt.verify(req.cookies.auth, secretKey).id);
+
+        if (newEmail !== "") {
+            await db.run("UPDATE users SET email = ? WHERE id = ?", newEmail, jwt.verify(req.cookies.auth, secretKey).id);
         }
-        if (password !== "") {
-            const hashedPassword = await bcrypt.hash(password, 10);
+        if (newPassword !== "") {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
             await db.run("UPDATE users SET password = ? WHERE id = ?", hashedPassword, jwt.verify(req.cookies.auth, secretKey).id);
         }
 
         await res.status(201).send({ message: 'User edited.' });
     } catch (e) {
+        if (e.code === "SQLITE_CONSTRAINT") {
+            return res.status(400).send({ message: 'Such username or email already exists.' });
+        }
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });

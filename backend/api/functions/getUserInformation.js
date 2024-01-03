@@ -1,6 +1,6 @@
 const openDatabase = require('../../openDatabaseConnection');
 
-async function getUserInformation(userId){
+async function getUserInformation(userId) {
     const db = await openDatabase();
 
     const userInfo = await db.get('SELECT * FROM users WHERE id = ?', userId);

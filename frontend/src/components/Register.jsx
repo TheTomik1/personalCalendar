@@ -77,7 +77,7 @@ const RegistrationForm = ({ onClose }) => {
 
             if (registerRequest.status === 201) {
                 toastr.success('Registration successful. You can now login.');
-                window.location.href = "/my-calendar";
+                onClose();
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message === 'User already exists.') {

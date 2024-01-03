@@ -16,8 +16,8 @@ async function seed() {
             (
                 id  INTEGER PRIMARY KEY,
                 username  VARCHAR(255) UNIQUE,
-                email  VARCHAR(255),
-                password  VARCHAR(255) UNIQUE,
+                email  VARCHAR(255) UNIQUE,
+                password  VARCHAR(255),
                 fullname  VARCHAR(255),
                 createdAt  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (createdAt),
                 accessToken  TEXT,

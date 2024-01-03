@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 
 import axios from "axios";
 import bcrypt from "bcryptjs-react";
+import toastr from "toastr";
 
-import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
 
 const Profile = () => {
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("");
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
@@ -24,24 +25,18 @@ const Profile = () => {
 
     useEffect(() => {
         async function fetchData() {
-            try {
-                const fetchUserInfo = await axios.get("http://localhost:8080/api/current-user", { withCredentials: true });
+            const fetchUserInfo = await axios.get("http://localhost:8080/api/current-user", { withCredentials: true });
 
-                if (fetchUserInfo.status === 200) {
-                    const userData = fetchUserInfo.data.userInformation;
+            if (fetchUserInfo.status === 200) {
+                const userData = fetchUserInfo.data.userInformation;
 
-                    setFullName(userData.fullname);
-                    setUserName(userData.username);
-                    setEmail(userData.email);
-                    setPassword(userData.password);
-                    setAccessToken(userData.accessToken);
-                } else {
-                    setError("User not found.");
-                }
-            } catch (error) {
-                if (error.response?.data.message === "Unauthorized.") {
-                    setError(error.response.data.message);
-                }
+                setFullName(userData.fullname);
+                setUserName(userData.username);
+                setEmail(userData.email);
+                setPassword(userData.password);
+                setAccessToken(userData.accessToken);
+            } else {
+                toastr.error("Something went wrong. Please try again later.");
             }
         }
 
@@ -56,9 +51,7 @@ const Profile = () => {
                 const imageUrl = URL.createObjectURL(userProfilePicture.data);
                 setProfilePicture(imageUrl)
             } catch (error) {
-                if (error.response?.data.message === "Unauthorized.") {
-                    setError(error.response.data.message);
-                } else if (error.response?.status === 404) {
+                if (error.response?.status === 404) {
                     const defaultImageUrl = "https://robohash.org/noprofilepic.png";
                     setProfilePicture(defaultImageUrl);
                 }
@@ -81,6 +74,36 @@ const Profile = () => {
             checkPassword();
         }
     }, [currentPassword, password]);
+
+    const editUser = async(e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post("http://localhost:8080/api/edit-user", { userName, fullName, newEmail, newPassword }, { withCredentials: true });
+            if (response.status === 201) {
+                toastr.success("User information updated successfully.");
+
+                handleStopEditing();
+                setEmail(newEmail); // Force to update email because other field is where new email is typed.
+                setCurrentEmail("");
+                setNewEmail("");
+                setCurrentPassword("");
+                setNewPassword("");
+                setError("");
+            }
+        } catch (error) {
+            if (error.response?.data?.message === "Such username or email already exists.") {
+                setError("Such username or email already exists.")
+                return;
+            }
+
+            toastr.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    const deleteUser = async(e) => {
+
+    }
 
     const handleStartEditing = () => {
         setIsEditing(true);
@@ -125,13 +148,9 @@ const Profile = () => {
         }
     }
 
-    const handleSave = () => {
-        setIsEditing(false);
-    };
-
     return (
         <div className="flex justify-center text-center items-center bg-zinc-900 min-h-screen">
-            <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-16 m-12">
+            <form onSubmit={editUser} className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-16 m-12">
                 <div className="relative w-32 h-32 mb-12 rounded-full border-4 border-white overflow-hidden group">
                     <img src={profilePicture} alt="Profile" className="w-full h-full object-cover"/>
 
@@ -146,18 +165,18 @@ const Profile = () => {
                 </div>
 
                 <div className="flex flex-col items-start">
-                    <label className="text-white text-xl">Full name</label>
-                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing}
-                           className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                           onChange={handleInputChange}/>
-
-                    <label className="text-white text-xl">User name</label>
+                    <label className="text-white text-xl">Username</label>
                     <input type="text" name="userName" value={userName} readOnly={!isEditing}
                            className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
                            onChange={handleInputChange}/>
                     {userName.length < 4 && isEditing && userName.length !== 0 && (
                         <small className="text-red-500">Username must be at least 4 characters long.</small>
                     )}
+
+                    <label className="text-white text-xl">Full name</label>
+                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing}
+                           className="my-2 p-2 rounded-md text-white text-xl bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                           onChange={handleInputChange}/>
 
                     <label className="text-white text-xl">Email</label>
                     <input type="text" name="email" value={email} readOnly={!isEditing}
@@ -229,6 +248,9 @@ const Profile = () => {
                     )}
                 </div>
 
+                {error && isEditing && (
+                    <p className="text-red-500 text-sm mb-2">{error}</p>
+                )}
                 <div className="flex flex-row items-center space-x-4 mt-4">
                     {isEditing ? (
                         <button
@@ -237,22 +259,29 @@ const Profile = () => {
                             <MdModeEditOutline className="mr-2"/> Stop Editing
                         </button>
                     ) : (
-                        <button
-                            className="flex items-center bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded"
-                            onClick={handleStartEditing}>
-                            <MdModeEditOutline className="mr-2"/> Edit
-                        </button>
+                        <div className="flex flex-row items-center space-x-4">
+                            <button
+                                className="flex items-center bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded"
+                                onClick={handleStartEditing}>
+                                <MdModeEditOutline className="mr-2"/>Edit
+                            </button>
+                            <button
+                                className="flex items-center bg-red-600 hover:bg-red-500 text-white text-xl font-bold py-2 px-4 rounded"
+                                onClick={deleteUser}>
+                                <MdDelete className="mr-2"/>Delete
+                            </button>
+                        </div>
                     )}
 
                     {isEditing && (
-                        <button
-                            className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded"
-                            onClick={handleSave}>
-                            <MdSave className="mr-2"/> Save
-                        </button>
+                        <>
+                            <button className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">
+                                <MdSave className="mr-2"/> Save
+                            </button>
+                        </>
                     )}
                 </div>
-            </div>
+            </form>
         </div>
     );
 }
