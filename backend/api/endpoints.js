@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 require('dotenv').config({ path: __dirname + '/.env' });
 
+const authMiddleware = require('./middlewares/auth');
+
 const openDatabase = require('../openDatabaseConnection');
 const getUserInformation = require('./functions/getUserInformation');
 
@@ -45,7 +47,6 @@ const upload = multer({
     storage,
     fileFilter
 });
-
 
 router.post("/register", async(req, res) => {
     try {
@@ -110,34 +111,26 @@ router.post("/logout", async(req, res) => {
     }
 });
 
-router.get("/current-user", async(req, res) => {
-    if (req.cookies.auth) {
-        const userInformation = await getUserInformation(jwt.verify(req.cookies.auth, secretKey).id);
+router.get("/current-user", authMiddleware, async(req, res) => {
+    const userInformation = await getUserInformation(req.user.id);
 
-        await res.status(200).send({ userInformation });
-    } else {
-        await res.status(401).send({ message: 'Unauthorized' });
-    }
+    await res.status(200).send({ userInformation });
 });
 
-router.post("/edit-user", async(req, res) => {
+router.post("/edit-user", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
         let { userName, fullName, newEmail, newPassword } = req.body;
 
-        await db.run("UPDATE users SET username = ?, fullname = ? WHERE id = ?", userName, fullName, jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("UPDATE users SET username = ?, fullname = ? WHERE id = ?", userName, fullName, req.user.id);
 
         if (newEmail !== "") {
-            await db.run("UPDATE users SET email = ? WHERE id = ?", newEmail, jwt.verify(req.cookies.auth, secretKey).id);
+            await db.run("UPDATE users SET email = ? WHERE id = ?", newEmail, req.user.id);
         }
         if (newPassword !== "") {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await db.run("UPDATE users SET password = ? WHERE id = ?", hashedPassword, jwt.verify(req.cookies.auth, secretKey).id);
+            await db.run("UPDATE users SET password = ? WHERE id = ?", hashedPassword, req.user.id);
         }
 
         await res.status(201).send({ message: 'User edited.' });
@@ -149,18 +142,14 @@ router.post("/edit-user", async(req, res) => {
     }
 });
 
-router.post("/delete-user", async(req, res) => {
+router.post("/delete-user", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
-        await db.run("DELETE FROM users WHERE id = ?", jwt.verify(req.cookies.auth, secretKey).id);
-        await db.run("DELETE FROM calendars WHERE ownerId = ?", jwt.verify(req.cookies.auth, secretKey).id);
-        await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", jwt.verify(req.cookies.auth, secretKey).id);
-        await db.run("DELETE FROM userImages WHERE userId = ?", jwt.verify(req.cookies.auth, secretKey).id);
+        await db.run("DELETE FROM users WHERE id = ?", req.user.id);
+        await db.run("DELETE FROM calendars WHERE ownerId = ?", req.user.id);
+        await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", req.user.id);
+        await db.run("DELETE FROM userImages WHERE userId = ?", req.user.id);
         await res.clearCookie('auth');
 
         await res.status(201).send({ message: 'User deleted.' });
@@ -169,16 +158,11 @@ router.post("/delete-user", async(req, res) => {
     }
 });
 
-router.get("/get-calendar", async(req, res) => {
+router.get("/get-calendar", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
-        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const calendars = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+        const calendars = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);
 
         await res.status(200).send({ calendars });
     } catch (e) {
@@ -186,16 +170,11 @@ router.get("/get-calendar", async(req, res) => {
     }
 });
 
-router.post("/add-event", async(req, res) => {
+router.post("/add-event", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
-        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", verifyAuthToken.id);
+        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);
 
         const currentDateTime = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
         let { title, description, type, color, location, start, end } = req.body;
@@ -238,13 +217,9 @@ router.post("/add-event", async(req, res) => {
     }
 });
 
-router.post("/edit-event", async(req, res) => {
+router.post("/edit-event", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
-
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
 
         let { id, title, description, type, color, location, start, end } = req.body;
 
@@ -282,16 +257,11 @@ router.post("/edit-event", async(req, res) => {
     }
 });
 
-router.get("/get-events", async(req, res) => {
+router.get("/get-events", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
-        let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-        const events = await db.all("SELECT * FROM calendarEvents WHERE calendarId = ? ORDER BY datetimeStart", verifyAuthToken.id);
+        const events = await db.all("SELECT * FROM calendarEvents WHERE calendarId = ? ORDER BY datetimeStart", req.user.id);
 
         res.status(200).send({ events });
     } catch (e) {
@@ -299,13 +269,9 @@ router.get("/get-events", async(req, res) => {
     }
 });
 
-router.post("/delete-event", async(req, res) => {
+router.post("/delete-event", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
-
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
 
         const { id } = req.body;
 
@@ -321,18 +287,13 @@ router.post("/delete-event", async(req, res) => {
     }
 });
 
-router.post("/upload-profile-picture", async(req, res) => {
+router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
     try {
-        if (!req.cookies.auth) {
-            return res.status(401).send({ message: 'Unauthorized.' });
-        }
-
         upload.single('image')(req, res, async (err) => {
             if (err instanceof multer.MulterError) {
                 if (err.code === 'LIMIT_FILE_SIZE') {
                     return res.status(400).send({ message: "Image size too large." });
                 }
-                return next(err);
             } else if (err) {
                 if (err.message === 'Invalid file type. Only PNG and JPG are allowed.') {
                     return res.status(400).send({ message: "Invalid file type. Only PNG and JPG file types are allowed." });
@@ -346,33 +307,26 @@ router.post("/upload-profile-picture", async(req, res) => {
 
             const db = await openDatabase();
 
-            const userId = jwt.verify(req.cookies.auth, secretKey).id;
-
-            const existingImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userId);
+            const existingImage = await db.get("SELECT * FROM userImages WHERE userId = ?", req.user.id);
 
             if (existingImage !== undefined && existingImage.imageName !== "") {
-                await db.run("DELETE FROM userImages WHERE userId = ?", userId);
+                await db.run("DELETE FROM userImages WHERE userId = ?", req.user.id);
                 const oldImagePath = path.join(__dirname, 'images', existingImage.imageName);
                 fs.unlinkSync(oldImagePath);
             }
 
-            await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", userId, req.file.filename);
+            await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", req.user.id, req.file.filename);
             await db.close();
 
-            res.status(201).send({ status: "Successfully uploaded and replaced user image." });
+            res.status(201).send({ status: "Successfully uploaded or replaced user image." });
         });
     } catch (e) {
         res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
-router.get('/profile-picture', async(req, res) => {
-    if (!req.cookies.auth) {
-        return res.status(401).send({ message: 'Unauthorized.' });
-    }
-
-    let verifyAuthToken = jwt.verify(req.cookies.auth, secretKey);
-    const userInformation = await getUserInformation(verifyAuthToken.id);
+router.get('/profile-picture', authMiddleware, async(req, res) => {
+    const userInformation = await getUserInformation(req.user.id);
 
     if (req.query.accesstoken !== userInformation.accessToken) {
         return res.status(401).send({ message: 'Unauthorized.' });
@@ -381,18 +335,14 @@ router.get('/profile-picture', async(req, res) => {
     const db = await openDatabase();
     const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userInformation.id);
     if (!userImage) {
-        return res.status(404).json({ error: 'Image not found' });
+        return res.status(404).json({ error: 'Image not found.' });
     }
 
     const imageName = userImage?.imageName;
 
     const imagePath = path.join(__dirname, 'images', imageName);
 
-    if (fs.existsSync(imagePath)) {
-        res.sendFile(imagePath);
-    } else {
-        res.status(404).json({ error: 'Image not found' });
-    }
+    res.sendFile(imagePath);
 });
 
 module.exports = router;

@@ -7,12 +7,12 @@ const userAuth = (req, res, next) => {
     const token = req.cookies.auth;
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized: Token not provided.' });
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    jwt.verify(token, secretKey, (err, decoded) => {
+    jwt.verify(token, secretKey,(err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
+            return res.status(401).json({ message: 'Unauthorized' });
         }
         req.user = decoded;
 
