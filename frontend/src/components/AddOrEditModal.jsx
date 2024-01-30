@@ -11,6 +11,18 @@ import { PiTextAlignLeftLight } from "react-icons/pi";
 import TimePicker from "./TimePicker";
 
 
+const customDayPickerCss = `
+.day-selected {
+    color: #2563eb;
+    border-color: #2563eb
+}
+
+.day-today {
+    font-weight: bold; 
+    color: #3b82f6;
+}
+`
+
 const AddOrEditModal = ({ eventData, onClose }) => {
     const [addTitleFocused, setAddTitleFocused] = useState(false);
     const [addDescriptionFocused, setAddDescriptionFocused] = useState(false);
@@ -96,18 +108,17 @@ const AddOrEditModal = ({ eventData, onClose }) => {
                     </div>
 
                     <div className="flex justify-center items-center">
+                        <style>{customDayPickerCss}</style>
                         <DayPicker
-                            onDayClick={(date) => {
-                                const isPastDate = date < new Date();
-
-                                if (!isPastDate) {
-                                    setDate(date);
-                                }
-                            }}
+                            onDayClick={(date) => setDate(date)}
                             selected={date}
-                            className="bg-zinc-800 text-white"
                             showOutsideDays
                             ISOWeek
+                            className="text-white"
+                            modifiersClassNames={{
+                                selected: "day-selected",
+                                today: "day-today"
+                            }}
                             footer={
                             <div className="flex justify-between items-center text-black">
                                 <TimePicker startTime={startTime} endTime={endTime} onStartTimeChange={(time) => setStartTime(time)} onEndTimeChange={(time) => setEndTime(time)} />
