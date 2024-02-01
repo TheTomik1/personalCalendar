@@ -6,6 +6,8 @@ const { open } = require('sqlite');
 
 const openDatabase = require('../openDatabaseConnection');
 
+// TODO: Overwork this script to create the database and tables
+
 async function seed() {
     await fs.createWriteStream('personalCalendar.db');
 
@@ -20,7 +22,6 @@ async function seed() {
                 password  VARCHAR(255),
                 fullname  VARCHAR(255),
                 createdAt  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (createdAt),
-                accessToken  TEXT,
                 isAdmin  TINYINT(1) DEFAULT 0
             );
         `);
@@ -52,10 +53,20 @@ async function seed() {
         `);
 
         await db.exec(`
-            CREATE TABLE IF NOT EXISTS userImages (
+            CREATE TABLE IF NOT EXISTS profilePictures (
                 id INTEGER NOT NULL PRIMARY KEY,
-                userId INTEGER NOT NULL,
+                userId INTEGER NOT NULL UNIQUE,
                 imageName TEXT NOT NULL,
+                FOREIGN KEY (userId) REFERENCES users(id)
+            );
+        `);
+
+        await db.exec(`
+            CREATE TABLE ntfyTopics
+            (
+                id INTEGER NOT NULL PRIMARY KEY,
+                userId INTEGER NOT NULL UNIQUE,
+                topic VARCHAR(255) NOT NULL,
                 FOREIGN KEY (userId) REFERENCES users(id)
             );
         `);

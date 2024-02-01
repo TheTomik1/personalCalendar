@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "db:create": "node scripts/db-create.js"
+    "db:create": "node scripts/db-create.js",
+    "init": "node scripts/initialize.js"
   },
   "author": "",
   "license": "ISC",
