@@ -61,8 +61,6 @@ router.post("/register", async(req, res) => {
             return res.status(400).send({ message: 'User already exists.' });
         }
 
-        const accessToken = uuidv4();
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password) VALUES (?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword);
 
@@ -94,7 +92,7 @@ router.post("/login", async(req, res) => {
         }
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
-        await res.cookie('auth', token, { maxAge: 604800000 });
+        await res.cookie('auth', token, { maxAge: 7 * 24 * 60 * 60 * 1000 , httpOnly: true });
         await res.status(201).send({ message: 'User logged in.' });
         await db.close();
     } catch (e) {
@@ -114,13 +112,17 @@ router.post("/logout", async(req, res) => {
 router.get("/me", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
+    if (!userInformation) {
+        return res.status(401).send({ message: 'Authorized.' });
+    }
+
     await res.status(200).send({ userInformation });
 });
 
 router.get("/me-profile-picture", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
-    const imagePath = path.join(__dirname, 'images', userInformation["profilePicture"]);
+    const imagePath = path.join(__dirname, 'images', userInformation["imageName"]);
 
     if (!fs.existsSync(imagePath)) {
         return res.status(404).send({ message: 'No profile picture found.' });
@@ -322,7 +324,7 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
             const existingImage = await db.get("SELECT * FROM profilePictures WHERE userId = ?", req.user.id);
 
             if (existingImage !== undefined) {
-                const oldImagePath = path.join(__dirname, 'images', existingImage["profilePicture"]);
+                const oldImagePath = path.join(__dirname, 'images', existingImage["imageName"]);
                 fs.unlinkSync(oldImagePath); // Delete old image.
             }
 
@@ -335,7 +337,6 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
         res.status(500).send({ message: 'Internal server error.' });
     }
 });
-
 
 router.post("/modify-ntfy-topic", authMiddleware, async(req, res) => {
     try {
