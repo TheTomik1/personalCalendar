@@ -4,7 +4,7 @@ async function getUserInformation(userId) {
     const db = await openDatabase();
 
     const userInfo = await db.get(`
-        SELECT users.id, username, email, password, fullname, createdAt, accessToken, isAdmin, topic, profilePicture FROM users 
+        SELECT users.id, username, email, password, fullname, createdAt, isAdmin, topic, imageName FROM users 
         LEFT JOIN ntfyTopics nT on users.id = nT.userId 
         LEFT JOIN profilePictures pP on users.id = pP.userId WHERE users.id = ?
     `, userId);
