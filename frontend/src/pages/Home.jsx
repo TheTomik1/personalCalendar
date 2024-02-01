@@ -50,7 +50,7 @@ const Home = () => {
                         <div
                             className={"bg-zinc-700 p-6 m-4 rounded-lg shadow-lg hover:cursor-pointer hover:scale-105 transition-transform"}>
                             <img alt={"calendar"}
-                                 src={"https://cdn.pixabay.com/photo/2015/05/31/14/23/organizer-791939_1280.jpg"}
+                                 src={require("../images/simpleInfoPic.jpg")}
                                  className={"w-full h-auto rounded-lg"}/>
                             <h2 className={"text-2xl sm:text-3xl text-white font-bold pt-4"}>Easy to Use</h2>
                             <p className={"text-white mt-4"}>The calendar is designed to be easy to use. You can
@@ -63,7 +63,7 @@ const Home = () => {
                         <div
                             className={"bg-zinc-700 p-6 m-4 rounded-lg shadow-lg hover:cursor-pointer hover:scale-105 transition-transform"}>
                             <img alt={"calendar"}
-                                 src={"https://img.freepik.com/free-photo/pretty-girl-looking-her-pink-phone-smiling-wearing-silk-pajama-sitting-window-sill-she-has-beautiful-wavy-blonde-hair-room-with-turquoise-wall_197531-2821.jpg?w=1380&t=st=1706799180~exp=1706799780~hmac=deecd3efd8d53d5fd29568f81215e5eccbc0fb538237d00e6f3aa277a175106f"}
+                                 src={require("../images/notifactionInfoPic.jpg")}
                                  className={"w-full h-auto rounded-lg"}/>
                             <h2 className={"text-2xl sm:text-3xl text-white font-bold pt-4"}>Never miss
                                 anything</h2>
@@ -77,7 +77,7 @@ const Home = () => {
                         <div
                             className={"bg-zinc-700 p-6 m-4 rounded-lg shadow-lg hover:cursor-pointer hover:scale-105 transition-transform"}>
                             <img alt={"calendar"}
-                                 src={"https://img.freepik.com/free-photo/medium-shot-man-taking-notes_23-2149271163.jpg?w=1380&t=st=1706799541~exp=1706800141~hmac=507aef3ceb11c9152ff97cb6ac77c5104d2e8d8be625ba123c7465a762428200"}
+                                 src={require("../images/freeInfoPic.jpg")}
                                  className={"w-full h-auto rounded-lg"}/>
                             <h2 className={"text-2xl sm:text-3xl text-white font-bold pt-4"}>Free</h2>
                             <p className={"text-white mt-4"}>The calendar is designed to be free. You can use the
