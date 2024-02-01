@@ -17,7 +17,6 @@ function App() {
       TODO: Events in the day cannot overlap
       TODO: Ntfy support
       TODO: Admin panel for user listing and banning
-      TODO: In the API make sure that the user can only modify their own events (explicitly handle this because it poses a security risk if the user knows what they are doing)
       TODO: Code consistency and cleanup
       TODO: ProtectedRoute gets false sometimes when it should not, check that one up.
       TODO: Use query params when the user clicks on add event somewhere in a specific day, so that way the add/edit event page can be pre-filled with the date
