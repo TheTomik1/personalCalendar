@@ -111,10 +111,22 @@ router.post("/logout", async(req, res) => {
     }
 });
 
-router.get("/current-user", authMiddleware, async(req, res) => {
+router.get("/me", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
     await res.status(200).send({ userInformation });
+});
+
+router.get("/me-profile-picture", authMiddleware, async(req, res) => {
+    const userInformation = await getUserInformation(req.user.id);
+
+    const imagePath = path.join(__dirname, 'images', userInformation["profilePicture"]);
+
+    if (!fs.existsSync(imagePath)) {
+        return res.status(404).send({ message: 'No profile picture found.' });
+    } else {
+        return res.status(200).sendFile(imagePath);
+    }
 });
 
 router.post("/edit-user", authMiddleware, async(req, res) => {
@@ -149,7 +161,7 @@ router.post("/delete-user", authMiddleware, async(req, res) => {
         await db.run("DELETE FROM users WHERE id = ?", req.user.id);
         await db.run("DELETE FROM calendars WHERE ownerId = ?", req.user.id);
         await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", req.user.id);
-        await db.run("DELETE FROM userImages WHERE userId = ?", req.user.id);
+        await db.run("DELETE FROM profilePictures WHERE userId = ?", req.user.id);
         await res.clearCookie('auth');
 
         await res.status(201).send({ message: 'User deleted.' });
@@ -307,15 +319,14 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
 
             const db = await openDatabase();
 
-            const existingImage = await db.get("SELECT * FROM userImages WHERE userId = ?", req.user.id);
+            const existingImage = await db.get("SELECT * FROM profilePictures WHERE userId = ?", req.user.id);
 
-            if (existingImage !== undefined && existingImage.imageName !== "") {
-                await db.run("DELETE FROM userImages WHERE userId = ?", req.user.id);
-                const oldImagePath = path.join(__dirname, 'images', existingImage.imageName);
-                fs.unlinkSync(oldImagePath);
+            if (existingImage !== undefined) {
+                const oldImagePath = path.join(__dirname, 'images', existingImage["profilePicture"]);
+                fs.unlinkSync(oldImagePath); // Delete old image.
             }
 
-            await db.run("INSERT INTO userImages(userId, imageName) VALUES (?, ?)", req.user.id, req.file.filename);
+            await db.run("INSERT OR REPLACE INTO profilePictures(userId, profilePicture) VALUES (?, ?)", req.user.id, req.file.filename);
             await db.close();
 
             res.status(201).send({ status: "Successfully uploaded or replaced user image." });
@@ -325,24 +336,23 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
     }
 });
 
-router.get('/profile-picture', authMiddleware, async(req, res) => {
-    const userInformation = await getUserInformation(req.user.id);
 
-    if (req.query.accesstoken !== userInformation.accessToken) {
-        return res.status(401).send({ message: 'Unauthorized.' });
+router.post("/modify-ntfy-topic", authMiddleware, async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        const { ntfyTopic } = req.body;
+
+        if (!ntfyTopic) {
+            return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        await db.run("INSERT OR REPLACE INTO ntfyTopics(userId, topic) VALUES (?, ?)", req.user.id, ntfyTopic);
+
+        await res.status(201).send({ message: 'Topic added.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
     }
-
-    const db = await openDatabase();
-    const userImage = await db.get("SELECT * FROM userImages WHERE userId = ?", userInformation.id);
-    if (!userImage) {
-        return res.status(404).json({ error: 'Image not found.' });
-    }
-
-    const imageName = userImage?.imageName;
-
-    const imagePath = path.join(__dirname, 'images', imageName);
-
-    res.sendFile(imagePath);
 });
 
 module.exports = router;
