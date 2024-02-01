@@ -64,7 +64,7 @@ router.post("/register", async(req, res) => {
         const accessToken = uuidv4();
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password, accessToken) VALUES (?, ?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword, accessToken);
+        const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password) VALUES (?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword);
 
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
 
@@ -326,7 +326,7 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
                 fs.unlinkSync(oldImagePath); // Delete old image.
             }
 
-            await db.run("INSERT OR REPLACE INTO profilePictures(userId, profilePicture) VALUES (?, ?)", req.user.id, req.file.filename);
+            await db.run("INSERT OR REPLACE INTO profilePictures(userid, imageName) VALUES (?, ?)", req.user.id, req.file.filename);
             await db.close();
 
             res.status(201).send({ status: "Successfully uploaded or replaced user image." });
