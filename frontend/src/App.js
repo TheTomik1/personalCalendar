@@ -6,6 +6,7 @@ import { useCookies } from "react-cookie";
 import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -14,10 +15,9 @@ import './styles.css';
 
 function App() {
     /*
-      TODO: Events in the day cannot overlap
       TODO: Ntfy support
       TODO: Admin panel for user listing and banning
-      TODO: Code consistency and cleanup
+      TODO: Code consistency and cleanup (Same button styles, same approach to things, etc.)
       TODO: ProtectedRoute gets false sometimes when it should not, check that one up.
       TODO: Use query params when the user clicks on add event somewhere in a specific day, so that way the add/edit event page can be pre-filled with the date
       TODO: Fix some smaller bugs (e.g. go through everything and test everything)
@@ -42,6 +42,11 @@ function App() {
 
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/about" element={null} />
+                <Route path="/guides" element={null} />
+
+                <Route path="/admin-panel" element={null} />
+
                 <Route path="/my-calendar" element={
                     <ProtectedRoute isLoggedIn={isLoggedIn}>
                         <Calendar />
@@ -52,6 +57,8 @@ function App() {
                         <Profile />
                     </ProtectedRoute>
                 }/>
+
+                <Route path="*" element={<NotFound/>} />
             </Routes>
         </>
     );
