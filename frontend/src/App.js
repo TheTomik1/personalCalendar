@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 
 import { Route, Routes } from 'react-router-dom';
-import { useCookies } from "react-cookie";
 
 import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
@@ -11,6 +10,8 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { AuthProvider } from './context/Auth';
+
 import './styles.css';
 
 function App() {
@@ -18,48 +19,38 @@ function App() {
       TODO: Ntfy support
       TODO: Admin panel for user listing and banning
       TODO: Code consistency and cleanup (Same button styles, same approach to things, etc.)
-      TODO: ProtectedRoute gets false sometimes when it should not, check that one up.
       TODO: Use query params when the user clicks on add event somewhere in a specific day, so that way the add/edit event page can be pre-filled with the date
       TODO: Fix some smaller bugs (e.g. go through everything and test everything)
       TODO: Responsiveness (navbar especially)
      */
 
-    const [cookies, setCookies] = useCookies();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        if (cookies.auth) {
-            setIsLoggedIn(true);
-        }
-        if (!cookies.auth) {
-            setIsLoggedIn(false);
-        }
-    }, [cookies.auth]);
 
     return (
         <>
-            <Navbar isLoggedIn={isLoggedIn}/>
+            <Navbar/>
 
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={null} />
-                <Route path="/guides" element={null} />
+            <AuthProvider>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={null} />
+                    <Route path="/guides" element={null} />
 
-                <Route path="/admin-panel" element={null} />
+                    <Route path="/admin-panel" element={null} />
 
-                <Route path="/my-calendar" element={
-                    <ProtectedRoute isLoggedIn={isLoggedIn}>
-                        <Calendar />
-                    </ProtectedRoute>
-                }/>
-                <Route path="/profile" element={
-                    <ProtectedRoute isLoggedIn={isLoggedIn}>
-                        <Profile />
-                    </ProtectedRoute>
-                }/>
+                    <Route path="/my-calendar" element={
+                        <ProtectedRoute>
+                            <Calendar />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }/>
 
-                <Route path="*" element={<NotFound/>} />
-            </Routes>
+                    <Route path="*" element={<NotFound/>} />
+                </Routes>
+            </AuthProvider>
         </>
     );
 }
