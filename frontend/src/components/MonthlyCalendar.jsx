@@ -36,7 +36,7 @@ const MonthlyCalendar = ({ date, eventsData }) => {
             <div className="table-header-group">
                 <div className="table-row">
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName, index) => (
-                        <div key={index} className="table-cell text-center text-white text-xl font-bold p-2">
+                        <div key={index} className={`table-cell text-center text-xl font-bold p-2 ${dayName === 'Sun' ? 'text-red-600' : 'text-white'}`}>
                             {dayName}
                         </div>
                     ))}
@@ -61,7 +61,11 @@ const MonthlyCalendar = ({ date, eventsData }) => {
                                             </p>
                                         </span>
                                     ) : (
-                                        <p>{day.day.getDate()}</p>
+                                        <span className="relative inline-block">
+                                            <p className={`rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600 transition ${day.day.getDay() === 0 ? "text-red-600" : "text-white"}`}>
+                                                {day.day.getDate()}
+                                            </p>
+                                        </span>
                                     )}
                                 </span>
                             </div>
