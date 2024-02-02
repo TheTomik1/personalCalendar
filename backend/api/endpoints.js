@@ -113,7 +113,7 @@ router.get("/me", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
     if (!userInformation) {
-        return res.status(401).send({ message: 'Authorized.' });
+        return res.status(401).send({ message: 'Unauthorized.' });
     }
 
     await res.status(200).send({ userInformation });
@@ -122,13 +122,13 @@ router.get("/me", authMiddleware, async(req, res) => {
 router.get("/me-profile-picture", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
+    if (!userInformation["imageName"]) {
+        return res.status(404).send({ message: 'No profile picture found.' }); // No profile picture found.
+    }
+
     const imagePath = path.join(__dirname, 'images', userInformation["imageName"]);
 
-    if (!fs.existsSync(imagePath)) {
-        return res.status(404).send({ message: 'No profile picture found.' });
-    } else {
-        return res.status(200).sendFile(imagePath);
-    }
+    return res.status(200).sendFile(imagePath);
 });
 
 router.post("/edit-user", authMiddleware, async(req, res) => {
@@ -275,7 +275,7 @@ router.get("/get-events", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        const events = await db.all("SELECT * FROM calendarEvents WHERE calendarId = ? ORDER BY datetimeStart", req.user.id);
+        const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.ownerId = ?ORDER BY ce.datetimeStart`, req.user.id);
 
         res.status(200).send({ events });
     } catch (e) {

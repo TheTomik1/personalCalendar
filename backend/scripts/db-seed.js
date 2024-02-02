@@ -9,10 +9,10 @@ const openDatabase = require('../openDatabaseConnection');
 // TODO: Overwork this script to create the database and tables
 
 async function seed() {
-    await fs.createWriteStream('personalCalendar.db');
-
     try {
         const db = await openDatabase();
+        debug('Seeding database...');
+
         await db.exec(`
             CREATE TABLE IF NOT EXISTS users
             (
@@ -72,7 +72,7 @@ async function seed() {
         `);
 
         await db.close();
-        debug('Database created.');
+        debug('Database seeded.');
     } catch (e) {
         debug(`Error seeding database: ${e}`);
     }

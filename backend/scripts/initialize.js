@@ -14,7 +14,11 @@ async function initialize() {
 
     // Create images folder
     if (fs.existsSync('./api/images')) {
-        debug('Images folder already exists.');
+        debug('Images folder already exists. Preparing to delete all its files...');
+        fs.readdirSync('./api/images').forEach(file => {
+            fs.unlinkSync(`./api/images/${file}`);
+        });
+        debug('All files deleted.');
     } else {
         fs.mkdirSync('./api/images');
         debug('Images folder created.');
@@ -28,7 +32,16 @@ async function initialize() {
         debug('.env file created.');
     }
 
-    // Create admin user
+    // Create admin user and check if table and admin account already exist.
+    const checkIfTableExists = await db.get(`
+        SELECT name FROM sqlite_master WHERE type='table' AND name='users'
+    `);
+
+    if (!checkIfTableExists) {
+        debug("\x1b[31m", 'Table users does not exist! Please run db-seed.js first.');
+        return;
+    }
+
     const checkIfAdminExists = await db.get(`
         SELECT * FROM users WHERE isAdmin = 1
     `);
