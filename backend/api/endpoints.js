@@ -67,7 +67,7 @@ router.post("/register", async(req, res) => {
         await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
 
         await db.close();
-        await res.status(201).send({ message: 'User created.' });
+        await res.status(200).send({ message: 'User created.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -93,7 +93,7 @@ router.post("/login", async(req, res) => {
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
         await res.cookie('auth', token, { maxAge: 7 * 24 * 60 * 60 * 1000 , httpOnly: true });
-        await res.status(201).send({ message: 'User logged in.' });
+        await res.status(200).send({ message: 'User logged in.' });
         await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });

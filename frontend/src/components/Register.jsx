@@ -75,7 +75,7 @@ const RegistrationForm = ({ onClose }) => {
         try {
             const registerRequest = await axios.post('http://localhost:8080/api/register', { userName, fullName, email, password });
 
-            if (registerRequest.status === 201) {
+            if (registerRequest.status === 200) {
                 toastr.success('Registration successful. You can now login.');
                 onClose();
             }
