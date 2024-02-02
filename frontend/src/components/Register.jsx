@@ -109,10 +109,12 @@ const RegistrationForm = ({ onClose }) => {
                     <div className="mb-4">
                         <label htmlFor="username" className="text-left text-white text-xl mb-1 block">Username</label>
                         <input type="text" placeholder="Create your new username here." value={userName} onChange={handleUsernameChange} className="w-full px-4 py-2 rounded border border-zinc-500 bg-zinc-600 text-white focus:outline-none"/>
+                        {userName.length < 4 && userName.length !== 0 && <p className="text-red-500 text-sm mt-2">Username must be at least 4 characters long.</p>}
                     </div>
                     <div className="mb-4">
                         <label htmlFor="fullname" className="text-left text-white text-xl mb-1 block">Full name</label>
                         <input type="text" placeholder="Your full name." value={fullName} onChange={handleFullnameChange} className="w-full px-4 py-2 rounded border border-zinc-500 bg-zinc-600 text-white focus:outline-none"/>
+                        {fullName.length < 10 && fullName.length !== 0 && <p className="text-red-500 text-sm mt-2">Full name must be at least 10 characters long.</p>}
                     </div>
                     <div className="mb-4">
                         <label htmlFor="email" className="text-left text-white text-xl mb-1 block">Email</label>

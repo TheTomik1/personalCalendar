@@ -122,7 +122,7 @@ router.get("/me", authMiddleware, async(req, res) => {
 router.get("/me-profile-picture", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
 
-    if (!userInformation["imageName"]) {
+    if (userInformation === null || !userInformation["imageName"]) {
         return res.status(404).send({ message: 'No profile picture found.' }); // No profile picture found.
     }
 

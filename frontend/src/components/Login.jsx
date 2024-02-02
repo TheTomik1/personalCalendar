@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import toastr from "toastr";
 
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
@@ -12,8 +11,6 @@ const LoginForm = ({ onClose }) => {
     const [isFormValid, setFormValid] = useState(false);
     const [loginError, setLoginError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-
-    const navigate = useNavigate();
 
     const validateForm = (email, password) => {
         const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
