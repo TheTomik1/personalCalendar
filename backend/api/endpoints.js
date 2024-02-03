@@ -91,6 +91,10 @@ router.post("/login", async(req, res) => {
             return res.status(400).send({ message: 'Invalid password.' });
         }
 
+        if (user.isBanned) {
+            return res.status(400).send({ message: 'This account is banned.' });
+        }
+
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
         await res.cookie('auth', token, { maxAge: 7 * 24 * 60 * 60 * 1000 , httpOnly: true });
         await res.status(200).send({ message: 'User logged in.' });
@@ -355,5 +359,93 @@ router.post("/modify-ntfy-topic", authMiddleware, async(req, res) => {
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });
+
+router.post("/admin/login", async(req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).send({ message: 'Invalid body.' });
+        }
+
+        if (username !== 'admin') {
+            return res.status(400).send({ message: 'Invalid username.' });
+        }
+
+        const db = await openDatabase();
+
+        const adminUser = await db.get('SELECT * FROM users WHERE username = ?', username);
+        if (!adminUser) {
+            return res.status(400).send({ message: 'Admin user does not exist.' });
+        }
+
+        const adminPasswordMatch = await bcrypt.compare(password, adminUser.password);
+
+        if (!adminPasswordMatch) {
+            return res.status(400).send({ message: 'Invalid password.' });
+        }
+
+        const token = jwt.sign({ id: 1 }, secretKey, { expiresIn: '1d' });
+        await res.cookie('auth', token, { maxAge: 1 * 24 * 60 * 60 * 1000 , httpOnly: true });
+        await res.status(200).send({ message: 'Admin logged in.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.get("/admin/get-users", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        const users = await db.all("SELECT * FROM users WHERE username != 'admin'");
+
+        await res.status(200).send({ users });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.post("/admin/edit-user", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        const { id } = req.body;
+        const { userName, email, fullName, isBanned } = req.body.data;
+
+        if (userName !== undefined) {
+            await db.run("UPDATE users SET username = ? WHERE id = ?", userName, id);
+        }
+        if (email !== undefined) {
+            await db.run("UPDATE users SET email = ? WHERE id = ?", email, id);
+        }
+        if (fullName !== undefined) {
+            await db.run("UPDATE users SET fullname = ? WHERE id = ?", fullName, id);
+        }
+        if (isBanned !== undefined) {
+            await db.run("UPDATE users SET isBanned = ? WHERE id = ?", isBanned, id);
+        }
+
+        await res.status(201).send({ message: 'User edited.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
+router.post("/admin/delete-user", async(req, res) => {
+    try {
+        const db = await openDatabase();
+
+        const { id } = req.body;
+
+        await db.run("DELETE FROM users WHERE id = ?", id);
+        await db.run("DELETE FROM calendars WHERE ownerId = ?", id);
+        await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", id);
+        await db.run("DELETE FROM profilePictures WHERE userId = ?", id);
+
+        await res.status(201).send({ message: 'User deleted.' });
+    } catch (e) {
+        await res.status(500).send({ message: 'Internal server error.' });
+    }
+});
+
 
 module.exports = router;

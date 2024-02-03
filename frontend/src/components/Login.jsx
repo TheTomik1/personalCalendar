@@ -53,7 +53,7 @@ const LoginForm = ({ onClose }) => {
                 onClose();
             }
         } catch (error) {
-            if (error.response && error.response.data && ["User does not exist.", "Invalid password."].includes(error.response.data.message)) {
+            if (error.response && error.response.data && ["User does not exist.", "Invalid password.", "This account is banned."].includes(error.response.data.message)) {
                 setLoginError(error.response.data.message);
             }
         }

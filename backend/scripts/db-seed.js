@@ -20,6 +20,7 @@ async function seed() {
                 password  VARCHAR(255),
                 fullname  VARCHAR(255),
                 createdAt  TIMESTAMP  DEFAULT (strftime('%s', 'now', 'localtime') + 3600) REFERENCES users (createdAt),
+                isBanned  TINYINT(1) DEFAULT 0,
                 isAdmin  TINYINT(1) DEFAULT 0
             );
         `);

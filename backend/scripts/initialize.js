@@ -31,7 +31,7 @@ async function initialize() {
         debug('.env file created.');
     }
 
-    // Create admin user and check if table and admin account already exist.
+    // Create admin user and check if table and admin user already exist.
     const checkIfTableExists = await db.get(`
         SELECT name FROM sqlite_master WHERE type='table' AND name='users'
     `);
@@ -46,7 +46,7 @@ async function initialize() {
     `);
 
     if (checkIfAdminExists) {
-        debug('Admin account already exists.');
+        debug('Admin user already exists.');
     } else {
         const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
@@ -57,7 +57,8 @@ async function initialize() {
         await query.run(hash);
 
         debug('Admin user created.');
-        debug(`In order to access the admin panel use the following: \nUsername: admin\nPassword: ${randomPassword}`);
+        debug(`In order to access the admin panel use the following credentials: \nUsername: admin\nPassword: ${randomPassword}`);
+        debug("The login page is located at /admin-login");
 
         debug('Initialization complete.');
     }

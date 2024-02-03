@@ -11,14 +11,16 @@ const LoadingIndicator = () => (
 
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [adminAccount, setAdminAccount] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         axios.get("http://localhost:8080/api/me", { withCredentials: true })
             .then(response => {
                 setIsLoggedIn(response.status === 200);
+                setAdminAccount(response.data.userInformation.isAdmin);
             })
-            .catch(error => {
+            .catch(() => {
                 setIsLoggedIn(false);
             })
             .finally(() => {
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, adminAccount, setAdminAccount }}>
             {children}
         </AuthContext.Provider>
     );
