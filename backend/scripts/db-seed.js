@@ -6,8 +6,6 @@ const { open } = require('sqlite');
 
 const openDatabase = require('../openDatabaseConnection');
 
-// TODO: Overwork this script to create the database and tables
-
 async function seed() {
     try {
         const db = await openDatabase();

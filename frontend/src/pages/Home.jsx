@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
+import { Helmet } from 'react-helmet';
 
 import RegistrationForm from "../components/Register";
 import LoginForm from "../components/Login";
@@ -25,6 +26,10 @@ const Home = () => {
 
     return (
         <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
+            <Helmet>
+                <title>Personal Calendar | Home</title>
+            </Helmet>
+
             <h1 className={"text-5xl text-white font-bold pt-24"}>Seamlessly Schedule Your Life.</h1>
             <h2 className={"mt-6 text-lg text-white"}>Personal calendar will be your best friend for scheduling your
                 days.</h2>

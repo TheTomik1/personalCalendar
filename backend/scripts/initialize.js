@@ -1,4 +1,3 @@
-// TODO: Initialize script (create admin user, images folder and .env file)
 process.env["DEBUG"] = "initialize";
 
 const fs = require('fs');
