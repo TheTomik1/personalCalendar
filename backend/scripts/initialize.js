@@ -27,7 +27,7 @@ async function initialize() {
     if (fs.existsSync('./api/.env')) {
         debug('.env file already exists.');
     } else {
-        fs.writeFileSync('./api/.env', `JWT_SECRET=${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}\n`);
+        fs.writeFileSync('./api/.env', `JWT_SECRET=${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}\nNTFY_BASE_URL=https://ntfy.sh\n`);
         debug('.env file created.');
     }
 
