@@ -137,7 +137,7 @@ const AddEditEventModal = ({ eventData, onClose }) => {
                 datetimeStart: `${formatReceivedDate(date)} ${formatReceivedTime(startTime)}`,
                 datetimeEnd: `${formatReceivedDate(date)} ${formatReceivedTime(endTime)}`,
                 color: color,
-                action: eventData ? "edit" : "add"
+                action: [0,1].includes(Object.values(eventData).length) ? "add" : "edit"
             }, {withCredentials: true});
 
             if (addEditResponse.status === 201) {
