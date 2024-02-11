@@ -1,71 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { format, addMinutes } from 'date-fns';
+import React from 'react';
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import DatePicker from "react-multi-date-picker";
+import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 
-const TimePicker = ({ startTime, endTime, onStartTimeChange, onEndTimeChange }) => {
-    const [startSelectedTime, setStartSelectedTime] = useState(startTime || null);
-    const [endSelectedTime, setEndSelectedTime] = useState(endTime || null);
-
-    useEffect(() => {
-        setStartSelectedTime(startTime);
-        setEndSelectedTime(endTime);
-    }, [startTime, endTime]);
-
-    const generateTimeOptions = (minTime) => {
-        const startTime = new Date();
-        const endTime = addMinutes(new Date(), 24 * 60);
-
-        const timeOptions = [];
-        let currentTime = startTime;
-
-        while (currentTime < endTime) {
-            const timeValue = format(currentTime, 'HH:mm');
-            const timeLabel = format(currentTime, 'h:mm a');
-
-            if (!minTime || timeValue > minTime) {
-                timeOptions.push({ value: timeValue, label: timeLabel });
-            }
-
-            currentTime = addMinutes(currentTime, 5);
-        }
-
-        return timeOptions;
+const TimePicker_ = ({ initialStartTime, initialEndTime, startTimeOnChange, endTimeOnChange }) => {
+    /*
+    * @param newValue - The new value of the start time.
+    * @description Handles the change of the start time.
+    */
+    const handleStartTimeChange = (newValue) => {
+        startTimeOnChange(newValue);
     };
 
-    const handleStartChange = (e) => {
-        const newStartSelectedTime = e.target.value;
-        setStartSelectedTime(newStartSelectedTime);
-        onStartTimeChange(newStartSelectedTime);
-
-        if (endSelectedTime && endSelectedTime <= newStartSelectedTime) {
-            setEndSelectedTime(null);
-            onEndTimeChange(null);
-        }
-    };
-
-    const handleEndChange = (e) => {
-        setEndSelectedTime(e.target.value);
-        onEndTimeChange(e.target.value);
+    /*
+    * @param newValue - The new value of the end time.
+    * @description Handles the change of the end time.
+    */
+    const handleEndTimeChange = (newValue) => {
+        endTimeOnChange(newValue);
     };
 
     return (
         <div className="flex items-center">
-            <select value={startSelectedTime} className="bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none" onChange={handleStartChange}>
-                {generateTimeOptions().map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
+            <DatePicker
+                disableDayPicker
+                placeholder={initialStartTime.toString()}
+                onChange={handleStartTimeChange}
+                format="HH:mm"
+                inputClass={"bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none w-24 text-center"}
+                className={"bg-dark"}
+                plugins={[
+                    <TimePicker hideSeconds/>
+                ]}
+            />
             <span className="text-white mx-2">-</span>
-            <select value={endSelectedTime} className="bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none" onChange={handleEndChange}>
-                {generateTimeOptions(startSelectedTime).map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
+            <DatePicker
+                disableDayPicker
+                placeholder={initialEndTime.toString()}
+                onChange={handleEndTimeChange}
+                format="HH:mm"
+                inputClass={"bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none w-24 text-center"}
+                className={"bg-dark"}
+                plugins={[
+                    <TimePicker hideSeconds/>
+                ]}
+            />
         </div>
     );
 };
 
-export default TimePicker;
+export default TimePicker_;
