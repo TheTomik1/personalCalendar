@@ -15,17 +15,17 @@ const AddEditEventModal = ({ eventData, onClose }) => {
     const [addLocationFocused, setAddLocationFocused] = useState(false);
 
     const [eventType, setEventType] = useState('event');
-    const [title, setTitle] = useState(eventData ? eventData.name : 'Add title.');
-    const [description, setDescription] = useState(eventData ? eventData.description : 'Add description.');
-    const [location, setLocation] = useState(eventData ? eventData.location : 'Add location.');
+    const [title, setTitle] = useState(eventData.title ? eventData.title : 'Add title.');
+    const [description, setDescription] = useState(eventData.description ? eventData.description : 'Add description.');
+    const [location, setLocation] = useState(eventData.location ? eventData.location : 'Add location.');
     const [remindOption, setRemindOption] = useState('5m');
-    const [eventDate, setEventDate] = useState(new Date());
-    const [startTime, setStartTime] = useState(eventData ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
-    const [endTime, setEndTime] = useState(eventData ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
-    const [color, setColor] = useState(`${eventData ? eventData.color : 'blue'}`);
+    const [eventDate, setEventDate] = useState(eventData.datetimeStart ? new Date(eventData.datetimeStart) : new Date());
+    const [startTime, setStartTime] = useState(eventData.datetimeStart ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
+    const [endTime, setEndTime] = useState(eventData.datetimeEnd ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
+    const [color, setColor] = useState(`${eventData.color ? eventData.color : 'blue'}`);
 
     /*
-    *   @param e - event
+    *  @param e - event
     *  @description - Handles the input change for the form fields.
     */
     const handleInputChange = (e) => {
@@ -152,133 +152,163 @@ const AddEditEventModal = ({ eventData, onClose }) => {
         }
     }
 
-    return (
-        <div className={"w-1/4 bg-zinc-700 rounded-xl p-4 my-12"}>
-            <form className={"flex flex-col"}>
-                <h1 className={"text-4xl text-white"}>{eventData ? 'Edit Event' : 'Add Event'}</h1>
+    /*
+    *   @description - Validates all the time related fields in the form.
+    */
+    const validateForm = () => {
+        if (typeof eventDate !== "string" && typeof startTime !== "string" && typeof endTime !== "string") {
+            if (format(new Date(eventDate), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd")) {
+                return false;
+            }
 
-                <div className={"flex justify-center"}>
-                    <div className="flex flex-row space-x-2 p-2 bg-zinc-800 rounded-xl m-4">
+            if (format(new Date(startTime), "HH:mm") > format(new Date(endTime), "HH:mm")) {
+                return false;
+            }
+
+            if (format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm")) {
+                return false;
+            }
+
+            if (format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM")) {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    return (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-900 bg-opacity-50 z-50">
+            <div className=" bg-zinc-700 rounded-xl p-4">
+                <form className="flex flex-col">
+                    <h1 className="text-4xl text-white">{[0,1].includes(Object.values(eventData).length) ? 'Add Event' : 'Edit Event'}</h1>
+
+                    <div className="flex justify-center space-x-2 p-2 bg-zinc-800 rounded-xl m-4">
                         <p
-                           className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "event" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
-                           onClick={handleEventTypeChange}>
+                            className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "event" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
+                            onClick={handleEventTypeChange}>
                             Event
                         </p>
                         <p
-                           className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "task" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
-                           onClick={handleEventTypeChange}>
+                            className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "task" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
+                            onClick={handleEventTypeChange}>
                             Task
                         </p>
                         <p
-                           className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "meeting" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
-                           onClick={handleEventTypeChange}>
+                            className={`text-2xl text-white p-1.5 rounded-md cursor-pointer transition ease-in-out duration-300 ${eventType === "meeting" ? "text-blue-400 bg-blue-600" : "hover:bg-zinc-700"}`}
+                            onClick={handleEventTypeChange}>
                             Meeting
                         </p>
                     </div>
-                </div>
 
-                <div className={"flex justify-center mb-4"}>
-                    <input
-                        id="title"
-                        type="text"
-                        value={title}
-                        className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addTitleFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
-                        onFocus={() => setAddTitleFocused(true)}
-                        onBlur={() => setAddTitleFocused(false)}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className={"flex justify-center mb-4"}>
-                    <input
-                        id="description"
-                        value={description}
-                        className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addDescriptionFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
-                        onFocus={() => setAddDescriptionFocused(true)}
-                        onBlur={() => setAddDescriptionFocused(false)}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className={"flex justify-center mb-4"}>
-                    <input
-                        id="location"
-                        value={location}
-                        className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
-                        onFocus={() => setAddLocationFocused(true)}
-                        onBlur={() => setAddLocationFocused(false)}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className={"flex justify-center mb-4"}>
-                    <select
-                        id="remindOption"
-                        value={remindOption}
-                        className={"bg-zinc-700 w-64 px-4 py-2 text-xl text-white focus:outline-none border-b-2 ml-2"}
-                        onChange={handleInputChange}
-                    >
-                        <option value={"5m"}>5 minutes before.</option>
-                        <option value={"10m"}>10 minutes before.</option>
-                        <option value={"15m"}>15 minutes before.</option>
-                        <option value={"30m"}>30 minutes before.</option>
-                        <option value={"1h"}>1 hour before.</option>
-                        <option value={"1d"}>1 day before.</option>
-                    </select>
-                </div>
-                <div className={"flex justify-center mb-4"}>
-                    <DatePicker
-                        inputClass={`bg-zinc-800 w-64 bg-opacity-10 px-4 py-2 text-xl text-white focus:outline-none border-b-2 ml-2`}
-                        className={"bg-dark"}
-                        weekStartDayIndex={1}
-                        format={"DD.MM. YYYY"}
-                        value={eventDate}
-                        onChange={handleEventDataChange}
-                    />
-                </div>
-                {format(new Date(eventDate), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd") && <small className={"text-red-500 text-sm ml-2"}>Date cannot be in the past!</small>}
+                    <div className="flex justify-center mb-4">
+                        <input
+                            id="title"
+                            type="text"
+                            value={title}
+                            className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addTitleFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                            onFocus={() => setAddTitleFocused(true)}
+                            onBlur={() => setAddTitleFocused(false)}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="flex justify-center mb-4">
+                        <input
+                            id="description"
+                            value={description}
+                            className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addDescriptionFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                            onFocus={() => setAddDescriptionFocused(true)}
+                            onBlur={() => setAddDescriptionFocused(false)}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="flex justify-center mb-4">
+                        <input
+                            id="location"
+                            value={location}
+                            className={`bg-zinc-800 w-64 px-4 py-2 text-xl text-white focus:outline-none ${addLocationFocused ? 'border-blue-600 transition ease-in-out duration-300' : 'bg-gray-300 bg-opacity-10 transition ease-in-out duration-300'} border-b-2 ml-2`}
+                            onFocus={() => setAddLocationFocused(true)}
+                            onBlur={() => setAddLocationFocused(false)}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="flex justify-center mb-4">
+                        <select
+                            id="remindOption"
+                            value={remindOption}
+                            className="bg-zinc-700 w-64 px-4 py-2 text-xl text-white focus:outline-none border-b-2 ml-2"
+                            onChange={handleInputChange}
+                        >
+                            <option value="5m">5 minutes before.</option>
+                            <option value="10m">10 minutes before.</option>
+                            <option value="15m">15 minutes before.</option>
+                            <option value="30m">30 minutes before.</option>
+                            <option value="1h">1 hour before.</option>
+                            <option value="1d">1 day before.</option>
+                        </select>
+                    </div>
+                    <div className="flex justify-center mb-4">
+                        <DatePicker
+                            inputClass="bg-zinc-800 w-64 bg-opacity-10 px-4 py-2 text-xl text-white focus:outline-none border-b-2 ml-2"
+                            className="bg-dark"
+                            weekStartDayIndex={1}
+                            format="DD.MM. YYYY"
+                            value={eventDate}
+                            onChange={handleEventDataChange}
+                        />
+                    </div>
+                    {format(new Date(eventDate), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd") &&
+                        <small className="text-red-500 text-sm ml-2">Date cannot be in the past!</small>}
 
-                <div className={"flex justify-center"}>
-                    <TimePicker_
-                        initialStartTime={startTime}
-                        initialEndTime={endTime}
-                        startTimeOnChange={handleStartTimeChange}
-                        endTimeOnChange={handleEndTimeChange}
-                    />
-                </div>
-                {typeof startTime !== "string" && typeof endTime !== "string" && (
-                    // By default the states are strings, but the time picker converts them to Date objects. Comparing the times as strings does not work here.
-                    <>
-                        {format(new Date(startTime), "HH:mm") > format(new Date(endTime), "HH:mm") && <small className="text-red-500 text-sm ml-2">Start time must be before end time!</small>}
-                        {format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm") && <small className="text-red-500 text-sm ml-2">Start time cannot be the same as end time!</small>}
-                        {format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM") && <small className="text-red-500 text-sm ml-2">Start time cannot be in the past!</small>}
-                    </>
-                )}
-
-                <div className={"flex justify-center my-4"}>
-                    <ColorPicker
-                        selectedColor={color}
-                        onColorChange={handleColorChange}
-                    />
-                </div>
-                <div className={"flex justify-center space-x-4"}>
-                    {eventData ? (
-                        <button
-                            className="bg-blue-500 hover:bg-blue-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer"
-                            onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
-                            Edit
-                        </button>
-                    ) : (
-                        <button
-                        className="bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer"
-                        onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
-                         Save
-                        </button>
+                    <div className="flex justify-center">
+                        <TimePicker_
+                            initialStartTime={startTime}
+                            initialEndTime={endTime}
+                            startTimeOnChange={handleStartTimeChange}
+                            endTimeOnChange={handleEndTimeChange}
+                        />
+                    </div>
+                    {typeof startTime !== "string" && typeof endTime !== "string" && (
+                        <>
+                            {format(new Date(startTime), "HH:mm") > format(new Date(endTime), "HH:mm") &&
+                                <small className="text-red-500 text-sm ml-2">Start time must be before end
+                                    time!</small>}
+                            {format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm") &&
+                                <small className="text-red-500 text-sm ml-2">Start time cannot be the same as end
+                                    time!</small>}
+                            {format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM") &&
+                                <small className="text-red-500 text-sm ml-2">Start time cannot be in the past!</small>}
+                        </>
                     )}
-                    <button
-                        className="bg-red-500 hover:bg-red-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer"
-                        onClick={() => onClose()}>
-                        Cancel
-                    </button>
-                </div>
-            </form>
+
+                    <div className="flex justify-center my-4">
+                        <ColorPicker
+                            selectedColor={color}
+                            onColorChange={handleColorChange}
+                        />
+                    </div>
+                    <div className="flex justify-center space-x-4">
+                        {[0,1].includes(Object.values(eventData).length) ? (
+                            <button
+                                className={`bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${!validateForm() ? "opacity-50 cursor-not-allowed" : ""}`}
+                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
+                                Create
+                            </button>
+                        ) : (
+                            <button
+                                className={`bg-blue-500 hover:bg-blue-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${!validateForm() ? "opacity-50 cursor-not-allowed" : ""}`}
+                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
+                                Edit
+                            </button>
+                        )}
+                        <button
+                            className="bg-red-500 hover:bg-red-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer"
+                            onClick={() => onClose()}>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
