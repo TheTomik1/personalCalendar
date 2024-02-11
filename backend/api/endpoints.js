@@ -2,6 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require("path");
 const { v4: uuidv4 } = require('uuid');
+const { format } = require('date-fns');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -188,88 +189,45 @@ router.get("/get-calendar", authMiddleware, async(req, res) => {
     }
 });
 
-router.post("/add-event", authMiddleware, async(req, res) => {
+router.post("/add-edit-event", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
+        const userCalendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);  // Get the user's calendar.
 
-        const calendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);
+        const currentDateTime = format(new Date(), "yyyy-MM-dd HH:mm");
 
-        const currentDateTime = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
-        let { title, description, type, color, location, start, end } = req.body;
+        const { id, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color, action } = req.body;
 
-        if (!title || !type || !start || !end || !color) {
+
+        if (!eventType || !reminderOption || !datetimeStart || !datetimeEnd || !color || !action) {
             return res.status(400).send({ message: 'Invalid body.' });
         }
 
-        if (!title) {
-            title = "Add title.";
-        }
-        if (!description) {
-            description = "Add description.";
-        }
-        if (!location) {
-            location = "Add location.";
-        }
-
-        if (['event', 'reminder', 'task', 'meeting'].indexOf(type.toLowerCase()) === -1) {
+        if (['event', 'task', 'meeting'].indexOf(eventType.toLowerCase()) === -1) {
             return res.status(400).send({ message: 'Invalid event type.' });
         }
 
-        if (start.split(" ")[0] !== end.split(" ")[0]) {
+        if (datetimeStart.split(" ")[0] !== datetimeEnd.split(" ")[0]) {
             return res.status(400).send({ message: 'Event must be within the same day.' });
         }
 
-        if (start < currentDateTime.split(" ")[0]) {
+        if (datetimeStart < currentDateTime) {
             return res.status(400).send({ message: 'Start date cannot be before current date.' });
         }
 
-        if (start > end) {
+        if (datetimeStart > datetimeEnd) {
             return res.status(400).send({ message: 'Start date cannot be after end date.' });
         }
 
-        await db.run("INSERT INTO calendarEvents(calendarId, datetimeStart, datetimeEnd, type, name, description, color, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", calendar.id, start, end, type, title, description, color, location);
-
-        await res.status(201).send({ message: 'Event added.' });
-    } catch (e) {
-        await res.status(500).send({ message: 'Internal server error.' });
-    }
-});
-
-router.post("/edit-event", authMiddleware, async(req, res) => {
-    try {
-        const db = await openDatabase();
-
-        let { id, title, description, type, color, location, start, end } = req.body;
-
-        if (!title) {
-            title = "Add title.";
+        if (action === "add") {
+            await db.run("INSERT INTO calendarEvents(calendarId, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", userCalendar.id, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color);
+            await res.status(201).send({ message: 'Event added.' });
+        } else if (action === "edit") {
+            await db.run("UPDATE calendarEvents SET eventType = ?, title = ?, description = ?, location = ?, reminderOption = ?, datetimeStart = ?, datetimeEnd = ?, color = ? WHERE id = ?", eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color, id);
+            await res.status(201).send({ message: 'Event edited.' });
+        } else {
+            await res.status(400).send({ message: 'Invalid action.' });
         }
-        if (!description) {
-            description = "Add description.";
-        }
-        if (!location) {
-            location = "Add location.";
-        }
-
-        if (!id || !title || !type || !start || !end || !color) {
-            return res.status(400).send({ message: 'Invalid body.' });
-        }
-
-        if (['event', 'reminder', 'task', 'meeting'].indexOf(type.toLowerCase()) === -1) {
-            return res.status(400).send({ message: 'Invalid event type.' });
-        }
-
-        if (start.split(" ")[0] !== end.split(" ")[0]) {
-            return res.status(400).send({ message: 'Event must be within the same day.' });
-        }
-
-        if (start > end) {
-            return res.status(400).send({ message: 'Start date cannot be after end date.' });
-        }
-
-        await db.run("UPDATE calendarEvents SET datetimeStart = ?, datetimeEnd = ?, type = ?, name = ?, description = ?, color = ?, location = ? WHERE id = ?", start, end, type, title, description, color, location, id);
-
-        await res.status(201).send({ message: 'Event edited.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -279,7 +237,7 @@ router.get("/get-events", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.ownerId = ?ORDER BY ce.datetimeStart`, req.user.id);
+        const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.ownerId = ? ORDER BY ce.datetimeStart`, req.user.id);
 
         res.status(200).send({ events });
     } catch (e) {
