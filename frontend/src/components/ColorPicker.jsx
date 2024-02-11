@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-
-function ColorPicker({ onColorChange, selectedColor }) {
+function ColorPicker({ selectedColor, onColorChange }) {
     const colors = ["blue", "red", "green", "yellow", "orange", "amber", "emerald", "purple", "pink"];
 
+    /*
+    * @param color - One of the colors in the colors array.
+    * @description - Sets the selected color into the parent component.
+    */
     const setColor = (color) => {
         onColorChange(color);
     };
@@ -12,7 +14,7 @@ function ColorPicker({ onColorChange, selectedColor }) {
             {colors.map((color) => (
                 <div
                     key={color}
-                    className={`w-8 h-8 bg-${color}-500 rounded-lg cursor-pointer mr-2 ${selectedColor === color ? 'border-2 border-white' : ''}`}
+                    className={`w-6 h-6 bg-${color}-500 rounded-lg cursor-pointer mr-2 ${selectedColor === color ? 'border-2 border-white' : ''}`}
                     onClick={() => setColor(color)}
                 ></div>
             ))}
