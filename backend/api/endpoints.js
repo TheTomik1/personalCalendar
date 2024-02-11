@@ -198,7 +198,6 @@ router.post("/add-edit-event", authMiddleware, async(req, res) => {
 
         const { id, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color, action } = req.body;
 
-
         if (!eventType || !reminderOption || !datetimeStart || !datetimeEnd || !color || !action) {
             return res.status(400).send({ message: 'Invalid body.' });
         }

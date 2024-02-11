@@ -1,11 +1,9 @@
-process.env["DEBUG"] = "backend:oldEventDelete";
-
 const schedule = require('node-schedule');
-const debug = require('debug')('backend:oldEventDelete');
+const debug = require('debug')('calendar-api:oldEventDelete');
 
 const openDatabase = require("../../openDatabaseConnection");
 
-debug('Old event delete job started.');
+debug('Old event delete system started.');
 schedule.scheduleJob('0 0 * * *', async() => {
     const db = await openDatabase();
 

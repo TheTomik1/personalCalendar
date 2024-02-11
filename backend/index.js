@@ -1,4 +1,4 @@
-process.env["DEBUG"] = "calendar-api:server";
+process.env["DEBUG"] = "calendar-api:ntfy,calendar-api:server,calendar-api:oldEventDelete";
 
 const cookieParser = require('cookie-parser');
 const express = require("express");
