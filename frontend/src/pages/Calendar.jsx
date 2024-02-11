@@ -8,7 +8,7 @@ import toastr from "toastr";
 
 import WeeklyCalendar from "../components/WeeklyCalendar";
 import MonthlyCalendar from "../components/MonthlyCalendar";
-import AddNewEventModal from '../components/AddOrEditModal';
+import AddEditEventModal from "../components/AddEditEventModal";
 import YearlyCalendar from "../components/YearlyCalendar";
 
 import { FaCalendarPlus } from "react-icons/fa6";
@@ -17,9 +17,10 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [eventsData, setEventData] = useState(null);
+    const [newEventModal, setNewEventModal] = useState(null);
+
     const [cookies, setCookie] = useCookies(["viewType"]);
     const [viewType, setViewType] = useState(cookies.viewType || "month");
-    const [newEventModal, setNewEventModal] = useState({});
 
     const navigate = useNavigate();
 
@@ -105,7 +106,12 @@ const Calendar = () => {
                             <option value="year">Year</option>
                         </select>
                     </div>
-                    <div className="flex mb-12">
+                    {
+                        newEventModal === true && (
+                            <AddEditEventModal eventData={{}} onClose={() => setNewEventModal(false)} />  // Passing an empty object as eventData so the modal knows it is a new event.
+                        )
+                    }
+                    <div className="flex">
                         <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={prev}><FaAngleLeft /></button>
                         <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={next}><FaAngleRight /></button>
                         <h2 className="text-3xl font-bold text-white pl-12">
@@ -130,11 +136,6 @@ const Calendar = () => {
                     {
                         viewType === "year" && (
                             <YearlyCalendar date={currentDate} eventsData={eventsData} />
-                        )
-                    }
-                    {
-                        newEventModal === true && (
-                            <AddNewEventModal onClose={() => setNewEventModal(false)} />
                         )
                     }
                 </div>
