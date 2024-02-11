@@ -19,9 +19,10 @@ import './styles.css';
 
 function App() {
     /*
-      TODO: Overhaul the add/edit event page (Includes ntfy support (the script and reminder picking, better date picker, prefill data when clicked directly in the calendar, guides page with tutorial for ntfy, etc.))
+      TODO: Overhaul the add/edit event page (Includes ntfy support (the script, guides page with tutorial for ntfy, etc.))
       TODO: Testing (Code consistency, testing of functionality, same styling, responsive design, etc.)
       TODO: Security (Encryption of some data in DB, refresh tokens, etc.)
+      TODO: Use the date-fns (especially the format function) to format the dates in both backend and frontend.
      */
 
     return (

@@ -44,7 +44,7 @@ const Home = () => {
                 <LoginForm onClose={handleLoginClose}/>
             ) : (
                 <h3 className={"mt-2 text-sm text-white"}>Already using the calendar? <a onClick={handleLoginClick}
-                                                                                         className={"text-yellow-500"}>Login
+                                                                                         className={"text-yellow-500 hover:cursor-pointer"}>Login
                     now!</a></h3>
             )}
 
