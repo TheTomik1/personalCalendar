@@ -7,6 +7,7 @@ const debug = require('debug')('calendar-api:server');
 const http = require('http');
 
 require('./api/systems/oldEventDelete');
+require('./api/systems/ntfyMessages');
 
 const endpoints = require("./api/endpoints");
 
@@ -14,8 +15,8 @@ const calendarApi = express();
 
 calendarApi.use(express.json());
 calendarApi.use(cookieParser());
-calendarApi.use("/api", endpoints);
 calendarApi.use(morgan('combined'));
+calendarApi.use("/api", endpoints);
 
 const calendarApiServer = http.createServer({}, calendarApi);
 calendarApiServer.listen(8080);
