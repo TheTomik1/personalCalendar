@@ -40,12 +40,13 @@ async function seed() {
             (
                 id INTEGER NOT NULL PRIMARY KEY,
                 calendarId INTEGER NOT NULL,
-                datetimeStart INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                datetimeEnd INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                type TEXT NOT NULL,
-                name TEXT NOT NULL,
+                eventType TEXT NOT NULL,
+                title TEXT NOT NULL,
                 description TEXT,
                 location TEXT,
+                reminderOption TEXT,
+                datetimeStart INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                datetimeEnd INTEGER DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 color TEXT,
                 FOREIGN KEY (calendarId) REFERENCES calendars(id)                                          
             );
