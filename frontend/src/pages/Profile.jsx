@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {Helmet} from "react-helmet";
 
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -220,10 +219,6 @@ const Profile = () => {
 
     return (
         <div className="flex flex-col justify-center items-center bg-zinc-900 min-h-screen p-4 md:p-8">
-            <Helmet>
-                <title>Personal Calendar | Profile</title>
-            </Helmet>
-
             <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-4 md:p-8 w-full max-w-2xl">
                 <div className="relative w-32 h-32 mb-6 md:mb-12 rounded-full border-4 border-white overflow-hidden group">
                     <img src={profilePicture} alt="Profile" className="w-full h-full object-cover"/>

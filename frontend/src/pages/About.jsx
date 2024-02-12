@@ -1,5 +1,3 @@
-import {Helmet} from "react-helmet";
-
 import { FaGithub } from "react-icons/fa";
 
 const About = () => {
@@ -7,10 +5,6 @@ const About = () => {
 
     return (
         <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
-            <Helmet>
-                <title>Personal Calendar | About</title>
-            </Helmet>
-
             <h1 className={"text-6xl text-white font-bold"}>About</h1>
             <p className={"text-2xl text-white pt-4"}>2023 - {currentYear}</p>
 

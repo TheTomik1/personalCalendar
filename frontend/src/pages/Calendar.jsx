@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from 'date-fns';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
@@ -90,10 +89,6 @@ const Calendar = () => {
 
     return (
         <div className="text-center bg-zinc-900">
-            <Helmet>
-                <title>Personal Calendar | My Calendar</title>
-            </Helmet>
-
             <div className="flex justify-center items-center min-h-screen">
                 <div className="container mx-auto">
                     <div className={"flex justify-start space-x-4"}>

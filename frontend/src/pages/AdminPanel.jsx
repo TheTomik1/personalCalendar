@@ -1,4 +1,3 @@
-import {Helmet} from "react-helmet";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import { format } from "date-fns";
@@ -46,10 +45,6 @@ const AdminPanel = () => {
 
     return (
         <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
-            <Helmet>
-                <title>Personal Calendar | Admin Panel</title>
-            </Helmet>
-
             <h1 className={"text-5xl text-white font-bold pt-24"}>Admin Panel</h1>
             <h2 className={"mt-6 text-lg text-white"}>This is the admin panel for the Personal Calendar application. You can manage all the users here.</h2>
             <p className={"mt-2 text-white"}>To edit, unban, ban, delete the user, use the actions tab.</p>

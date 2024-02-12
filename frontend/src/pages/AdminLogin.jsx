@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import {Helmet} from "react-helmet";
 
 import {MdVisibility, MdVisibilityOff} from "react-icons/md";
 import {use} from "bcrypt/promises";
@@ -34,10 +33,6 @@ const AdminLogin = () => {
 
     return (
         <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
-            <Helmet>
-                <title>Personal Calendar | Admin Login</title>
-            </Helmet>
-
             <h1 className={"text-5xl text-white font-bold pt-24"}>Admin Login</h1>
             <h2 className={"mt-6 text-lg text-white"}>This is the admin login page for the Personal Calendar application. Once successfully logged in, you will be able to access admin.</h2>
 
