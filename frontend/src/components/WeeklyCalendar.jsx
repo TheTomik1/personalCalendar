@@ -92,9 +92,6 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                         {editEventData && (
                             <AddEditEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
                         )}
-                        {newEventModalDay && (
-                            <AddEditEventModal eventData={{datetimeStart: newEventModalDay }} onClose={() => setNewEventModalDay(null)} />
-                        )}
                         {eventIdToDelete && (
                             <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {
                                 deleteEvent(eventsData[0].id)
@@ -104,6 +101,9 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                     </div>
                 );
             })}
+            {newEventModalDay && (
+                <AddEditEventModal eventData={{datetimeStart: newEventModalDay }} onClose={() => setNewEventModalDay(null)} />
+            )}
         </div>
     );
 
