@@ -219,7 +219,7 @@ router.post("/add-edit-event", authMiddleware, async(req, res) => {
         }
 
         if (action === "add") {
-            await db.run("INSERT INTO calendarEvents(calendarId, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", userCalendar.id, eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color);
+            await db.run("INSERT INTO calendarEvents(calendarId, eventType, title, description, location, reminderOption, reminderSent, datetimeStart, datetimeEnd, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userCalendar.id, eventType, title, description, location, reminderOption, 0, datetimeStart, datetimeEnd, color);
             await res.status(201).send({ message: 'Event added.' });
         } else if (action === "edit") {
             await db.run("UPDATE calendarEvents SET eventType = ?, title = ?, description = ?, location = ?, reminderOption = ?, datetimeStart = ?, datetimeEnd = ?, color = ? WHERE id = ?", eventType, title, description, location, reminderOption, datetimeStart, datetimeEnd, color, id);
