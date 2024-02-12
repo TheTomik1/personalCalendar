@@ -69,7 +69,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                     <AddEditEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
                 )}
                 {newEventModal && (
-                    <AddEditEventModal eventData={{datetimeStart: format(day.day, "yyyy-MM-dd")}} onClose={() => setNewEventModal(false)} />
+                    <AddEditEventModal eventData={{datetimeStart: day.day}} onClose={() => setNewEventModal(false)} />
                 )}
                 {eventIdToDelete && (
                     <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {

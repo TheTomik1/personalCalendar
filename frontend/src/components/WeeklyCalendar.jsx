@@ -1,8 +1,6 @@
 import React, {useState} from "react";
 import {endOfWeek, format, isToday, startOfWeek} from "date-fns";
-import axios from "axios";
 
-import AddNewEventModal from "./AddOrEditModal";
 import ContestModal from "./ContestModal";
 
 import { deleteEvent } from "../services/deleteEvent";
@@ -14,7 +12,7 @@ import AddEditEventModal from "./AddEditEventModal";
 
 const WeeklyCalendar = ({ date, eventsData }) => {
     const [editEventData, setEditEventData] = useState(null);
-    const [newEventModal, setNewEventModal] = useState(false);
+    const [newEventModalDay, setNewEventModalDay] = useState(null);
     const [eventIdToDelete, setEventIdToDelete] = useState(null);
 
     const weekStart = startOfWeek(date, { weekStartsOn: 1 });
@@ -48,9 +46,9 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                                         {dayEvents.map((event, index) => (
                                             <div key={index}
                                                  className={`flex flex-col mt-4 p-2 text-white bg-${event.color}-500 rounded-xl cursor-pointer w-full`}>
-                                                <h1 className="text-3xl">{event.name}</h1>
+                                                <h1 className="text-3xl">{event.title}</h1>
                                                 <p className="text-sm">{format(new Date(event.datetimeStart), 'HH:mm')} - {format(new Date(event.datetimeEnd), 'HH:mm')}</p>
-                                                <p className="text-2xl">{event.type.charAt(0).toUpperCase() + event.type.slice(1)}</p>
+                                                <p className="text-2xl">{event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1)}</p>
 
                                                 <div className="relative flex mt-2 items-center">
                                                     <div className="flex-grow border-t border-white"></div>
@@ -80,20 +78,22 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                                 ) : (
                                     <div className="flex flex-col justify-center items-center">
                                         <p className="text-white font-semibold">No events for this day.</p>
-                                        <button
-                                            className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer"
-                                            onClick={() => setNewEventModal(true)}>
-                                            New <FaCalendarPlus className={"ml-1"}/>
-                                        </button>
                                     </div>
                                 )}
+                                <div className="flex flex-col justify-center items-center">
+                                    <button
+                                        className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer"
+                                        onClick={() => setNewEventModalDay(day)}>
+                                        New <FaCalendarPlus className={"ml-1"}/>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {editEventData && (
                             <AddEditEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
                         )}
-                        {newEventModal && (
-                            <AddEditEventModal eventData={{datetimeStart: format(day.day, "yyyy-MM-dd")}} onClose={() => setNewEventModal(false)} />
+                        {newEventModalDay && (
+                            <AddEditEventModal eventData={{datetimeStart: newEventModalDay }} onClose={() => setNewEventModalDay(null)} />
                         )}
                         {eventIdToDelete && (
                             <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {
