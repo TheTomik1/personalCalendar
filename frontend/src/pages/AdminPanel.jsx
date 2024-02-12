@@ -17,7 +17,7 @@ const AdminPanel = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const usersResponse = await axios.get("http://localhost:8080/api/admin/get-users/", {withCredentials: true});
+            const usersResponse = await axios.get("http://localhost:8080/api/admin/get-users/");
             setUsers(usersResponse.data.users);
         }
 
@@ -33,13 +33,13 @@ const AdminPanel = () => {
     }
 
     const editUserBan = async(userId, banInformation) => {
-        await axios.post("http://localhost:8080/api/admin/edit-user/", {id: userId, data: banInformation}, {withCredentials: true});
+        await axios.post("http://localhost:8080/api/admin/edit-user/", {id: userId, data: banInformation});
 
         navigate(0);
     }
 
     const deleteUser = async(userId) => {
-        await axios.post("http://localhost:8080/api/admin/delete-user/", {id: userId}, {withCredentials: true});
+        await axios.post("http://localhost:8080/api/admin/delete-user/", {id: userId});
 
         navigate(0);
     }

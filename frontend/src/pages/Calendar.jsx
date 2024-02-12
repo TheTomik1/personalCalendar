@@ -27,7 +27,7 @@ const Calendar = () => {
     useEffect(() => {
         async function fetchData() {
             try {
-                const fetchEvents = await axios.get("http://localhost:8080/api/get-events", { withCredentials: true });
+                const fetchEvents = await axios.get("http://localhost:8080/api/get-events");
 
                 if (fetchEvents.status === 200) {
                     setEventData(fetchEvents.data.events);

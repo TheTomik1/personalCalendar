@@ -11,7 +11,7 @@ const AdminLogin = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async() => {
-        const loginRequest = await axios.post('http://localhost:8080/api/admin/login', {username, password}, {withCredentials: true});
+        const loginRequest = await axios.post('http://localhost:8080/api/admin/login', {username, password});
 
         if (loginRequest.status === 200) {
             window.location.href = "/admin-panel";

@@ -10,6 +10,7 @@ import { deleteEvent } from "../services/deleteEvent";
 import { FaCalendarPlus, FaLocationPin } from "react-icons/fa6";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { PiTextAlignLeftLight } from "react-icons/pi";
+import AddEditEventModal from "./AddEditEventModal";
 
 const WeeklyCalendar = ({ date, eventsData }) => {
     const [editEventData, setEditEventData] = useState(null);
@@ -89,16 +90,16 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                             </div>
                         </div>
                         {editEventData && (
-                            <AddNewEventModal eventData={editEventData} onClose={() => setEditEventData(null)}/>
+                            <AddEditEventModal eventData={editEventData} onClose={() => setEditEventData(null)} />
+                        )}
+                        {newEventModal && (
+                            <AddEditEventModal eventData={{datetimeStart: format(day.day, "yyyy-MM-dd")}} onClose={() => setNewEventModal(false)} />
                         )}
                         {eventIdToDelete && (
                             <ContestModal title="Are you sure you want to delete this event?" actionYes={() => {
                                 deleteEvent(eventsData[0].id)
                                 setEventIdToDelete(null)
                             }} actionNo={() => setEventIdToDelete(null)} />
-                        )}
-                        {newEventModal && (
-                            <AddNewEventModal onClose={() => setNewEventModal(false)} />
                         )}
                     </div>
                 );

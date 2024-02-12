@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:8080/api/me", { withCredentials: true })
+        axios.get("http://localhost:8080/api/me")
             .then(response => {
                 setIsLoggedIn(response.status === 200);
                 setAdminAccount(response.data.userInformation.isAdmin);

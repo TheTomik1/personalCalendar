@@ -21,7 +21,7 @@ const Navbar = () => {
     useEffect(() => {
         async function checkAuthStatus() {
             try {
-                const response = await axios.get("http://localhost:8080/api/me", { withCredentials: true });
+                const response = await axios.get("http://localhost:8080/api/me");
                 if (response.status === 200) {
                     setIsLoggedIn(true);
                 }
@@ -36,7 +36,7 @@ const Navbar = () => {
     useEffect(() => {
         async function fetchProfilePicture() {
             try {
-                const meProfilePictureResponse = await axios.get("http://localhost:8080/api/me-profile-picture", { withCredentials: true, responseType: "blob" });
+                const meProfilePictureResponse = await axios.get("http://localhost:8080/api/me-profile-picture", { responseType: "blob" });
                 const profilePictureObjectUrl = URL.createObjectURL(meProfilePictureResponse.data)
 
                 setLoggedInUserProfilePicture(profilePictureObjectUrl);
@@ -66,7 +66,7 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:8080/api/logout", null, { withCredentials: true });
+            await axios.post("http://localhost:8080/api/logout", null);
             navigate(0);
             toastr.success("Logout successful.");
         } catch (error) {

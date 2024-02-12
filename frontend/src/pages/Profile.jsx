@@ -37,7 +37,7 @@ const Profile = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const meResponse = await axios.get("http://localhost:8080/api/me", { withCredentials: true });
+            const meResponse = await axios.get("http://localhost:8080/api/me");
 
             if (meResponse.status === 200) {
                 const userData = meResponse.data.userInformation;
@@ -84,8 +84,8 @@ const Profile = () => {
 
     const modifyUser = async(e) => {
         try {
-            const editUserResponse = await axios.post("http://localhost:8080/api/edit-user", { userName, fullName, newEmail, newPassword }, { withCredentials: true });
-            const modifyNtfyTopicResponse = await axios.post("http://localhost:8080/api/modify-ntfy-topic", { ntfyTopic }, { withCredentials: true });
+            const editUserResponse = await axios.post("http://localhost:8080/api/edit-user", { userName, fullName, newEmail, newPassword });
+            const modifyNtfyTopicResponse = await axios.post("http://localhost:8080/api/modify-ntfy-topic", { ntfyTopic });
 
             if (editUserResponse.status === 201 && modifyNtfyTopicResponse.status === 201) {
                 toastr.success("User information updated successfully.");
@@ -111,7 +111,7 @@ const Profile = () => {
 
     const deleteUser = async(e) => {
         try {
-            const deleteUserResponse = await axios.post("http://localhost:8080/api/delete-user", { password }, { withCredentials: true });
+            const deleteUserResponse = await axios.post("http://localhost:8080/api/delete-user", { password });
             if (deleteUserResponse.status === 201) {
                 toastr.success("Your account and all of its associated information has been deleted successfully.");
                 navigate("/");
@@ -127,7 +127,7 @@ const Profile = () => {
 
     const fetchProfilePicture = async() => {
         try {
-            const meProfilePictureResponse = await axios.get("http://localhost:8080/api/me-profile-picture", { withCredentials: true, responseType: "blob" });
+            const meProfilePictureResponse = await axios.get("http://localhost:8080/api/me-profile-picture", { responseType: "blob" });
             const profilePictureObjectUrl = URL.createObjectURL(meProfilePictureResponse.data)
 
             setProfilePicture(profilePictureObjectUrl);
@@ -146,7 +146,6 @@ const Profile = () => {
             const uploadProfilePictureResponse = await axios.post("http://localhost:8080/api/upload-profile-picture",
                 formData,
                 {
-                    withCredentials: true,
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },

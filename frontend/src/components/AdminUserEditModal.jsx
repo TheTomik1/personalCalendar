@@ -10,7 +10,7 @@ const AdminUserEditModal = ({ user, handleClose }) => {
     const navigate = useNavigate();
 
     const editUserInformation = async(userId, userInformation) => {
-        await axios.post("http://localhost:8080/api/admin/edit-user/", {id: userId, data: userInformation}, {withCredentials: true});
+        await axios.post("http://localhost:8080/api/admin/edit-user/", {id: userId, data: userInformation});
 
         navigate(0);
     }

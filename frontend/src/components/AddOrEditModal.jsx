@@ -60,7 +60,7 @@ const AddOrEditModal = ({ eventData, onClose }) => {
             start: `${date} ${start}`,
             end: `${date} ${end}`,
             type: eventType
-        }, {withCredentials: true}).then((res) => {
+        }).then((res) => {
             if (res.status === 201) {
                 window.location.reload();
             }
@@ -79,7 +79,7 @@ const AddOrEditModal = ({ eventData, onClose }) => {
             end: `${date} ${end}`,
             type: eventType,
             id: eventId
-        }, {withCredentials: true}).then((res) => {
+        }).then((res) => {
             if (res.status === 201) {
                 window.location.reload();
             }
