@@ -52,7 +52,12 @@ const Profile = () => {
                 setFullName(userData["fullname"]);
                 setUserName(userData["username"]);
                 setEmail(userData["email"]);
-                setNtfyTopic(userData["topic"]);
+
+                if (userData["topic"] === null) {
+                    setNtfyTopic("");
+                } else {
+                    setNtfyTopic(userData["topic"]);
+                }
 
                 if (userData["profilePicture"] === null) {
                     setProfilePicture("https://robohash.org/noprofilepic.png");

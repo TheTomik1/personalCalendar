@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
+import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import axios from "axios";
-
-import { Route, Routes, useLocation } from 'react-router-dom';
+import toastr from "toastr";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -18,16 +18,37 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from './context/Auth';
 
 import './styles.css';
+import {format} from "date-fns";
 
 function App() {
     /*
-      TODO: Overhaul the add/edit event page (guides page with tutorial for ntfy)
-      TODO: Testing (Code consistency, testing of functionality, same styling, responsive design, etc.)
-      TODO: Security (Encryption of some data in DB, refresh tokens, etc.)
+      TODO: Test the app (Design, Responsiveness, Functionality, Fix any bugs, Code quality and consistency, etc.)
+      TODO: Test backend first, then frontend.
       TODO: Use the date-fns (especially the format function) to format the dates in both backend and frontend.
      */
 
     axios.defaults.withCredentials = true;
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        setInterval(() => {
+            checkBanStatus();
+        }, 60000); // Check if the user is banned every minute.
+    }, []);
+
+    const checkBanStatus = async () => {
+        try {
+            const meResponse = await axios.get("http://localhost:8080/api/me");
+
+            if (meResponse.data.userInformation.isBanned === 1) {
+                await axios.post("http://localhost:8080/api/logout");
+                toastr.error("You have been banned.");
+                navigate(0);
+            }
+        } catch (error) {
+            // User is not logged in.
+        }
+    }
 
     const location = useLocation();
 
@@ -68,6 +89,10 @@ function App() {
                     ))}
                 </Routes>
             </AuthProvider>
+
+            <footer className="bg-zinc-900 text-white text-center p-4">
+                <p>&copy; {format(new Date(), "yyyy")} - Personal Calendar</p>
+            </footer>
         </>
     );
 }
