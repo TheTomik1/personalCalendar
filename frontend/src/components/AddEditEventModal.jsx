@@ -18,9 +18,9 @@ const AddEditEventModal = ({ eventData, onClose }) => {
     const [title, setTitle] = useState(eventData.title ? eventData.title : 'Add title.');
     const [description, setDescription] = useState(eventData.description ? eventData.description : 'Add description.');
     const [location, setLocation] = useState(eventData.location ? eventData.location : 'Add location.');
-    const [remindOption, setRemindOption] = useState('5m');
-    const [eventDate, setEventDate] = useState(eventData.datetimeStart ? new Date(eventData.datetimeStart) : new Date());
-    const [startTime, setStartTime] = useState(eventData.datetimeStart ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
+    const [remindOption, setRemindOption] = useState(eventData.reminderOption ? eventData.reminderOption : '5m');
+    const [eventDate, setEventDate] = useState(/:/.test(eventData.datetimeStart) ? new Date(eventData.datetimeStart) : new Date());
+    const [startTime, setStartTime] = useState(!/:/.test(eventData.datetimeStart) ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(eventData.datetimeEnd ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [color, setColor] = useState(`${eventData.color ? eventData.color : 'blue'}`);
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 import axios from "axios";
 import bcrypt from "bcryptjs-react";
 import toastr from "toastr";
@@ -29,7 +30,8 @@ const Profile = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [passwordMatch, setPasswordMatch] = useState(false);
 
-    const [isEditing, setIsEditing] = useState(false);
+    const [cookies, setCookie] = useCookies(["isEditingProfile"]);
+    const [isEditing, setIsEditing] = useState(cookies.isEditingProfile  || false);
     const [userDeleteContest, setUserDeleteContest] = useState(false);
 
     const navigate = useNavigate();
@@ -68,10 +70,8 @@ const Profile = () => {
     useEffect(() => {
         const checkPassword = async () => {
             if (await bcrypt.compare(currentPassword, password)) {
-                console.log("true");
                 setPasswordMatch(true);
             } else {
-                console.log("false");
                 setPasswordMatch(false);
             }
         };
@@ -166,6 +166,7 @@ const Profile = () => {
     };
 
     const toggleEditing = () => {
+        setCookie("isEditingProfile", !isEditing);
         setIsEditing(!isEditing);
     }
 
@@ -220,7 +221,7 @@ const Profile = () => {
     return (
         <div className="flex flex-col justify-center items-center bg-zinc-900 min-h-screen p-4 md:p-8">
             <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-4 md:p-8 w-full max-w-2xl">
-                <div className="relative w-32 h-32 mb-6 md:mb-12 rounded-full border-4 border-white overflow-hidden group">
+                <div className="relative w-32 h-32 rounded-full border-4 border-white overflow-hidden group">
                     <img src={profilePicture} alt="Profile" className="w-full h-full object-cover"/>
                     {isEditing && (
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black bg-opacity-50">
@@ -237,6 +238,7 @@ const Profile = () => {
                         </div>
                     )}
                 </div>
+                <p className="text-white text-sm my-4 md:my-6">Recommended size 128x128px.</p>
 
                 <div className="flex flex-col items-start justify-center">
                     <label className="text-white text-xl">Username</label>
