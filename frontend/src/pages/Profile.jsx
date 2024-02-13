@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
-import bcrypt from "bcryptjs-react";
 import toastr from "toastr";
 
 import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 
 import ContestModal from "../components/ContestModal";
+import EditEmail from "../components/profile-editing/EditEmail";
+import EditPassword from "../components/profile-editing/EditPassword";
 
 const Profile = () => {
     const [error, setError] = useState("");
@@ -17,24 +18,29 @@ const Profile = () => {
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [ntfyTopic, setNtfyTopic] = useState("");
     const [profilePicture, setProfilePicture] = useState("");
 
-    const [currentEmail, setCurrentEmail] = useState("");
+    const [editOption, setEditOption] = useState("");
+
     const [newEmail, setNewEmail] = useState("");
 
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [newPassword, setNewPassword] = useState("");
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [passwordMatch, setPasswordMatch] = useState(false);
+    const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
 
     const [cookies, setCookie] = useCookies(["isEditingProfile"]);
     const [isEditing, setIsEditing] = useState(cookies.isEditingProfile  || false);
     const [userDeleteContest, setUserDeleteContest] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (editOption === "") {
+            setNewEmail("");
+            setNewPassword("");
+            setNewPasswordConfirm("");
+        }
+    }, [editOption]);
 
     useEffect(() => {
         async function fetchData() {
@@ -46,13 +52,7 @@ const Profile = () => {
                 setFullName(userData["fullname"]);
                 setUserName(userData["username"]);
                 setEmail(userData["email"]);
-                setPassword(userData["password"]);
-
-                if (userData["topic"] === null) {
-                    setNtfyTopic("");
-                } else {
-                    setNtfyTopic(userData["topic"]);
-                }
+                setNtfyTopic(userData["topic"]);
 
                 if (userData["profilePicture"] === null) {
                     setProfilePicture("https://robohash.org/noprofilepic.png");
@@ -67,20 +67,6 @@ const Profile = () => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        const checkPassword = async () => {
-            if (await bcrypt.compare(currentPassword, password)) {
-                setPasswordMatch(true);
-            } else {
-                setPasswordMatch(false);
-            }
-        };
-
-        if (currentPassword.length > 0) {
-            checkPassword();
-        }
-    }, [currentPassword, password]);
-
     const modifyUser = async(e) => {
         try {
             const editUserResponse = await axios.post("http://localhost:8080/api/edit-user", { userName, fullName, newEmail, newPassword });
@@ -90,13 +76,11 @@ const Profile = () => {
                 toastr.success("User information updated successfully.");
 
                 toggleEditing();
-                setEmail(newEmail);
-                setCurrentEmail("");
                 setNewEmail("");
-                setCurrentPassword("");
                 setNewPassword("");
+                setNewPasswordConfirm("");
                 setError("");
-                setNtfyTopic("");
+                navigate(0);
             }
         } catch (error) {
             if (error.response?.data?.message === "Such username or email already exists.") {
@@ -110,18 +94,14 @@ const Profile = () => {
 
     const deleteUser = async(e) => {
         try {
-            const deleteUserResponse = await axios.post("http://localhost:8080/api/delete-user", { password });
+            const deleteUserResponse = await axios.post("http://localhost:8080/api/delete-user");
             if (deleteUserResponse.status === 201) {
                 toastr.success("Your account and all of its associated information has been deleted successfully.");
-                navigate("/");
+                navigate(0);
             }
         } catch (error) {
             toastr.error("Something went wrong. Please try again later.");
         }
-    }
-
-    const toggleUserDeleteContest = () => {
-        setUserDeleteContest(!userDeleteContest);
     }
 
     const fetchProfilePicture = async() => {
@@ -136,10 +116,10 @@ const Profile = () => {
     }
 
     const handleProfilePictureChange = async(event) => {
-        const aaaa = event.target.files[0];
+        const targetFile = event.target.files[0];
 
         const formData = new FormData();
-        formData.append("image", aaaa);
+        formData.append("image", targetFile);
 
         try {
             const uploadProfilePictureResponse = await axios.post("http://localhost:8080/api/upload-profile-picture",
@@ -165,28 +145,38 @@ const Profile = () => {
         }
     };
 
-    const toggleEditing = () => {
-        setCookie("isEditingProfile", !isEditing);
-        setIsEditing(!isEditing);
-    }
-
-    const validateEditing = () => {
-        if (userName.length < 4 || fullName.length < 4 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) || newEmail === email ||
-            newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword) ||
-            !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(newPassword) || ntfyTopic.length < 4) {
+    const validateForm = () => {
+        if (userName.length < 4 || fullName.length < 3 || ntfyTopic.length < 4) {
             return false;
+        }
+
+        if (editOption === "email") {
+            if (newEmail === email) {
+                return false;
+            }
+
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(newEmail) === false) {
+                return false;
+            }
+        }
+
+        if (editOption === "password") {
+            if (newPassword.length < 8 || newPassword !== newPasswordConfirm) {
+                return false;
+            }
         }
 
         return true;
     }
 
-    const toggleShowCurrentPassword = () => {
-        setShowCurrentPassword(!showCurrentPassword);
-    };
+    const toggleUserDeleteContest = () => {
+        setUserDeleteContest(!userDeleteContest);
+    }
 
-    const toggleShowNewPassword = () => {
-        setShowNewPassword(!showNewPassword);
-    };
+    const toggleEditing = () => {
+        setCookie("isEditingProfile", !isEditing);
+        setIsEditing(!isEditing);
+    }
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -198,20 +188,20 @@ const Profile = () => {
             case "userName":
                 setUserName(value);
                 break;
-            case "currentEmail":
-                setCurrentEmail(value);
+            case "ntfyTopic":
+                setNtfyTopic(value);
+                break;
+            case "editOption":
+                setEditOption(value);
                 break;
             case "newEmail":
                 setNewEmail(value);
                 break;
-            case "currentPassword":
-                setCurrentPassword(value);
-                break;
             case "newPassword":
                 setNewPassword(value);
                 break;
-            case "ntfyTopic":
-                setNtfyTopic(value);
+            case "confirmPassword":
+                setNewPasswordConfirm(value);
                 break;
             default:
                 break;
@@ -222,7 +212,7 @@ const Profile = () => {
         <div className="flex flex-col justify-center items-center bg-zinc-900 min-h-screen p-4 md:p-8">
             <div className="flex flex-col items-center bg-zinc-800 rounded-xl shadow-2xl p-4 md:p-8 w-full max-w-2xl">
                 <div className="relative w-32 h-32 rounded-full border-4 border-white overflow-hidden group">
-                    <img src={profilePicture} alt="Profile" className="w-full h-full object-cover"/>
+                    <img src={profilePicture} alt="Profile" className="w-full h-full object-cover select-none"/>
                     {isEditing && (
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black bg-opacity-50">
                             <label htmlFor="fileInput" className="cursor-pointer">
@@ -242,7 +232,11 @@ const Profile = () => {
 
                 <div className="flex flex-col items-start justify-center">
                     <label className="text-white text-xl">Username</label>
-                    <input type="text" name="userName" value={userName} readOnly={!isEditing}
+                    <input type="text"
+                           name="userName"
+                           placeholder="Your new username."
+                           value={userName}
+                           readOnly={!isEditing}
                            className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
                            onChange={handleInputChange}
                     />
@@ -251,96 +245,65 @@ const Profile = () => {
                     )}
 
                     <label className="text-white text-xl">Full name</label>
-                    <input type="text" name="fullName" value={fullName} readOnly={!isEditing}
+                    <input type="text"
+                           name="fullName"
+                            placeholder="Your new full name."
+                           value={fullName}
+                           readOnly={!isEditing}
                            className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
                            onChange={handleInputChange}
                     />
-
-                    <label className="text-white text-xl">Email</label>
-                    <input type="text" name="email" value={email} readOnly={!isEditing}
-                           className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                    />
-
-                    {isEditing && (
-                        <>
-                            <label className="text-white text-xl">Current Email</label>
-                            <input type="text" name="currentEmail" placeholder="Your current email."
-                                   value={currentEmail}
-                                   className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                                   onChange={handleInputChange}
-                            />
-                            {currentEmail !== email && currentEmail.length !== 0 && (
-                                <small className="text-red-500">Provided email is not yours.</small>
-                            )}
-
-                            <label className="text-white text-xl">New Email</label>
-                            <input type="text" name="newEmail" placeholder="Your new email." value={newEmail}
-                                   className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                                   onChange={handleInputChange}
-                            />
-                            {!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && isEditing && newEmail.length !== 0 && (
-                                <small className="text-red-500">Invalid email.</small>
-                            )}
-                            {newEmail === email && isEditing && newEmail.length !== 0 && (
-                                <small className="text-red-500">New email cannot be the same as the current one.</small>
-                            )}
-                        </>
+                    {fullName.length < 3 && isEditing && fullName.length !== 0 && (
+                        <small className="text-red-500">Full name must be at least 3 characters long.</small>
                     )}
 
-                    {isEditing && (
+                    <label className="text-white text-xl">Ntfy topic</label>
+                    <input type="text"
+                           name="ntfyTopic"
+                           placeholder="Your ntfy topic name."
+                           value={ntfyTopic}
+                           readOnly={!isEditing}
+                           className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
+                           onChange={handleInputChange}/>
+                    {ntfyTopic.length < 4 && isEditing && ntfyTopic.length !== 0 && (
+                        <small className="text-red-500">Ntfy topic must be at least 4 characters long.</small>
+                    )}
+
+                    {isEditing === true && (
                         <>
-                            <label className="text-white text-xl">Current Password</label>
-                            <div className="relative">
-                                <input type={showCurrentPassword ? "text" : "password"} name="currentPassword"
-                                       placeholder="Your current password." value={currentPassword}
-                                       className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                                       onChange={handleInputChange}
+                            <label className="text-white text-xl">New email or password</label>
+                            <div className="flex flex-col items-start justify-center">
+                                <select
+                                    name="editOption"
+                                    value={editOption}
+                                    onChange={handleInputChange}
+                                    className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white">
+                                    <option value="">Select an option</option>
+                                    <option value="email">Email</option>
+                                    <option value="password">Password</option>
+                                </select>
+                            </div>
+
+                            {editOption === "email" && (
+                                <EditEmail
+                                    isEditing={isEditing}
+                                    currentEmail={email}
+                                    newEmail={newEmail}
+                                    onNewEmailChange={handleInputChange} />
+                            )}
+                            {editOption === "password" && (
+                                <EditPassword
+                                    isEditing={isEditing}
+                                    newPassword={newPassword}
+                                    confirmPassword={newPasswordConfirm}
+                                    onNewPasswordChange={handleInputChange}
+                                    onConfirmPasswordChange={handleInputChange}
                                 />
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                                     onClick={toggleShowCurrentPassword}>
-                                    {showCurrentPassword ? (
-                                        <MdVisibility className="text-white"/>
-                                    ) : (
-                                        <MdVisibilityOff className="text-white"/>
-                                    )}
-                                </div>
-                            </div>
-                            {!passwordMatch && currentPassword.length !== 0 && (
-                                <small className="text-red-500">Incorrect password.</small>
-                            )}
-
-                            <label className="text-white text-xl">New Password</label>
-                            <div className="relative">
-                                <input type={showNewPassword ? "text" : "password"} name="newPassword"
-                                       placeholder="Your new password." value={newPassword}
-                                       className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                                       onChange={handleInputChange}/>
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                                     onClick={toggleShowNewPassword}>
-                                    {showNewPassword ? (
-                                        <MdVisibility className="text-white"/>
-                                    ) : (
-                                        <MdVisibilityOff className="text-white"/>
-                                    )}
-                                </div>
-                            </div>
-                            {passwordMatch && newPassword.length !== 0 && (
-                                <small className="text-red-500">New password must be different.</small>
-                            )}
-                            {(newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(newPassword)) && newPassword.length !== 0 && (
-                                <small className="text-red-500">Password is not strong enough.</small>
-                            )}
-
-                            <label className="text-white text-xl">Ntfy topic</label>
-                            <input type="text" name="ntfyTopic" placeholder="Your ntfy topic name." value={ntfyTopic} readOnly={!isEditing}
-                                   className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
-                                   onChange={handleInputChange}/>
-                            {ntfyTopic.length < 4 && isEditing && ntfyTopic.length !== 0 && (
-                                <small className="text-red-500">Ntfy topic must be at least 4 characters long.</small>
                             )}
                         </>
                     )}
                 </div>
+
 
                 {error && isEditing && (
                     <p className="text-red-500 text-sm mb-2">{error}</p>
@@ -354,8 +317,7 @@ const Profile = () => {
                                 <FaArrowRotateLeft className="mr-2"/>Back
                             </button>
                             <button
-                                className="flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded disabled:cursor-not-allowed"
-                                disabled={!validateEditing()}
+                                className={`flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded ${!validateForm() && "cursor-not-allowed opacity-50"}`}
                                 onClick={modifyUser}>
                                 <MdSave className="mr-2"/>Save
                             </button>
