@@ -4,7 +4,7 @@ const fs = require('fs');
 const debug = require('debug')('initialize');
 const bcrypt = require('bcrypt');
 
-const openDatabase = require('../openDatabaseConnection');
+const openDatabase = require('./openDatabaseConnection');
 
 async function initialize() {
     const db = await openDatabase();

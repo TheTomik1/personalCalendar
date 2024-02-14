@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "db:seed": "node scripts/db-seed.js",
-    "init": "node scripts/initialize.js"
+    "db:seed": "node db-seed.js",
+    "init": "node initialize.js"
   },
   "author": "",
   "license": "ISC",
