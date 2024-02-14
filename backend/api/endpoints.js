@@ -65,7 +65,7 @@ router.post("/register", async(req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const insertedUser = await db.run('INSERT INTO users (username, fullname, email, password) VALUES (?, ?, ?, ?) RETURNING id', userName, fullName, email, hashedPassword);
 
-        await db.run("INSERT INTO calendars(guid, ownerId) VALUES (?, ?)", uuidv4(), insertedUser.lastID);
+        await db.run("INSERT INTO calendars(userId) VALUES (?)", insertedUser.lastID);
 
         await db.close();
         await res.status(200).send({ message: 'User created.' });
@@ -166,7 +166,7 @@ router.post("/delete-user", authMiddleware, async(req, res) => {
         const db = await openDatabase();
 
         await db.run("DELETE FROM users WHERE id = ?", req.user.id);
-        await db.run("DELETE FROM calendars WHERE ownerId = ?", req.user.id);
+        await db.run("DELETE FROM calendars WHERE userId = ?", req.user.id);
         await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", req.user.id);
         await db.run("DELETE FROM profilePictures WHERE userId = ?", req.user.id);
         await res.clearCookie('auth');
@@ -192,7 +192,7 @@ router.get("/get-calendar", authMiddleware, async(req, res) => {
 router.post("/add-edit-event", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
-        const userCalendar = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);  // Get the user's calendar.
+        const userCalendar = await db.get("SELECT * FROM calendars WHERE userId = ?", req.user.id);  // Get the user's calendar.
 
         const currentDateTime = format(new Date(), "yyyy-MM-dd HH:mm");
 
@@ -228,6 +228,7 @@ router.post("/add-edit-event", authMiddleware, async(req, res) => {
             await res.status(400).send({ message: 'Invalid action.' });
         }
     } catch (e) {
+        console.log(e);
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });
@@ -236,7 +237,7 @@ router.get("/get-events", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.ownerId = ? ORDER BY ce.datetimeStart`, req.user.id);
+        const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.userId = ? ORDER BY ce.datetimeStart`, req.user.id);
 
         res.status(200).send({ events });
     } catch (e) {
@@ -394,7 +395,7 @@ router.post("/admin/delete-user", async(req, res) => {
         const { id } = req.body;
 
         await db.run("DELETE FROM users WHERE id = ?", id);
-        await db.run("DELETE FROM calendars WHERE ownerId = ?", id);
+        await db.run("DELETE FROM calendars WHERE userId = ?", id);
         await db.run("DELETE FROM calendarEvents WHERE calendarId = ?", id);
         await db.run("DELETE FROM profilePictures WHERE userId = ?", id);
 

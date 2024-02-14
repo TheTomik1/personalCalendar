@@ -54,7 +54,7 @@ async function seed() {
         await db.exec(`
             CREATE TABLE IF NOT EXISTS profilePictures (
                 id  INTEGER PRIMARY KEY,
-                userId  INTEGER NOT NULL,
+                userId  INTEGER UNIQUE NOT NULL,
                 imageName  TEXT NOT NULL,
                 FOREIGN KEY (userId) REFERENCES users(id)
             );
@@ -64,7 +64,7 @@ async function seed() {
             CREATE TABLE ntfyTopics
             (
                 id  INTEGER PRIMARY KEY,
-                userId  INTEGER NOT NULL,
+                userId  INTEGER UNIQUE NOT NULL,
                 topic  VARCHAR(255) NOT NULL,
                 FOREIGN KEY (userId) REFERENCES users(id)
             );

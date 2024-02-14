@@ -6,8 +6,8 @@ const morgan = require('morgan');
 const debug = require('debug')('calendar-api:server');
 const http = require('http');
 
-require('./api/systems/oldEventDelete');
 require('./api/systems/ntfyMessages');
+require('./api/systems/oldEventDelete');
 
 const endpoints = require("./api/endpoints");
 
@@ -18,23 +18,22 @@ calendarApi.use(cookieParser());
 calendarApi.use(morgan('combined'));
 calendarApi.use("/api", endpoints);
 
-const calendarApiServer = http.createServer({}, calendarApi);
+const calendarApiServer = http.createServer(calendarApi);
 calendarApiServer.listen(8080);
 calendarApiServer.on('listening', onListening);
 calendarApiServer.on('error', onError);
 
 /**
- *  Listen to incoming requests.
+ * @description Logs that the server is listening for incoming requests.
  */
 function onListening() {
-  let addr = calendarApiServer.address();
-  let bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  debug(`Listening on ${bind}.`);
+  let address = calendarApiServer.address();
+  debug(`Listening for incoming requests on port ${address.port}.`);
 }
 
 /**
- * Handle server errors.
- * @param error An error that has occurred.
+ * @param error - An error that has occurred.
+ * @description Logs the error and exits the process.
  */
 function onError(error) {
   debug(`Error occurred: ${error}.`);
