@@ -58,6 +58,7 @@ async function initialize() {
 
         debug('Admin user created.');
         debug(`In order to access the admin panel use the following credentials: \nUsername: admin\nPassword: ${randomPassword}`);
+        debug('\u001b[31m', 'This is the only time you will see the password. Please store it in a safe place!');
         debug("The login page is located at /admin-login");
 
         debug('Initialization complete.');

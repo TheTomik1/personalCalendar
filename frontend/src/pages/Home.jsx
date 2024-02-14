@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
 import RegistrationForm from "../components/Register";
 import LoginForm from "../components/Login";
@@ -48,7 +48,7 @@ const Home = () => {
                 <div className={"flex flex-wrap justify-center items-start mt-6"}>
                     <div className={"w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"}>
                         <div
-                            className={"bg-zinc-700 p-6 m-4 rounded-lg shadow-lg hover:cursor-pointer hover:scale-105 transition-transform"}>
+                            className={"bg-zinc-700 p-6 h-1/3 m-4 rounded-lg shadow-lg hover:cursor-pointer hover:scale-105 transition-transform"}>
                             <img alt={"calendar"}
                                  src={require("../images/simpleInfoPic.jpg")}
                                  className={"w-full h-auto rounded-lg"}/>
@@ -65,12 +65,11 @@ const Home = () => {
                             <img alt={"calendar"}
                                  src={require("../images/notifactionInfoPic.jpg")}
                                  className={"w-full h-auto rounded-lg"}/>
-                            <h2 className={"text-2xl sm:text-3xl text-white font-bold pt-4"}>Never miss
-                                anything</h2>
+                            <h2 className={"text-2xl sm:text-3xl text-white font-bold pt-4"}>Get notified
+                                </h2>
                             <p className={"text-white mt-4"}>We have partnered with <a href={"https://ntfy.sh/"}
-                                                                                       className={"text-amber-500"}>ntfy.sh</a> as
-                                an external service for you to receive reminder(s) right into your phone or computer
-                                about upcoming events in your calendar.</p>
+                                                                                       className={"text-amber-500"}>ntfy.sh</a> so
+                                you can receive notifications about upcoming events to your device.</p>
                         </div>
                     </div>
                     <div className={"w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"}>

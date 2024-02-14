@@ -1,5 +1,6 @@
-import { addMonths, format, getDay, isToday, getDaysInMonth, startOfMonth } from "date-fns";
 import React, { useState } from "react";
+import { addMonths, format, getDay, isToday, getDaysInMonth, startOfMonth, isSunday } from "date-fns";
+
 
 import DayInfoModal from "./DayInfoModal";
 
@@ -14,7 +15,10 @@ const YearlyCalendar = ({ date, eventsData }) => {
     const year = date.getFullYear();
     const months = Array.from({ length: 12 }, (_, index) => index + 1);
 
-    const getFirstDayOfMonth = (year, month) => getDay(new Date(year, month - 1, 0));
+    const getFirstDayOfMonth = (year, month) => {
+        const firstOfMonth = startOfMonth(new Date(year, month - 1));
+        return getDay(firstOfMonth);
+    }
 
     const [dayInfoModal, setDayInfoModal] = useState("");
 
@@ -33,7 +37,7 @@ const YearlyCalendar = ({ date, eventsData }) => {
         <div className="flex flex-wrap justify-center">
             {months.map((month) => {
                 const firstDayOfMonth = getFirstDayOfMonth(year, month);
-                const daysInMonth = getDaysInMonth(new Date(year, month - 1, 1));
+                const daysInMonth = getDaysInMonth(new Date(year, month - 1));
 
                 return (
                     <div key={month} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4">
@@ -51,34 +55,35 @@ const YearlyCalendar = ({ date, eventsData }) => {
                             </div>
 
                             <div className="grid grid-cols-7 gap-2">
-                                {Array.from({ length: firstDayOfMonth }, (_, index) => {
-                                    const prevMonth = addMonths(new Date(year, month - 1), 1);
-                                    const prevMonthDays = getDaysInMonth(prevMonth);
-
-                                    return (
-                                        <div key={index} className="text-center text-gray-400 py-2 cursor-pointer">
-                                            {prevMonthDays - firstDayOfMonth + index + 1}
-                                        </div>
-                                    );
-                                })}
+                                {Array.from({ length: firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1 }, (_, index) => (
+                                    <div key={index} className="text-center text-gray-400 py-2 cursor-pointer">
+                                        {''}
+                                    </div>
+                                ))}
                                 {Array.from({ length: daysInMonth }, (_, index) => {
                                     const day = index + 1;
                                     const dayIsToday = isToday(new Date(year, month - 1, day));
-                                    const isSunday = (firstDayOfMonth + index + 1) % 7 === 0;
+                                    const isSunday_ = isSunday(new Date(year, month - 1, day));
                                     const events = findDayEvents(year, month, day, eventsData);
 
                                     return (
-                                        <div key={index + 7} className={`text-center py-2 rounded-xl cursor-pointer ${dayIsToday ? "bg-blue-700 font-bold hover:bg-blue-600 transition" : null} ${!dayIsToday && events?.length > 0 ? `bg-${events[0].color}-500 hover:bg-${events[0].color}-400 transition`: null} ${!dayIsToday && !events?.length && isSunday ? "text-red-600" : "text-white"}`} onClick={() => handleDayClick(day, month)}>
+                                        <div key={index + 7}
+                                             className={`text-center py-2 rounded-xl cursor-pointer
+                                                ${dayIsToday ? "bg-blue-700 font-bold" : ""}
+                                                ${!dayIsToday && events?.length > 0 ? `bg-${events[0].color}-500` : ""}
+                                                ${!dayIsToday && !events?.length && isSunday_ ? "text-red-600" : "text-white"}
+                                                ${(!dayIsToday && events?.length === 0) || isSunday_ ? "hover:bg-gray-600 transition" : ""}`}
+                                             onClick={() => handleDayClick(day, month)}>
                                             {day}
                                         </div>
                                     );
                                 })}
                             </div>
                         </div>
-                        {dayInfoModal && <DayInfoModal day={dayInfoModal} eventsData={eventsData} onClose={() => setDayInfoModal("")} />}
                     </div>
                 );
             })}
+            {dayInfoModal && <DayInfoModal day={dayInfoModal} eventsData={eventsData} onClose={() => setDayInfoModal("")} />}
         </div>
     );
 };

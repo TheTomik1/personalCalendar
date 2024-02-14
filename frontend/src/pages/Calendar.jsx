@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from 'date-fns';
-import axios from 'axios';
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import toastr from "toastr";
 
 import WeeklyCalendar from "../components/WeeklyCalendar";
@@ -91,7 +91,7 @@ const Calendar = () => {
         <div className="text-center bg-zinc-900">
             <div className="flex justify-center items-center min-h-screen">
                 <div className="container mx-auto">
-                    <div className={"flex justify-start space-x-4"}>
+                    <div className={"flex justify-start space-x-4 pl-4"}>
                         <button className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer" onClick={() => setNewEventModal(true)}>
                             New <FaCalendarPlus className={"ml-1"}/>
                         </button>
@@ -106,7 +106,7 @@ const Calendar = () => {
                             <AddEditEventModal eventData={{}} onClose={() => setNewEventModal(false)} />  // Passing an empty object as eventData so the modal knows it is a new event.
                         )
                     }
-                    <div className="flex">
+                    <div className="flex pl-4 mb-12">
                         <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={prev}><FaAngleLeft /></button>
                         <button className="text-2xl font-bold text-white hover:text-gray-300 cursor-pointer" onClick={next}><FaAngleRight /></button>
                         <h2 className="text-3xl font-bold text-white pl-12">

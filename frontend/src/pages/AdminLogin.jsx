@@ -9,7 +9,9 @@ const AdminLogin = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = async() => {
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+
         const loginRequest = await axios.post('http://localhost:8080/api/admin/login', {username, password});
 
         if (loginRequest.status === 200) {
@@ -34,7 +36,9 @@ const AdminLogin = () => {
     return (
         <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
             <h1 className={"text-5xl text-white font-bold pt-24"}>Admin Login</h1>
-            <h2 className={"mt-6 text-lg text-white"}>This is the admin login page for the Personal Calendar application. Once successfully logged in, you will be able to access admin.</h2>
+            <p className={"mt-6 text-lg text-white"}>
+                This is the admin login page for the Personal Calendar application. After logging in, you will be redirected to the admin panel.
+            </p>
 
             <div className="flex justify-center mt-12">
                 <form onSubmit={handleSubmit} className="bg-zinc-800 rounded-xl w-1/3 p-4">
@@ -53,7 +57,9 @@ const AdminLogin = () => {
                                 <MdVisibility className="text-white text-xl"/>}
                         </button>
                     </div>
-                    <button type="submit" className={`bg-blue-600 text-white mt-5 px-4 py-2 w-36 rounded hover:bg-blue-500 ${isFormValid ? '' : 'cursor-not-allowed'}`} disabled={!isFormValid}>Login
+                    <button type="submit"
+                            className={`bg-blue-600 text-white font-bold mt-5 px-4 py-2 w-36 rounded ${isFormValid ? 'hover:bg-blue-500' : 'cursor-not-allowed bg-opacity-75'}`}
+                            disabled={!isFormValid}>Login
                     </button>
                 </form>
             </div>

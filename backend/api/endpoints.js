@@ -93,7 +93,7 @@ router.post("/login", async(req, res) => {
         }
 
         if (user.isBanned) {
-            return res.status(400).send({ message: 'This account is banned.' });
+            return res.status(400).send({ message: 'This account is banned. See guides to learn more about ban appeal.' });
         }
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
@@ -304,10 +304,10 @@ router.post("/modify-ntfy-topic", authMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
-        const { ntfyTopic } = req.body;
+        let { ntfyTopic } = req.body;
 
         if (!ntfyTopic) {
-            return res.status(400).send({ message: 'Invalid body.' });
+            ntfyTopic = ""; // If nothing is provided, set it to an empty string.
         }
 
         await db.run("INSERT OR REPLACE INTO ntfyTopics(userId, topic) VALUES (?, ?)", req.user.id, ntfyTopic);

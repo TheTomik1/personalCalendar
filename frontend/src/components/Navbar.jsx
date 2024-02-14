@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react';
-
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import toastr from 'toastr';
@@ -21,8 +20,8 @@ const Navbar = () => {
     useEffect(() => {
         async function checkAuthStatus() {
             try {
-                const response = await axios.get("http://localhost:8080/api/me");
-                if (response.status === 200) {
+                const meResponse = await axios.get("http://localhost:8080/api/me");
+                if (meResponse.status === 200) {
                     setIsLoggedIn(true);
                 }
             } catch (error) {
@@ -48,7 +47,17 @@ const Navbar = () => {
         fetchProfilePicture();
     }, []);
 
-    const handleRegistrationClick = () => {
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8080/api/logout", null);
+            navigate("/"); // Navigate to / so that way the user is redirected to the home page and to avoid any issues with the current page.
+            navigate(0)  // Refresh the page to update the navbar.
+        } catch (error) {
+            toastr.error("Logout failed. Try again later.");
+        }
+    };
+
+    const handleRegistrationOpen = () => {
         setShowRegistration(true);
     };
 
@@ -56,7 +65,7 @@ const Navbar = () => {
         setShowRegistration(false);
     };
 
-    const handleLoginClick = () => {
+    const handleLoginOpen = () => {
         setShowLogin(true);
     };
 
@@ -64,30 +73,20 @@ const Navbar = () => {
         setShowLogin(false);
     };
 
-    const handleLogout = async () => {
-        try {
-            await axios.post("http://localhost:8080/api/logout", null);
-            navigate(0);
-            toastr.success("Logout successful.");
-        } catch (error) {
-            toastr.error("Logout failed. Try again later.");
-        }
-    };
-
     const toggleNavbar = () => {
         setNavbarOpen(!navbarOpen);
     };
 
     return (
-        <nav className="bg-zinc-900">
+        <nav className="bg-zinc-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-32">
+                <div className="flex items-center justify-between h-20">
                     <div className="flex-shrink-0">
                         <Link to="/">
                             <img
                                 src={require("../images/calendar-logo.png")}
                                 alt={"LOGO"}
-                                className={"h-24 rounded"}
+                                className={"h-16 rounded"}
                             />
                         </Link>
                     </div>
@@ -125,11 +124,11 @@ const Navbar = () => {
                                 </div>
                             ) : (
                                 <div className="flex space-x-4">
-                                    <p onClick={handleLoginClick}
+                                    <p onClick={handleLoginOpen}
                                        className="text-white font-cubano hover:bg-zinc-700 px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
                                         Login
                                     </p>
-                                    <p onClick={handleRegistrationClick} className="text-white font-cubano hover:bg-zinc-700 px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
+                                    <p onClick={handleRegistrationOpen} className="text-white font-cubano hover:bg-zinc-700 px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
                                         Register
                                     </p>
                                 </div>
@@ -164,10 +163,10 @@ const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <p onClick={handleLoginClick} className="text-white font-cubano hover:bg-zinc-700 block px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
+                            <p onClick={handleLoginOpen} className="text-white font-cubano hover:bg-zinc-700 block px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
                                 Login
                             </p>
-                            <p onClick={handleRegistrationClick} className="text-white font-cubano hover:bg-zinc-700 block px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
+                            <p onClick={handleRegistrationOpen} className="text-white font-cubano hover:bg-zinc-700 block px-3 py-2 rounded-md text-2xl font-medium select-none hover:cursor-pointer">
                                 Register
                             </p>
                         </>

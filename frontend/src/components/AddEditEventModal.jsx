@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import {format} from "date-fns";
 import axios from "axios";
 import toastr from "toastr";
@@ -24,10 +24,34 @@ const AddEditEventModal = ({ eventData, onClose }) => {
     const [endTime, setEndTime] = useState(eventData.datetimeEnd ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [color, setColor] = useState(`${eventData.color ? eventData.color : 'blue'}`);
 
-    /*
-    *  @param e - event
-    *  @description - Handles the input change for the form fields.
-    */
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    useEffect(() => {
+        const validateForm = () => {
+            if (typeof eventDate !== "string" && typeof startTime !== "string" && typeof endTime !== "string") {
+                if (format(new Date(eventDate), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd")) {
+                    return false;
+                }
+
+                if (format(new Date(startTime), "HH:mm") > format(new Date(endTime), "HH:mm")) {
+                    return false;
+                }
+
+                if (format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm")) {
+                    return false;
+                }
+
+                if (format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM")) {
+                    return false;
+                }
+
+                return true;
+            }
+        };
+
+        setIsFormValid(validateForm());
+    }, [eventDate, startTime, endTime]);
+
     const handleInputChange = (e) => {
         // This exclusively handles only the input fields in the form. The rest of the fields are handled in separate arrow functions.
 
@@ -49,10 +73,6 @@ const AddEditEventModal = ({ eventData, onClose }) => {
         }
     }
 
-    /*
-    *   @param e - event
-    *   @description - Handles the event type change.
-    */
     const handleEventTypeChange = (e) => {
         if (e.target.textContent === "Event") {
             setEventType("event");
@@ -65,63 +85,27 @@ const AddEditEventModal = ({ eventData, onClose }) => {
         }
     }
 
-    /*
-    *   @param date - date
-    *   @description - Handles the date from the day picker change.
-    */
     const handleEventDataChange = (eventDate) => {
         setEventDate(eventDate);
     }
 
-    /*
-    *   @param time - string
-    *   @description - Handles the start time change.
-    */
     const handleStartTimeChange = (time) => {
         setStartTime(time);
     }
 
-    /*
-    *   @param time - string
-    *   @description - Handles the end time change.
-    */
     const handleEndTimeChange = (time) => {
         setEndTime(time);
     }
 
-    /*
-    *   @param color - string
-    *   @description - Handles the color change.
-    */
     const handleColorChange = (color) => {
         setColor(color);
     }
 
-    /*
-    *   @param eventType - string
-    *   @param title - string
-    *   @param description - string
-    *   @param location - string
-    *   @param remindOption - string
-    *   @param date - date
-    *   @param startTime - string
-    *   @param endTime - string
-    *   @param color - string
-    *   @description - Adds an event to the calendar.
-    */
     const addEditEvent = async(eventType, title, description, location, remindOption, date, startTime, endTime, color) => {
-        /*
-        *   @param date - date
-        *   @description - Formats the date to the format that the backend expects.
-        */
         const formatReceivedDate = (date) => {
             return format(new Date(date), "yyyy-MM-dd");
         }
 
-        /*
-        *   @param time - string
-        *   @description - Formats the time to the format that the backend expects.
-        */
         const formatReceivedTime = (time) => {
             return format(new Date(time), "HH:mm");
         }
@@ -152,36 +136,11 @@ const AddEditEventModal = ({ eventData, onClose }) => {
         }
     }
 
-    /*
-    *   @description - Validates all the time related fields in the form.
-    */
-    const validateForm = () => {
-        if (typeof eventDate !== "string" && typeof startTime !== "string" && typeof endTime !== "string") {
-            if (format(new Date(eventDate), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd")) {
-                return false;
-            }
-
-            if (format(new Date(startTime), "HH:mm") > format(new Date(endTime), "HH:mm")) {
-                return false;
-            }
-
-            if (format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm")) {
-                return false;
-            }
-
-            if (format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM")) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-900 bg-opacity-50 z-50">
             <div className=" bg-zinc-700 rounded-xl p-4">
                 <form className="flex flex-col">
-                    <h1 className="text-4xl text-white">{[0,1].includes(Object.values(eventData).length) ? 'Add Event' : 'Edit Event'}</h1>
+                    <h1 className="text-4xl text-white">{[0, 1].includes(Object.values(eventData).length) ? 'Add Event' : 'Edit Event'}</h1>
 
                     <div className="flex justify-center space-x-2 p-2 bg-zinc-800 rounded-xl m-4">
                         <p
@@ -288,16 +247,24 @@ const AddEditEventModal = ({ eventData, onClose }) => {
                         />
                     </div>
                     <div className="flex justify-center space-x-4">
-                        {[0,1].includes(Object.values(eventData).length) ? (
+                        {[0, 1].includes(Object.values(eventData).length) ? (
                             <button
-                                className={`bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${!validateForm() ? "opacity-50 cursor-not-allowed" : ""}`}
-                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
+                                className={`bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${
+                                    !isFormValid ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                                disabled={!isFormValid}
+                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}
+                            >
                                 Create
                             </button>
                         ) : (
                             <button
-                                className={`bg-blue-500 hover:bg-blue-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${!validateForm() ? "opacity-50 cursor-not-allowed" : ""}`}
-                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}>
+                                className={`bg-blue-500 hover:bg-blue-600 w-32 text-white font-bold py-2 px-4 justify-center rounded cursor-pointer ${
+                                    !isFormValid ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                                disabled={!isFormValid}
+                                onClick={() => addEditEvent(eventType, title, description, location, remindOption, eventDate, startTime, endTime, color)}
+                            >
                                 Edit
                             </button>
                         )}

@@ -32,7 +32,7 @@ const AdminUserEditModal = ({ user, handleClose }) => {
     }
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-900 bg-opacity-50">
             <div className="bg-zinc-800 rounded-lg w-3/3 p-4">
                 <h1 className="text-3xl text-white">Edit this user</h1>
                 <p className="text-white ml-4">You can edit the user's information here.</p>
@@ -44,12 +44,12 @@ const AdminUserEditModal = ({ user, handleClose }) => {
 
                 <div className="flex flex-col mt-4">
                     <input name="email" type="text" onChange={handleInputChange} className="w-full bg-zinc-700 text-white p-2 rounded focus:outline-none" placeholder="Email" value={email}/>
-                    {!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && <small className="text-red-500 text-xs">Provided Email is not valid.</small>}
+                    {!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && <small className="text-red-500 text-xs">Provided Email is not valid.</small>}
                 </div>
 
                 <div className="flex flex-col mt-4">
                     <input name="fullname" type="text" onChange={handleInputChange} className="w-full bg-zinc-700 text-white p-2 rounded focus:outline-none" placeholder="Full Name" value={fullname}/>
-                    {fullname.length < 10 && <small className="text-red-500 text-xs">Full Name must be at least 10 characters long.</small>}
+                    {fullname.length < 3 && <small className="text-red-500 text-xs">Full Name must be at least 3 characters long.</small>}
                 </div>
 
                 <div className="flex justify-center items-center mt-4 space-x-4">

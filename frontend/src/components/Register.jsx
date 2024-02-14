@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
 import toastr from 'toastr';
 
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
@@ -15,27 +14,39 @@ const RegistrationForm = ({ onClose }) => {
     const [isFormValid, setFormValid] = useState(false);
     const [registrationError, setRegistrationError] = useState('');
 
-    const calculatePasswordStrength = (password) => {
-        const lengthCondition = password.length >= 8;
-        const lowercaseCondition = /[a-z]/.test(password);
-        const uppercaseCondition = /[A-Z]/.test(password);
-        const numberCondition = /[0-9]/.test(password);
-        const specialCharCondition = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(password);
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (e.target.classList.contains('fixed')) {
+                onClose();
+            }
+        };
 
-        return (lengthCondition ? 1 : 0) + (lowercaseCondition ? 1 : 0) + (uppercaseCondition ? 1 : 0) + (numberCondition ? 1 : 0) + (specialCharCondition ? 1 : 0);
-    }
+        document.addEventListener('click', handleOutsideClick);
 
-    const validateForm = (userName, fullName, email, password) => {
-        const isUsernameValid = userName.length >= 4;
-        const isFullNameValid = fullName.length >= 3;
-        const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        const isPasswordValid = calculatePasswordStrength(password) === 5;
+        return () => {
+            document.removeEventListener('click', handleOutsideClick);
+        };
+    }, [onClose]);
 
-        const formIsValid = isUsernameValid && isFullNameValid && isEmailValid && isPasswordValid;
+    const handleSubmit = async(e) => {
+        e.preventDefault();
 
-        setFormValid(formIsValid);
+        if (!validateForm(userName, fullName, email, password)) {
+            return;
+        }
 
-        return formIsValid;
+        try {
+            const registerRequest = await axios.post('http://localhost:8080/api/register', { userName, fullName, email, password });
+
+            if (registerRequest.status === 200) {
+                toastr.success('Registration successful. You can now login.');
+                onClose();
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message === 'User already exists.') {
+                setRegistrationError('Such username or email already exists.');
+            }
+        }
     }
 
     const handleUsernameChange = (e) => {
@@ -61,47 +72,35 @@ const RegistrationForm = ({ onClose }) => {
         validateForm(userName, fullName, email, newPassword);
     }
 
+    const calculatePasswordStrength = (password) => {
+        const lengthCondition = password.length >= 8;
+        const lowercaseCondition = /[a-z]/.test(password);
+        const uppercaseCondition = /[A-Z]/.test(password);
+        const numberCondition = /[0-9]/.test(password);
+        const specialCharCondition = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/.test(password);
+
+        return (lengthCondition ? 1 : 0) + (lowercaseCondition ? 1 : 0) + (uppercaseCondition ? 1 : 0) + (numberCondition ? 1 : 0) + (specialCharCondition ? 1 : 0);
+    }
+
+    const validateForm = (userName, fullName, email, password) => {
+        const isUsernameValid = userName.length >= 4;
+        const isFullNameValid = fullName.length >= 3;
+        const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        const isPasswordValid = calculatePasswordStrength(password) === 5;
+
+        const formIsValid = isUsernameValid && isFullNameValid && isEmailValid && isPasswordValid;
+
+        setFormValid(formIsValid);
+
+        return formIsValid;
+    }
+
     const handleTogglePassword = () => {
         setShowPassword(!showPassword);
     }
 
-    const handleSubmit = async(e) => {
-        e.preventDefault();
-
-        if (!validateForm(userName, fullName, email, password)) {
-            return;
-        }
-
-        try {
-            const registerRequest = await axios.post('http://localhost:8080/api/register', { userName, fullName, email, password });
-
-            if (registerRequest.status === 200) {
-                toastr.success('Registration successful. You can now login.');
-                onClose();
-            }
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.message === 'User already exists.') {
-                setRegistrationError('Such username or email already exists.');
-            }
-        }
-    }
-
-    useEffect(() => {
-        const handleOutsideClick = (e) => {
-            if (e.target.classList.contains('fixed-top')) {
-                onClose();
-            }
-        };
-
-        document.addEventListener('click', handleOutsideClick);
-
-        return () => {
-            document.removeEventListener('click', handleOutsideClick);
-        };
-    }, [onClose]);
-
     return (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 fixed-top">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-900 bg-opacity-50 z-50">
             <div className="text-center bg-zinc-800 p-8 rounded-lg shadow-lg w-96">
                 <h2 className="text-4xl text-white font-semibold mb-4">Registration</h2>
                 <p className="text-white mb-4">Let's get you going. Your new calendar is waiting for you.</p>
@@ -137,7 +136,7 @@ const RegistrationForm = ({ onClose }) => {
                     {registrationError && (
                         <p className="text-red-500 text-sm mb-2">{registrationError}</p>
                     )}
-                    <button type="submit" className={`bg-blue-600 text-white mt-5 px-4 py-2 w-36 rounded hover:bg-blue-500 mr-2 ${isFormValid ? '' : 'cursor-not-allowed'}`} disabled={!isFormValid}>Register</button>
+                    <button type="submit" className={`bg-blue-600 text-white font-bold mt-5 px-4 py-2 w-36 rounded mr-2 ${isFormValid ? ' hover:bg-blue-500' : 'cursor-not-allowed bg-opacity-75'}`} disabled={!isFormValid}>Register</button>
                 </form>
             </div>
         </div>

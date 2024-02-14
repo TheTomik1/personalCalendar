@@ -1,10 +1,8 @@
+import React from "react";
+
 function ColorPicker({ selectedColor, onColorChange }) {
     const colors = ["blue", "red", "green", "yellow", "orange", "amber", "emerald", "purple", "pink"];
 
-    /*
-    * @param color - One of the colors in the colors array.
-    * @description - Sets the selected color into the parent component.
-    */
     const setColor = (color) => {
         onColorChange(color);
     };

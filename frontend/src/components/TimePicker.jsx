@@ -4,18 +4,10 @@ import DatePicker from "react-multi-date-picker";
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 
 const TimePicker_ = ({ initialStartTime, initialEndTime, startTimeOnChange, endTimeOnChange }) => {
-    /*
-    * @param newValue - The new value of the start time.
-    * @description Handles the change of the start time.
-    */
     const handleStartTimeChange = (newValue) => {
         startTimeOnChange(newValue);
     };
 
-    /*
-    * @param newValue - The new value of the end time.
-    * @description Handles the change of the end time.
-    */
     const handleEndTimeChange = (newValue) => {
         endTimeOnChange(newValue);
     };

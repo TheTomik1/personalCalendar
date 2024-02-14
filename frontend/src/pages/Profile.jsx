@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import toastr from "toastr";
 
-import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
-import { FaArrowRotateLeft } from "react-icons/fa6";
-
 import ContestModal from "../components/ContestModal";
 import EditEmail from "../components/profile-editing/EditEmail";
 import EditPassword from "../components/profile-editing/EditPassword";
+
+import { MdModeEditOutline, MdSave, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
+import { FaArrowRotateLeft } from "react-icons/fa6";
 
 const Profile = () => {
     const [error, setError] = useState("");
@@ -28,6 +27,8 @@ const Profile = () => {
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
 
+    const [isFormValid, setIsFormValid] = useState(false);
+
     const [cookies, setCookie] = useCookies(["isEditingProfile"]);
     const [isEditing, setIsEditing] = useState(cookies.isEditingProfile  || false);
     const [userDeleteContest, setUserDeleteContest] = useState(false);
@@ -41,6 +42,19 @@ const Profile = () => {
             setNewPasswordConfirm("");
         }
     }, [editOption]);
+
+    useEffect(() => {
+        const validateForm = () => {
+            const isUsernameValid = userName.length >= 4;
+            const isFullNameValid = fullName.length >= 3;
+            const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(newEmail);
+            const isNewPasswordValid = newPassword.length >= 8 && newPassword === newPasswordConfirm;
+
+            setIsFormValid(isUsernameValid && isFullNameValid && (editOption !== "email" || isEmailValid) && (editOption !== "password" || isNewPasswordValid));
+        };
+
+        validateForm();
+    }, [userName, fullName, newEmail, newPassword, newPasswordConfirm, editOption]);
 
     useEffect(() => {
         async function fetchData() {
@@ -138,6 +152,7 @@ const Profile = () => {
 
             if (uploadProfilePictureResponse.status === 201) {
                 toastr.success("Profile picture uploaded successfully.");
+                navigate(0);
                 fetchProfilePicture();
             }
         } catch (error) {
@@ -149,30 +164,6 @@ const Profile = () => {
             toastr.error("Error uploading profile picture. Please try again later.");
         }
     };
-
-    const validateForm = () => {
-        if (userName.length < 4 || fullName.length < 3 || ntfyTopic.length < 4) {
-            return false;
-        }
-
-        if (editOption === "email") {
-            if (newEmail === email) {
-                return false;
-            }
-
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(newEmail) === false) {
-                return false;
-            }
-        }
-
-        if (editOption === "password") {
-            if (newPassword.length < 8 || newPassword !== newPasswordConfirm) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     const toggleUserDeleteContest = () => {
         setUserDeleteContest(!userDeleteContest);
@@ -322,7 +313,8 @@ const Profile = () => {
                                 <FaArrowRotateLeft className="mr-2"/>Back
                             </button>
                             <button
-                                className={`flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded ${!validateForm() && "cursor-not-allowed opacity-50"}`}
+                                className={`flex items-center bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded ${isFormValid ? "hover:bg-green-500" : "cursor-not-allowed opacity-50"}`}
+                                disabled={!isFormValid}
                                 onClick={modifyUser}>
                                 <MdSave className="mr-2"/>Save
                             </button>
