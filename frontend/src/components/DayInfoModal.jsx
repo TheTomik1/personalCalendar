@@ -59,7 +59,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                             <div key={index}
                                  className={`mb-2 flex items-center px-4 py-1 justify-between text-white bg-${event.color}-500 rounded-xl cursor-pointer select-none`}>
                                 <div>
-                                    <p className={`text-xl text-left`}>{event.title}</p>
+                                    <p className="text-xl text-left">{event.title}</p>
                                     <p className="text-sm text-left">{format(new Date(event.datetimeStart), "HH:mm")} - {format(new Date(event.datetimeEnd), "HH:mm")}</p>
                                 </div>
                                 <div className="flex items-center">
@@ -81,7 +81,7 @@ const DayInfoModal = ({ day, eventsData, onClose }) => {
                     <button
                         className="flex items-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 m-4 rounded cursor-pointer"
                         onClick={() => setNewEventModal(true)}>
-                        New event <FaCalendarPlus className={"ml-1"}/>
+                        New event <FaCalendarPlus className="ml-1"/>
                     </button>
                 </div>
 

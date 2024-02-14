@@ -1,8 +1,8 @@
-import React, {useState} from "react";
-
-import {MdVisibility, MdVisibilityOff} from "react-icons/md";
-import {use} from "bcrypt/promises";
+import React, { useState } from "react";
 import axios from "axios";
+
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
@@ -12,9 +12,9 @@ const AdminLogin = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        const loginRequest = await axios.post('http://localhost:8080/api/admin/login', {username, password});
+        const adminLoginResponse = await axios.post('http://localhost:8080/api/admin/login', {username, password});
 
-        if (loginRequest.status === 200) {
+        if (adminLoginResponse.status === 200) {
             window.location.href = "/admin-panel";
         }
     }
@@ -34,9 +34,9 @@ const AdminLogin = () => {
     }
 
     return (
-        <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
-            <h1 className={"text-5xl text-white font-bold pt-24"}>Admin Login</h1>
-            <p className={"mt-6 text-lg text-white"}>
+        <div className="text-center bg-zinc-900 min-h-screen p-4">
+            <h1 className="text-5xl text-white font-bold pt-24">Admin Login</h1>
+            <p className="mt-6 text-lg text-white">
                 This is the admin login page for the Personal Calendar application. After logging in, you will be redirected to the admin panel.
             </p>
 

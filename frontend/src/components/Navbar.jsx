@@ -86,7 +86,7 @@ const Navbar = () => {
                             <img
                                 src={require("../images/calendar-logo.png")}
                                 alt={"LOGO"}
-                                className={"h-16 rounded"}
+                                className="h-16 rounded"
                             />
                         </Link>
                     </div>
@@ -119,7 +119,7 @@ const Navbar = () => {
                                         Logout
                                     </p>
                                     <Link to="/profile">
-                                        <img src={loggedInUserProfilePicture} alt={"Profile"} className={"h-12 w-12 rounded-full select-none hover:cursor-pointer hover:scale-105 transition-transform"}/>
+                                        <img src={loggedInUserProfilePicture} alt={"Profile"} className="h-12 w-12 rounded-full select-none hover:cursor-pointer hover:scale-105 transition-transform"/>
                                     </Link>
                                 </div>
                             ) : (

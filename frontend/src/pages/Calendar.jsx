@@ -26,10 +26,10 @@ const Calendar = () => {
     useEffect(() => {
         async function fetchData() {
             try {
-                const fetchEvents = await axios.get("http://localhost:8080/api/get-events");
+                const getEventsResponse = await axios.get("http://localhost:8080/api/get-events");
 
-                if (fetchEvents.status === 200) {
-                    setEventData(fetchEvents.data.events);
+                if (getEventsResponse.status === 200) {
+                    setEventData(getEventsResponse.data.events);
                 } else {
                     toastr.error("Something went wrong while fetching events. Try again later.");
                     navigate("/");
@@ -91,9 +91,9 @@ const Calendar = () => {
         <div className="text-center bg-zinc-900">
             <div className="flex justify-center items-center min-h-screen">
                 <div className="container mx-auto">
-                    <div className={"flex justify-start space-x-4 pl-4"}>
+                    <div className="flex justify-start space-x-4 pl-4">
                         <button className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer" onClick={() => setNewEventModal(true)}>
-                            New <FaCalendarPlus className={"ml-1"}/>
+                            New <FaCalendarPlus className="ml-1"/>
                         </button>
                         <select className="w-32 py-2 px-4 justify-center rounded mt-5 mb-12 border border-gray-700 bg-zinc-300 focus:outline-none focus:border-none" value={viewType} onChange={(e) => changeView(e.target.value)}>
                             <option value="week">Week</option>
@@ -103,7 +103,7 @@ const Calendar = () => {
                     </div>
                     {
                         newEventModal === true && (
-                            <AddEditEventModal eventData={{}} onClose={() => setNewEventModal(false)} />  // Passing an empty object as eventData so the modal knows it is a new event.
+                            <AddEditEventModal eventData={{datetimeStart: null}} onClose={() => setNewEventModal(false)} />  // Passing an empty object as eventData so the modal knows it is a new event.
                         )
                     }
                     <div className="flex pl-4 mb-12">

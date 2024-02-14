@@ -20,7 +20,7 @@ const AddEditEventModal = ({ eventData, onClose }) => {
     const [location, setLocation] = useState(eventData.location ? eventData.location : 'Add location.');
     const [remindOption, setRemindOption] = useState(eventData.reminderOption ? eventData.reminderOption : '5m');
     const [eventDate, setEventDate] = useState(/:/.test(eventData.datetimeStart) ? new Date(eventData.datetimeStart) : new Date());
-    const [startTime, setStartTime] = useState(!/:/.test(eventData.datetimeStart) ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
+    const [startTime, setStartTime] = useState(!/:/.test(eventData.datetimeStart) && eventDate.datetimeStart !== null ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(eventData.datetimeEnd ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [color, setColor] = useState(`${eventData.color ? eventData.color : 'blue'}`);
 
@@ -41,7 +41,7 @@ const AddEditEventModal = ({ eventData, onClose }) => {
                     return false;
                 }
 
-                if (format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM")) {
+                if (format(new Date(startTime), "yyyy-MM-dd") < format(new Date(), "yyyy-MM-dd")) {
                     return false;
                 }
 
@@ -235,7 +235,7 @@ const AddEditEventModal = ({ eventData, onClose }) => {
                             {format(new Date(startTime), "HH:mm") === format(new Date(endTime), "HH:mm") &&
                                 <small className="text-red-500 text-sm ml-2">Start time cannot be the same as end
                                     time!</small>}
-                            {format(new Date(startTime), "yyyy-MM-dd HH:MM") < format(new Date(), "yyyy-MM-dd HH:MM") &&
+                            {format(new Date(startTime), "yyyy-MM-dd") < format(new Date(), "yyyy-MM-dd") &&
                                 <small className="text-red-500 text-sm ml-2">Start time cannot be in the past!</small>}
                         </>
                     )}

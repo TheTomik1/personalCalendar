@@ -4,8 +4,8 @@ import { useAuth } from '../context/Auth';
 import toastr from "toastr";
 
 const LoadingIndicator = () => (
-    <div className={"bg-zinc-900 min-h-screen p-4"}>
-        <h1 className={"text-4xl text-center text-white"}>Loading...</h1>
+    <div className="bg-zinc-900 min-h-screen p-4">
+        <h1 className="text-4xl text-center text-white">Loading...</h1>
     </div>
 );
 

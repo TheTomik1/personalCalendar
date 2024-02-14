@@ -1,5 +1,6 @@
-import React, {useEffect} from "react";
-import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { format } from "date-fns";
 import axios from "axios";
 import toastr from "toastr";
 
@@ -18,15 +19,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from './context/Auth';
 
 import './styles.css';
-import {format} from "date-fns";
 
 function App() {
-    /*
-      TODO: Test the app (Design, Responsiveness, Functionality, Fix any bugs, Code quality and consistency, etc.)
-      TODO: Test backend first, then frontend.
-      TODO: Use the date-fns (especially the format function) to format the dates in both backend and frontend.
-     */
-
     axios.defaults.withCredentials = true;
     const navigate = useNavigate()
 

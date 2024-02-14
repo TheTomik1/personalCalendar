@@ -91,7 +91,7 @@ const WeeklyCalendar = ({ date, eventsData }) => {
                                     <button
                                         className="flex items-center bg-green-500 hover:bg-green-600 w-32 text-white font-bold py-2 px-4 justify-center rounded mt-5 mb-12 cursor-pointer"
                                         onClick={() => setNewEventModalDay(day)}>
-                                        New <FaCalendarPlus className={"ml-1"}/>
+                                        New <FaCalendarPlus className="ml-1"/>
                                     </button>
                                 </div>
                             </div>

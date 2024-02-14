@@ -40,16 +40,16 @@ const AdminPanel = () => {
     }
 
     return (
-        <div className={"text-center bg-zinc-900 min-h-screen p-4"}>
-            <h1 className={"text-5xl text-white font-bold pt-24"}>Admin Panel</h1>
-            <h2 className={"mt-6 text-lg text-white"}>This is the admin panel for the Personal Calendar application. You can manage all the users here.</h2>
+        <div className="text-center bg-zinc-900 min-h-screen p-4">
+            <h1 className="text-5xl text-white font-bold pt-24">Admin Panel</h1>
+            <h2 className="mt-6 text-lg text-white">This is the admin panel for the Personal Calendar application. You can manage all the users here.</h2>
             <p className="text-sm text-white">Use the actions tab to edit, unban, ban, and delete user.</p>
 
             {users.length === 0 ? (
-                <p className={"mt-8 text-white"}>No users were found.</p>
+                <p className="mt-8 text-white">No users were found.</p>
             ) : (
                 <div className="mt-8 overflow-x-auto">
-                    <p className={"mb-2 text-white"}>Users found: {users.length}.</p>
+                    <p className="mb-2 text-white">Users found: {users.length}.</p>
                     <table className="min-w-full divide-y divide-gray-500">
                         <thead className="bg-zinc-600">
                         <tr>
@@ -93,9 +93,9 @@ const AdminPanel = () => {
                                         className={`text-sm text-gray-200 font-bold p-2 px-6 rounded select-none ${user.isBanned === 1 ? "bg-red-500" : "bg-green-500"} hover:cursor-pointer`}>{user.isBanned === 1 ? "Yes" : "No"}</span>
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap">
-                                    <div className={"space-x-4"}>
+                                    <div className="space-x-4">
                                         <button onClick={() => setShowEditModal(true)}
-                                                className={"text-blue-500 hover:text-blue-400"}><FaEdit/></button>
+                                                className="text-blue-500 hover:text-blue-400"><FaEdit/></button>
                                         <button
                                             onClick={() => editUserBan(user.id, {"isBanned": negateBanned(user.isBanned)})}
                                             className={`text-green-500 hover:text-green-400 ${user.isBanned === 0 ? "cursor-not-allowed" : ""}`}
@@ -109,7 +109,7 @@ const AdminPanel = () => {
                                             >
                                             <FaBan/></button>
                                         <button onClick={() => setShowDeleteModal(true)}
-                                                className={"text-red-500 hover:text-red-400"}><FaTrash/></button>
+                                                className="text-red-500 hover:text-red-400"><FaTrash/></button>
                                     </div>
                                     {showDeleteModal && (
                                         <ContestModal title={"Are you sure you want to delete this user?"}

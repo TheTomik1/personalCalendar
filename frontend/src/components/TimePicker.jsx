@@ -20,7 +20,7 @@ const TimePicker_ = ({ initialStartTime, initialEndTime, startTimeOnChange, endT
                 onChange={handleStartTimeChange}
                 format="HH:mm"
                 inputClass={"bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none w-24 text-center"}
-                className={"bg-dark"}
+                className="bg-dark"
                 plugins={[
                     <TimePicker hideSeconds/>
                 ]}
@@ -32,7 +32,7 @@ const TimePicker_ = ({ initialStartTime, initialEndTime, startTimeOnChange, endT
                 onChange={handleEndTimeChange}
                 format="HH:mm"
                 inputClass={"bg-zinc-600 m-4 p-1 text-white rounded-xl focus:outline-none w-24 text-center"}
-                className={"bg-dark"}
+                className="bg-dark"
                 plugins={[
                     <TimePicker hideSeconds/>
                 ]}
