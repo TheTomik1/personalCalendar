@@ -35,7 +35,7 @@ const LoginForm = ({ onClose }) => {
         try {
             const loginResponse = await axios.post('http://localhost:8080/api/login', { email, password });
 
-            if (loginResponse.status === 200) {
+            if (loginResponse.status === 201) {
                 window.location.href = "/my-calendar"; // Explicitly need to set window.location.href to /my-calendar to refresh the page and get the user data before continuing.
                 toastr.success('Login successful.');
                 onClose();

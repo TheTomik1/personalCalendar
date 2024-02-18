@@ -10,6 +10,7 @@ const fs = require('fs');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const authMiddleware = require('./middlewares/auth');
+const adminAuthMiddleware = require('./middlewares/admin-auth');
 
 const openDatabase = require('../openDatabaseConnection');
 const getUserInformation = require('./functions/getUserInformation');
@@ -19,25 +20,25 @@ const secretKey = process.env.JWT_SECRET;
 router.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, file, callback) => {
         const uploadPath = path.join(__dirname, 'images');
-        cb(null, uploadPath);
+        callback(null, uploadPath);
     },
-    filename: (req, file, cb) => {
+    filename: (req, file, callback) => {
         const guid = uuidv4();
         const fileExtension = path.extname(file.originalname);
         const fileName = `${guid}${fileExtension}`;
-        cb(null, fileName);
+        callback(null, fileName);
     },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (req, file, callback) => {
     const allowedFileTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 
     if (allowedFileTypes.includes(file.mimetype)) {
-        cb(null, true); // Accept the file
+        callback(null, true); // Accept the file
     } else {
-        cb(new Error('Invalid file type. Only PNG and JPG are allowed.'), false);
+        callback(new Error('Invalid file type. Only PNG and JPG are allowed.'), false);
     }
 };
 
@@ -68,7 +69,7 @@ router.post("/register", async(req, res) => {
         await db.run("INSERT INTO calendars(userId) VALUES (?)", insertedUser.lastID);
 
         await db.close();
-        await res.status(200).send({ message: 'User created.' });
+        await res.status(201).send({ message: 'User created.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -98,14 +99,14 @@ router.post("/login", async(req, res) => {
 
         const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '7d' });
         await res.cookie('auth', token, { maxAge: 7 * 24 * 60 * 60 * 1000 , httpOnly: true });
-        await res.status(200).send({ message: 'User logged in.' });
+        await res.status(201).send({ message: 'User logged in.' });
         await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
-router.post("/logout", async(req, res) => {
+router.post("/logout", authMiddleware, async(req, res) => {
     try {
         await res.clearCookie('auth');
         await res.status(201).send({ message: 'Logged out.' });
@@ -116,10 +117,6 @@ router.post("/logout", async(req, res) => {
 
 router.get("/me", authMiddleware, async(req, res) => {
     const userInformation = await getUserInformation(req.user.id);
-
-    if (!userInformation) {
-        return res.status(401).send({ message: 'Unauthorized.' });
-    }
 
     await res.status(200).send({ userInformation });
 });
@@ -344,13 +341,13 @@ router.post("/admin/login", async(req, res) => {
 
         const token = jwt.sign({ id: 1 }, secretKey, { expiresIn: '1d' });
         await res.cookie('auth', token, { maxAge: 1 * 24 * 60 * 60 * 1000 , httpOnly: true });
-        await res.status(200).send({ message: 'Admin logged in.' });
+        await res.status(201).send({ message: 'Admin logged in.' });
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });
 
-router.get("/admin/get-users", async(req, res) => {
+router.get("/admin/get-users", adminAuthMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
@@ -362,7 +359,7 @@ router.get("/admin/get-users", async(req, res) => {
     }
 });
 
-router.post("/admin/edit-user", async(req, res) => {
+router.post("/admin/edit-user", adminAuthMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 
@@ -388,7 +385,7 @@ router.post("/admin/edit-user", async(req, res) => {
     }
 });
 
-router.post("/admin/delete-user", async(req, res) => {
+router.post("/admin/delete-user", adminAuthMiddleware, async(req, res) => {
     try {
         const db = await openDatabase();
 

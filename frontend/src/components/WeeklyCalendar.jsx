@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { endOfWeek, format, isToday, startOfWeek } from "date-fns";
+import axios from "axios";
+import toastr from "toastr";
 
 import ContestModal from "./ContestModal";
 import AddEditEventModal from "./AddEditEventModal";
 
 import { FaCalendarPlus } from "react-icons/fa6";
 import { MdDelete, MdEdit } from "react-icons/md";
-import axios from "axios";
-import toastr from "toastr";
 
 const WeeklyCalendar = ({ date, eventsData }) => {
     const [editEventData, setEditEventData] = useState(null);

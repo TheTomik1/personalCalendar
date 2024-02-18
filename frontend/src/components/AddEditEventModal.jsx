@@ -20,7 +20,7 @@ const AddEditEventModal = ({ eventData, onClose }) => {
     const [location, setLocation] = useState(eventData.location ? eventData.location : 'Add location.');
     const [remindOption, setRemindOption] = useState(eventData.reminderOption ? eventData.reminderOption : '5m');
     const [eventDate, setEventDate] = useState(/:/.test(eventData.datetimeStart) ? new Date(eventData.datetimeStart) : new Date());
-    const [startTime, setStartTime] = useState(!/:/.test(eventData.datetimeStart) && eventDate.datetimeStart !== null ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
+    const [startTime, setStartTime] = useState(!/:/.test(eventData.datetimeStart) && eventData.datetimeStart ? format(new Date(eventData.datetimeStart), "HH:mm") : format(new Date(), "HH:mm"));
     const [endTime, setEndTime] = useState(eventData.datetimeEnd ? format(new Date(eventData.datetimeEnd), "HH:mm") : format(new Date(), "HH:mm"));
     const [color, setColor] = useState(`${eventData.color ? eventData.color : 'blue'}`);
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { FaGithub } from "react-icons/fa";
 
@@ -33,26 +34,26 @@ const About = () => {
                     <div className="w-full sm:w-48 h-64 bg-zinc-800 p-4 rounded-md shadow-md hover:cursor-pointer hover:scale-105 transition-transform">
                         <h2 className="text-2xl font-bold text-white mb-2">Frontend</h2>
                         <p className="text-gray-200 mb-12">React, TailwindCSS, React Router, Axios, date-fns.</p>
-                        <a href={"https://github.com/TheTomik1/personalCalendar/tree/main/frontend"} className="bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">See more</a>
+                        <Link to={"https://github.com/TheTomik1/personalCalendar/tree/main/frontend"} className="bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">See more</Link>
                     </div>
 
                     <div className="w-full sm:w-48 h-64 bg-zinc-800 p-4 rounded-md shadow-md hover:cursor-pointer hover:scale-105 transition-transform">
                         <h2 className="text-2xl font-bold text-white mb-2">Backend</h2>
                         <p className="text-gray-200 mb-12">Node.js, Express.js, SQLite, JWT, Bcrypt, Crypto.</p>
-                        <a href={"https://github.com/TheTomik1/personalCalendar/tree/main/backend"} className="bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">See more</a>
+                        <Link to={"https://github.com/TheTomik1/personalCalendar/tree/main/backend"} className="bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-2 px-4 rounded">See more</Link>
                     </div>
                 </div>
 
                 <h1 className="text-5xl sm:text-3xl text-white font-bold text-center mt-12">Contact</h1>
                 <p className="text-lg text-white mt-4">
                     If you have any questions or suggestions, feel free to contact me at Discord (username: <span>TheTomik</span>).
-                    You can also visit my <a className="text-blue-500" href={"https://github.com/TheTomik1"}>GitHub profile</a> and see other projects I've worked on.
+                    You can also visit my <Link to={"https://github.com/TheTomik1"} className="text-blue-500">GitHub profile</Link> and see other projects I've worked on.
                 </p>
 
                 <div className="flex justify-center items-center">
-                    <a href={"https://github.com/TheTomik1/personalCalendar"}>
+                    <Link to={"https://github.com/TheTomik1/personalCalendar"}>
                         <FaGithub className="text-6xl text-white mt-8 hover:text-gray-300 cursor-pointer"/>
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

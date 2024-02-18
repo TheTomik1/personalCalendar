@@ -282,14 +282,12 @@ const Profile = () => {
 
                             {editOption === "email" && (
                                 <EditEmail
-                                    isEditing={isEditing}
                                     currentEmail={email}
                                     newEmail={newEmail}
                                     onNewEmailChange={handleInputChange} />
                             )}
                             {editOption === "password" && (
                                 <EditPassword
-                                    isEditing={isEditing}
                                     newPassword={newPassword}
                                     confirmPassword={newPasswordConfirm}
                                     onNewPasswordChange={handleInputChange}

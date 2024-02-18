@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Link } from "react-router-dom";
+
 const NotFound = () => {
     return (
         <div className="text-center bg-zinc-900 min-h-screen p-4">
@@ -7,7 +9,7 @@ const NotFound = () => {
             <p className="text-2xl text-white pt-4">Oops!</p>
             <p className="text-2xl text-white mb-12">It seems like you've got lost.</p>
 
-            <a href={"/"} className="bg-indigo-600 hover:bg-indigo-500 text-white text-2xl font-bold py-2 px-4 rounded">Take me back.</a>
+            <Link to={"/"} className="bg-indigo-600 hover:bg-indigo-500 text-white text-2xl font-bold py-2 px-4 rounded">Take me back.</Link>
         </div>
     );
 }

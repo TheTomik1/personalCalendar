@@ -1,6 +1,6 @@
 import React from "react";
 
-function ColorPicker({ selectedColor, onColorChange }) {
+const ColorPicker = ({ selectedColor, onColorChange }) => {
     const colors = ["blue", "red", "green", "yellow", "orange", "amber", "emerald", "purple", "pink"];
 
     const setColor = (color) => {

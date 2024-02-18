@@ -1,6 +1,5 @@
 process.env["DEBUG"] = "db-seed";
 
-const fs = require('fs');
 const debug = require('debug')('db-seed');
 
 const openDatabase = require('./openDatabaseConnection');
@@ -29,14 +28,15 @@ async function seed() {
             (
                 id  INTEGER PRIMARY KEY,
                 userId  INT NOT NULL,
-                createdAt  TIMESTAMP  DEFAULT CURRENT_TIMESTAMP NOT NULL
+                createdAt  TIMESTAMP  DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                FOREIGN KEY (userId) REFERENCES users(id) 
             );
         `);
 
         await db.exec(`
             CREATE TABLE IF NOT EXISTS calendarEvents 
             (
-                id  INTEGER NOT NULL PRIMARY KEY,
+                id  INTEGER PRIMARY KEY,
                 calendarId  INTEGER NOT NULL,
                 eventType  TEXT NOT NULL,
                 title  TEXT NOT NULL,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const EditPassword = ({ isEditing, newPassword, confirmPassword, onNewPasswordChange, onConfirmPasswordChange }) => {
+const EditPassword = ({ newPassword, confirmPassword, onNewPasswordChange, onConfirmPasswordChange }) => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -22,7 +22,6 @@ const EditPassword = ({ isEditing, newPassword, confirmPassword, onNewPasswordCh
                            name="newPassword"
                            placeholder="Your new password."
                            value={newPassword}
-                           readOnly={!isEditing}
                            className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
                            onChange={onNewPasswordChange}
                     />
@@ -44,7 +43,6 @@ const EditPassword = ({ isEditing, newPassword, confirmPassword, onNewPasswordCh
                            name="confirmPassword"
                            placeholder="Confirm your new password."
                            value={confirmPassword}
-                           readOnly={!isEditing}
                            className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
                            onChange={onConfirmPasswordChange}
                     />

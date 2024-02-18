@@ -1,6 +1,6 @@
 import React from "react";
 
-const EditEmail = ({isEditing, currentEmail, newEmail, onNewEmailChange}) => {
+const EditEmail = ({currentEmail, newEmail, onNewEmailChange}) => {
     return (
         <>
             <label className="text-white text-xl">Current email:</label>
@@ -17,7 +17,6 @@ const EditEmail = ({isEditing, currentEmail, newEmail, onNewEmailChange}) => {
                    name="newEmail"
                    placeholder="Your new email."
                    value={newEmail}
-                   readOnly={!isEditing}
                    className="my-2 p-2 rounded-md text-white text-xl w-72 bg-zinc-700 focus:outline-none focus:border-none caret-white"
                    onChange={onNewEmailChange}
             />

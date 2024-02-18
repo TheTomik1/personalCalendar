@@ -14,8 +14,8 @@ const AdminLogin = () => {
 
         const adminLoginResponse = await axios.post('http://localhost:8080/api/admin/login', {username, password});
 
-        if (adminLoginResponse.status === 200) {
-            window.location.href = "/admin-panel";
+        if (adminLoginResponse.status === 201) {
+            window.location.href = "/admin-panel";  // Explicitly need to set window.location.href to /admin-panel to refresh the page and get the user data before continuing.
         }
     }
 

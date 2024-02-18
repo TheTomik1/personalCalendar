@@ -15,8 +15,12 @@ const AdminPanel = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const usersResponse = await axios.get("http://localhost:8080/api/admin/get-users/");
-            setUsers(usersResponse.data.users);
+            try {
+                const usersResponse = await axios.get("http://localhost:8080/api/admin/get-users/");
+                setUsers(usersResponse.data.users);
+            } catch (error) {
+                // User is not logged or is not an admin. Toastr error will be shown in the ProtectedRoute component.
+            }
         }
 
         fetchData();
