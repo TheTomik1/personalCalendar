@@ -18,8 +18,6 @@ const adminAuth = async(req, res, next) => {
         }
 
         const userInformation = await getUserInformation(decoded.id);
-        console.log("User information: ", userInformation);
-
         if (userInformation.isAdmin !== 1) {
             return res.status(401).send({ message: 'Unauthorized' });
         }

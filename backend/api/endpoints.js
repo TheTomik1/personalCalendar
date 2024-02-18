@@ -68,8 +68,8 @@ router.post("/register", async(req, res) => {
 
         await db.run("INSERT INTO calendars(userId) VALUES (?)", insertedUser.lastID);
 
-        await db.close();
         await res.status(201).send({ message: 'User created.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -150,6 +150,7 @@ router.post("/edit-user", authMiddleware, async(req, res) => {
         }
 
         await res.status(201).send({ message: 'User edited.' });
+        await db.close();
     } catch (e) {
         if (e.code === "SQLITE_CONSTRAINT") {
             return res.status(400).send({ message: 'Such username or email already exists.' });
@@ -169,6 +170,7 @@ router.post("/delete-user", authMiddleware, async(req, res) => {
         await res.clearCookie('auth');
 
         await res.status(201).send({ message: 'User deleted.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -181,6 +183,7 @@ router.get("/get-calendar", authMiddleware, async(req, res) => {
         const calendars = await db.get("SELECT * FROM calendars WHERE ownerId = ?", req.user.id);
 
         await res.status(200).send({ calendars });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -224,8 +227,9 @@ router.post("/add-edit-event", authMiddleware, async(req, res) => {
         } else {
             await res.status(400).send({ message: 'Invalid action.' });
         }
+
+        await db.close();
     } catch (e) {
-        console.log(e);
         await res.status(500).send({ message: 'Internal server error.' });
     }
 });
@@ -236,7 +240,8 @@ router.get("/get-events", authMiddleware, async(req, res) => {
 
         const events = await db.all(`SELECT ce.* FROM calendarEvents ce LEFT JOIN calendars c ON ce.calendarId = c.id WHERE c.userId = ? ORDER BY ce.datetimeStart`, req.user.id);
 
-        res.status(200).send({ events });
+        await res.status(200).send({ events });
+        await db.close();
     } catch (e) {
         res.status(500).send({ message: 'Internal server error.' });
     }
@@ -255,6 +260,7 @@ router.post("/delete-event", authMiddleware, async(req, res) => {
         await db.run("DELETE FROM calendarEvents WHERE id = ?", id);
 
         await res.status(201).send({ message: 'Event deleted.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -288,9 +294,9 @@ router.post("/upload-profile-picture", authMiddleware, async(req, res) => {
             }
 
             await db.run("INSERT OR REPLACE INTO profilePictures(userid, imageName) VALUES (?, ?)", req.user.id, req.file.filename);
-            await db.close();
 
-            res.status(201).send({ status: "Successfully uploaded or replaced user image." });
+            await res.status(201).send({ status: "Successfully uploaded or replaced user image." });
+            await db.close();
         });
     } catch (e) {
         res.status(500).send({ message: 'Internal server error.' });
@@ -310,6 +316,7 @@ router.post("/modify-ntfy-topic", authMiddleware, async(req, res) => {
         await db.run("INSERT OR REPLACE INTO ntfyTopics(userId, topic) VALUES (?, ?)", req.user.id, ntfyTopic);
 
         await res.status(201).send({ message: 'Topic added.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -342,6 +349,7 @@ router.post("/admin/login", async(req, res) => {
         const token = jwt.sign({ id: 1 }, secretKey, { expiresIn: '1d' });
         await res.cookie('auth', token, { maxAge: 1 * 24 * 60 * 60 * 1000 , httpOnly: true });
         await res.status(201).send({ message: 'Admin logged in.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -354,6 +362,7 @@ router.get("/admin/get-users", adminAuthMiddleware, async(req, res) => {
         const users = await db.all("SELECT * FROM users WHERE username != 'admin'");
 
         await res.status(200).send({ users });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -380,6 +389,7 @@ router.post("/admin/edit-user", adminAuthMiddleware, async(req, res) => {
         }
 
         await res.status(201).send({ message: 'User edited.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
@@ -397,6 +407,7 @@ router.post("/admin/delete-user", adminAuthMiddleware, async(req, res) => {
         await db.run("DELETE FROM profilePictures WHERE userId = ?", id);
 
         await res.status(201).send({ message: 'User deleted.' });
+        await db.close();
     } catch (e) {
         await res.status(500).send({ message: 'Internal server error.' });
     }
