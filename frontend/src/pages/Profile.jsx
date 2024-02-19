@@ -224,7 +224,7 @@ const Profile = () => {
                         </div>
                     )}
                 </div>
-                <p className="text-white text-sm my-4 md:my-6">Recommended size: 128x128px.</p>
+                <p className="text-white text-sm my-4 md:my-6">Recommended size: 512x512px.</p>
 
                 <div className="flex flex-col items-start justify-center">
                     <label className="text-white text-xl">Username</label>
