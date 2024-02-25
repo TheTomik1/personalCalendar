@@ -41,14 +41,14 @@ const Guides = () => {
                             <div className="flex flex-row space-x-4 p-4 w-1/2">
                                 <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">
                                     <img alt="Get it on Google Play"
-                                         src="https://ntfy.sh/_next/static/media/badge-google.19268080.png"
+                                         src={require("../images/GetItOnGooglePlay.png")}
                                          width="168" height="50" decoding="async" data-nimg="1" loading="lazy"
                                          style={{color: "transparent"}}/>
                                 </a>
 
                                 <a href="https://apps.apple.com/us/app/ntfy/id1625396347">
                                     <img alt="Download on the App Store"
-                                         src="https://ntfy.sh/_next/static/media/badge-apple.4bec723d.png"
+                                         src={require("../images/DownloadOnAppTheStore.png")}
                                          width="148" height="50" decoding="async" data-nimg="1" loading="lazy"
                                          style={{color: "transparent"}}/>
                                 </a>
